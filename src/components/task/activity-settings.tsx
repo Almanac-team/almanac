@@ -105,17 +105,14 @@
 
 import activitySettingsStories from "~/components/task/activity-settings-time-config.stories";
 import {ReactNode, useState} from "react";
+import {Button, Select, Option, TabPanel, TabsBody, TabsHeader} from "@material-tailwind/react";
+import {Tab, Tabs} from "~/components/task/tab";
 
 export type TimeConfigUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 
-export class TimeConfig {
-    value = 0;
-    unit: TimeConfigUnit = "hour";
-
-    constructor(value: number, unit: TimeConfigUnit) {
-        this.value = value;
-        this.unit = unit;
-    }
+export interface TimeConfig {
+    value: number,
+    unit: TimeConfigUnit
 }
 
 export interface ActivitySetting {
@@ -128,10 +125,7 @@ export interface ActivitySetting {
     startMod: TimeConfig,
 }
 
-export enum ActivityType {
-    Task,
-    Event
-}
+export type ActivityType = 'task' | 'event'
 
 export function TimeConfigInput(props: {
     timeConfig: TimeConfig,
@@ -145,9 +139,9 @@ export function TimeConfigInput(props: {
                 onChange={(e) => {
                     if (props.onChange) props.onChange(parseInt(e.target.value), undefined)
                 }}
-                className="p-2 mr-2 border border-gray-300 rounded w-16"
+                className="p-2 mr-2 border border-gray-300 rounded w-16 h-full"
             />
-            <select className="p-2 border border-gray-300 rounded" onChange={(e) => {
+            <select className="p-2 border border-gray-300 rounded h-full" value={props.timeConfig.unit} onChange={(e) => {
                 if (props.onChange) props.onChange(undefined, e.target.value as TimeConfigUnit)
             }}>
                 <option value="minute">Minutes</option>
@@ -161,33 +155,19 @@ export function TimeConfigInput(props: {
     )
 }
 
-export function ActivitySetting(props: { activityType: ActivityType, activitySetting: ActivitySetting }) {
+function TaskSetting(props: { activitySetting: ActivitySetting }) {
     return (
-        <div className="flex flex-col space-y-4 w-96 justify-center">
-            <input
-                type="text"
-                value={props.activitySetting.name}
-                className="p-2 mr-2 border-gray-300 border-b-2 focus:border-blue-500 focus:outline-none transition-colors"
-            />
+        <div className="flex flex-col space-y-2">
 
-            <div className="w-full z-0 flex -space-x-px">
-                <button
-                    type="button"
-                    className="w-full cursor-pointer select-none appearance-none items-center justify-center rounded-l border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-800 transition hover:border-gray-300 hover:bg-gray-100 focus:z-10 focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                    Task
-                </button>
-                <button
-                    type="button"
-                    className="w-full cursor-pointer select-none appearance-none items-center justify-center rounded-r border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-800 transition hover:border-gray-300 hover:bg-gray-100 focus:z-10 focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                    Event
-                </button>
+            <div className="flex items-center whitespace-nowrap space-x-2">
+                <span>Due Date</span>
+                <input
+                    type="datetime-local"
+                    value={props.activitySetting.at.toISOString().slice(0, 16)}
+                    className="p-2 mr-2 border border-gray-300 rounded"
+                />
             </div>
 
-            <input
-                type="datetime-local"
-                value={props.activitySetting.at.toISOString().slice(0, 16)}
-                className="p-2 mr-2 border border-gray-300 rounded"
-            />
 
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Estimated Time Required</span>
@@ -208,6 +188,68 @@ export function ActivitySetting(props: { activityType: ActivityType, activitySet
                 <TimeConfigInput timeConfig={props.activitySetting.startMod}/>
                 <span>before</span>
             </div>
+        </div>
+    )
+}
+
+function EventSetting(props: { activitySetting: ActivitySetting }) {
+    return (
+        <div className="flex flex-col space-y-2">
+
+            <div className="flex items-center whitespace-nowrap space-x-2">
+                <span>At</span>
+                <input
+                    type="datetime-local"
+                    value={props.activitySetting.at.toISOString().slice(0, 16)}
+                    className="p-2 mr-2 border border-gray-300 rounded"
+                />
+            </div>
+
+
+            <div className="flex items-center whitespace-nowrap space-x-2">
+                <span>Estimated Time Required</span>
+                <TimeConfigInput timeConfig={props.activitySetting.estimatedRequiredTime}/>
+            </div>
+            <div className="flex items-center whitespace-nowrap space-x-2">
+                <span>Try and finish</span>
+                <TimeConfigInput timeConfig={props.activitySetting.reminderMod}/>
+                <span>before</span>
+            </div>
+            <div className="flex items-center whitespace-nowrap space-x-2">
+                <span>Remind me</span>
+                <TimeConfigInput timeConfig={props.activitySetting.startMod}/>
+                <span>before</span>
+            </div>
+            <div className="flex items-center whitespace-nowrap space-x-2">
+                <span>Ignore until</span>
+                <TimeConfigInput timeConfig={props.activitySetting.startMod}/>
+                <span>before</span>
+            </div>
+        </div>
+    )
+}
+
+export function ActivitySetting(props: { activityType: ActivityType, activitySetting: ActivitySetting }) {
+    return (
+        <div className="flex flex-col space-y-2 w-96 justify-center">
+            <input
+                type="text"
+                value={props.activitySetting.name}
+                className="p-2 mr-2 border-gray-300 border-b-2 focus:border-blue-500 focus:outline-none transition-colors text-gray-700 text-xl"
+            />
+
+            <Tabs activeValue={props.activityType}>
+                <Tab value="task">
+                    Task
+                </Tab>
+                <Tab value="event">
+                    Event
+                </Tab>
+            </Tabs>
+
+            <TaskSetting activitySetting={props.activitySetting}/>
+
+
         </div>
     );
 }

@@ -60,14 +60,14 @@ function SelectMenu(props: { children?: React.ReactNode, preview: React.ReactNod
              onMouseLeave={() => setOpen(false)}
         >
             <div
-                className="h-8 bg-slate-300 rounded-lg flex flex-row justify-between items-center px-2 cursor-pointer hover:bg-slate-400 transition-colors"
+                className="h-8 bg-gray-300 rounded-lg flex flex-row justify-between items-center px-2 cursor-pointer hover:bg-gray-400 transition-colors"
                 onClick={() => setOpen(!open)}
             >
                 {props.preview}
             </div>
 
             {open && (
-                <div className="absolute left-0 bg-slate-300 rounded-lg p-3">
+                <div className="absolute left-0 bg-gray-300 rounded-lg p-3">
                     {props.children}
                 </div>
             )}
@@ -123,14 +123,14 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
 
 export function ActivityOverview({taskName, remainingTime, categoryInfo}: TaskSettingProps) {
     return (
-        <div className="w-[520px] h-24 bg-slate-200 rounded-lg select-none relative">
+        <div className="w-[520px] h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">
                 <ActivityTag categoryInfo={categoryInfo}/>
                 <div className="flex flex-col space-y-2">
                     <div className="flex space-x-3">
                         <TimeBubble remainingTime={remainingTime}/>
                         <span
-                            className="text-xl font-bold text-slate-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[340px]">{taskName}</span>
+                            className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[340px]">{taskName}</span>
                     </div>
                     <div className="flex">
                         <SelectMenu preview={<span className="justify-self-center text-zinc-700 font-bold text-[12px]">17:00 - 18:00</span>}>

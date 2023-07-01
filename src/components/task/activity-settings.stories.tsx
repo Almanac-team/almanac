@@ -1,5 +1,12 @@
 import type {Meta, StoryObj} from '@storybook/react';
-import {ActivitySetting, ActivityType, TimeConfig} from "~/components/task/activity-settings";
+import {
+    ActivitySetting,
+    ActivityType,
+    TimeConfig,
+    TimeConfigInput,
+    TimeConfigUnit
+} from "~/components/task/activity-settings";
+import {useState} from "react";
 
 const meta: Meta<typeof ActivitySetting> = {
     title: 'Activity Settings',
@@ -10,26 +17,29 @@ const meta: Meta<typeof ActivitySetting> = {
 export default meta;
 type Story = StoryObj<typeof ActivitySetting>;
 
-export const Default: Story = {
-    args: {
-        activityType: ActivityType.Task,
-        activitySetting: {
-            id: "1",
-            name: "Activity Name",
-            at: new Date(),
-            estimatedRequiredTime: {
-                value: 1,
-                unit: "hour"
-            },
+function ActivitySettingWrapper() {
+    const [activityType, setActivityType] = useState<ActivityType>("task");
 
-            reminderMod: {
-                value: 1,
-                unit: "hour"
-            },
-            startMod: {
-                value: 1,
-                unit: "hour"
-            }
-        }
-    }
+    const [name, setName] = useState("Activity");
+    const [at, setAt] = useState(new Date());
+    const [estimatedRequiredTime, setEstimatedRequiredTime] = useState<TimeConfig>({value: 1, unit: "hour"});
+    const [reminderMod, setReminderMod] = useState<TimeConfig>({value: 1, unit: "hour"});
+    const [startMod, setStartMod] = useState<TimeConfig>({value: 1, unit: "hour"});
+
+
+
+    return (
+        <ActivitySetting activityType={activityType} activitySetting={{
+            id: "1",
+            name,
+            at,
+            estimatedRequiredTime,
+            reminderMod,
+            startMod
+        }}/>
+    )
+}
+
+export const Default: Story = {
+    render: () => <ActivitySettingWrapper/>
 };

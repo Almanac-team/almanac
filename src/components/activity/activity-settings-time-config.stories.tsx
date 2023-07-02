@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import {ActivityType, TimeConfigInput, TimeConfigUnit} from "~/components/task/activity-settings";
+import {ActivityType, TimeConfigInput, TimeConfigUnit} from "~/components/activity/activity-settings";
 import {useState} from "react";
 
 const meta: Meta<typeof TimeConfigInput> = {

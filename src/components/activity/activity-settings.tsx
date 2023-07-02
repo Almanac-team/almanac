@@ -103,10 +103,10 @@
 //     }
 // }
 
-import activitySettingsStories from "~/components/task/activity-settings-time-config.stories";
+import activitySettingsStories from "~/components/activity/activity-settings-time-config.stories";
 import {ReactNode, useState} from "react";
 import {Button, Select, Option, TabPanel, TabsBody, TabsHeader} from "@material-tailwind/react";
-import {Tab, Tabs} from "~/components/task/tab";
+import {Tab, Tabs} from "~/components/activity/tab";
 
 export type TimeConfigUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 

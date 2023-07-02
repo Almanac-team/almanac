@@ -5,7 +5,7 @@ import {
     TimeConfig,
     TimeConfigInput,
     TimeConfigUnit
-} from "~/components/task/activity-settings";
+} from "~/components/activity/activity-settings";
 import {useState} from "react";
 
 const meta: Meta<typeof ActivitySetting> = {

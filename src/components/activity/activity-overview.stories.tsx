@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import {ActivityOverview, CategoryInfo} from "~/components/task/activity-overview";
+import {ActivityOverview, CategoryInfo} from "~/components/activity/activity-overview";
 
 const meta: Meta<typeof ActivityOverview> = {
     title: 'Activity Overview',

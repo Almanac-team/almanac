@@ -120,12 +120,40 @@ export interface ActivitySetting {
     name: string,
     at: Date,
     estimatedRequiredTime: TimeConfig,
-
+    deadlineMod: TimeConfig,
     reminderMod: TimeConfig,
     startMod: TimeConfig,
 }
 
-export type ActivityType = 'task' | 'event'
+// export abstract class ActivitySetting {
+//     public id: string;
+//     public name: string;
+//     public at: Date;
+//     public estimatedRequiredTime: TimeConfig;
+//     public reminderMod: TimeConfig;
+//     public startMod: TimeConfig;
+//
+//     protected constructor(id: string, name: string, at: Date, estimatedRequiredTime: TimeConfig, reminderMod: TimeConfig, startMod: TimeConfig) {
+//         this.id = id;
+//         this.name = name;
+//         this.at = at;
+//         this.estimatedRequiredTime = estimatedRequiredTime;
+//         this.reminderMod = reminderMod;
+//         this.startMod = startMod;
+//     }
+// }
+//
+// export class TaskSettingClass extends ActivitySetting {
+//     public deadlineMod: TimeConfig;
+//     constructor(id: string, name: string, at: Date, estimatedRequiredTime: TimeConfig, reminderMod: TimeConfig, startMod: TimeConfig, deadlineMod: TimeConfig) {
+//         super(id, name, at, estimatedRequiredTime, reminderMod, startMod);
+//         this.deadlineMod = deadlineMod;
+//     }
+// }
+
+
+
+export type ActivityType = 'task' | 'event';
 
 export function TimeConfigInput(props: {
     timeConfig: TimeConfig,
@@ -247,9 +275,7 @@ export function ActivitySetting(props: { activityType: ActivityType, activitySet
                 </Tab>
             </Tabs>
 
-            <TaskSetting activitySetting={props.activitySetting}/>
-
-
+            {props.activityType === 'task' ? <TaskSetting activitySetting={props.activitySetting}/> : <EventSetting activitySetting={props.activitySetting}/>}
         </div>
     );
 }

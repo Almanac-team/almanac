@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import {
-    ActivitySetting,
+    ActivitySettingClass,
     ActivityType,
     TimeConfig,
     TimeConfigInput,
@@ -8,14 +8,14 @@ import {
 } from "~/components/activity/activity-settings";
 import {useState} from "react";
 
-const meta: Meta<typeof ActivitySetting> = {
+const meta: Meta<typeof ActivitySettingClass> = {
     title: 'Activity Settings',
-    component: ActivitySetting,
+    component: ActivitySettingClass,
     tags: ['autodocs'],
 };
 
 export default meta;
-type Story = StoryObj<typeof ActivitySetting>;
+type Story = StoryObj<typeof ActivitySettingClass>;
 
 function ActivitySettingWrapper() {
     const [activityType, setActivityType] = useState<ActivityType>("task");
@@ -29,7 +29,7 @@ function ActivitySettingWrapper() {
 
 
     return (
-        <ActivitySetting activityType={activityType} activitySetting={{
+        <ActivitySettingClass activityType={activityType} activitySetting={{
             id: "1",
             name,
             at,

@@ -73,32 +73,31 @@ model Activity {
     name String
     owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     type ActivityType @default(task)
+    task Task?
+    event Event?
 
 }
 
 // Task - something to be finished by a set time
 model Task {
-    activityId String @id
+    activityId String @id @unique
     dueDate DateTime
     estimatedTime BigInt
     deadlineMod BigInt
     reminderMod BigInt
     startMod BigInt
-    // Maybe we should rethink how to relate tasks/events to activity - doing joins might be hard without what we have since we can't explicitly define a join here
-
-    // this stuff here doesn't work lol
-    // activity Activity @relation(fields: [activityId], references: [id])
-    // activityId String @unique // assume there's a one-to-one map between activity/task
+    activity Activity @relation(fields: [activityId], references: [id])
 }
 
 // Event - something to do at a set time
 model Event {
-    activityId String @id
+    activityId String @id @unique
     generated Boolean
     startDate DateTime
     estimatedTime BigInt
     reminderMod BigInt
     startMod BigInt
+    activity Activity @relation(fields: [activityId], references: [id])
 }
 
 model VerificationToken {

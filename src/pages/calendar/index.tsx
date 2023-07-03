@@ -7,7 +7,7 @@ export default function Home() {
     <>
       <Head>
         <title>Calendar</title>
-        <meta name="description" content="Activity Definitions" />
+        <meta name="description" content="Calendar" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="max-h-screen">

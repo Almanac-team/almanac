@@ -69,7 +69,7 @@ enum ActivityType {
 
 model Activity {
     id  String @id @default(cuid())
-    ownerId String 
+    ownerId String
     name String
     owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     type ActivityType @default(task)

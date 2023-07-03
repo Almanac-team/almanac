@@ -1,9 +1,11 @@
 import {useRef, useState} from "react";
 import clsx from "clsx";
+import {CategoryInfo} from "~/components/activity/activity-column";
+import {ActivitySetting} from "~/components/activity/activity-settings";
 
 interface TaskSettingProps {
     taskName: string;
-    remainingTime: number; // in milliseconds
+    activitySetting: ActivitySetting
     categoryInfo: CategoryInfo;
 }
 
@@ -75,12 +77,6 @@ function SelectMenu(props: { children?: React.ReactNode, preview: React.ReactNod
     );
 }
 
-export interface CategoryInfo {
-    categoryName: string;
-    backgroundColor: string;
-    textColor: string;
-}
-
 function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     const ref = useRef<HTMLDivElement>(null);
     const [spanWidth, setSpanWidth] = useState(32);
@@ -121,14 +117,14 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     );
 }
 
-export function ActivityOverview({taskName, remainingTime, categoryInfo}: TaskSettingProps) {
+export function ActivityOverview({taskName, activitySetting, categoryInfo}: TaskSettingProps) {
     return (
         <div className="w-[520px] h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">
                 <ActivityTag categoryInfo={categoryInfo}/>
                 <div className="flex flex-col space-y-2">
                     <div className="flex space-x-3">
-                        <TimeBubble remainingTime={remainingTime}/>
+                        <TimeBubble remainingTime={activitySetting.at.getTime()}/>
                         <span
                             className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[340px]">{taskName}</span>
                     </div>

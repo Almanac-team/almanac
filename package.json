@@ -12,6 +12,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^16.3.0",
     "@material-tailwind/react": "^2.0.4",
     "@next-auth/prisma-adapter": "^1.0.5",
     "@prisma/client": "^4.16.2",

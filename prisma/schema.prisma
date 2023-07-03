@@ -7,13 +7,16 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
     url      = env("DATABASE_URL")
 }
+
+// Items
+
 
 model Example {
     id        String   @id @default(cuid())
@@ -56,6 +59,46 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    activities    Activity[]
+}
+
+enum ActivityType {
+    task
+    event
+}
+
+model Activity {
+    id  String @id @default(cuid())
+    ownerId String 
+    name String
+    owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    type ActivityType @default(task)
+
+}
+
+// Task - something to be finished by a set time
+model Task {
+    activityId String @id
+    dueDate DateTime
+    estimatedTime BigInt
+    deadlineMod BigInt
+    reminderMod BigInt
+    startMod BigInt
+    // Maybe we should rethink how to relate tasks/events to activity - doing joins might be hard without what we have since we can't explicitly define a join here
+
+    // this stuff here doesn't work lol
+    // activity Activity @relation(fields: [activityId], references: [id])
+    // activityId String @unique // assume there's a one-to-one map between activity/task
+}
+
+// Event - something to do at a set time
+model Event {
+    activityId String @id
+    generated Boolean
+    startDate DateTime
+    estimatedTime BigInt
+    reminderMod BigInt
+    startMod BigInt
 }
 
 model VerificationToken {

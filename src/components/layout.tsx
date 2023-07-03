@@ -44,38 +44,38 @@ function Sidebar() {
             </div>
             <List>
                 <hr className="my-2 border-blue-gray-50" />
-                <ListItem>
+                <ListItem onClick={() => void router.push('/track')}>
                     <ListItemPrefix>
                         <PencilIcon className="h-5 w-5" />
                     </ListItemPrefix>
                     Track
                 </ListItem>
-                <ListItem>
+                <ListItem onClick={() => void router.push('/sprint')}>
                     <ListItemPrefix>
                         <FlagIcon className="h-5 w-5" />
                     </ListItemPrefix>
                     Sprint
                 </ListItem>
-                <ListItem>
+                <ListItem onClick={() => void router.push('/calendar')}>
                     <ListItemPrefix>
                         <CalendarIcon className="h-5 w-5" />
                     </ListItemPrefix>
                     Calendar
                 </ListItem>
-                <ListItem>
+                <ListItem onClick={() => void router.push('/definitions')}>
                     <ListItemPrefix>
                         <BookOpenIcon className="h-5 w-5" />
                     </ListItemPrefix>
                     Definitions
                 </ListItem>
-                <hr className="my-2 border-blue-gray-50 " />
-                <ListItem>
+                <hr className="my-2 border-blue-gray-50" />
+                <ListItem onClick={() => void router.push('/settings')}>
                     <ListItemPrefix>
                         <Cog6ToothIcon className="h-5 w-5" />
                     </ListItemPrefix>
                     Settings
                 </ListItem>
-                <ListItem>
+                <ListItem onClick={() => void router.push('/account')}>
                     <ListItemPrefix>
                         <UserCircleIcon className="h-5 w-5" />
                     </ListItemPrefix>

@@ -5,7 +5,7 @@ import {ActivitySetting} from "~/components/activity/activity-settings";
 
 interface TaskSettingProps {
     taskName: string;
-    activitySetting: ActivitySetting
+    activitySetting: ActivitySetting;
     categoryInfo: CategoryInfo;
 }
 
@@ -124,7 +124,7 @@ export function ActivityOverview({taskName, activitySetting, categoryInfo}: Task
                 <ActivityTag categoryInfo={categoryInfo}/>
                 <div className="flex flex-col space-y-2">
                     <div className="flex space-x-3">
-                        <TimeBubble remainingTime={activitySetting.at.getTime()}/>
+                        <TimeBubble remainingTime={activitySetting.at.getTime() - new Date().getTime()}/>
                         <span
                             className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[340px]">{taskName}</span>
                     </div>

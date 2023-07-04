@@ -257,7 +257,7 @@ function EventSetting(props: { activitySetting: ActivitySetting }) {
     )
 }
 
-export function ActivitySetting(props: { activityType: ActivityType, activitySetting: ActivitySetting }) {
+export function ActivitySettingModal(props: { activityType: ActivityType, activitySetting: ActivitySetting }) {
     return (
         <div className="flex flex-col space-y-2 w-96 justify-center">
             <input

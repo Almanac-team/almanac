@@ -43,4 +43,3 @@ function AuthShowcase() {
         </div>
     );
 }
-

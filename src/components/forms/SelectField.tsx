@@ -11,7 +11,7 @@ interface SelectOption {
 interface SelectFieldProps {
     options: Array<SelectOption>,
     initialValue?: SelectOption,
-    label: string,
+    label?: string,
     disabled?: boolean,
     onChange?: onChange
     offset?: offsetType
@@ -20,7 +20,7 @@ interface SelectFieldProps {
 propTypesMenuProps
 
 
-export default function SelectField({options=[], label="", disabled=false, onChange=undefined, offset = undefined, initialValue = undefined}: SelectFieldProps) {
+export default function SelectField({options, label="", disabled=false, onChange=undefined, offset = undefined, initialValue = undefined}: SelectFieldProps) {
     const [selectValue, setSelectValue] = useState<string | undefined>(initialValue? initialValue.value : undefined);
     const changeHandler = (value?: string) => {
         if (value !== undefined) {

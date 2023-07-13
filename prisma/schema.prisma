@@ -68,6 +68,34 @@ model User {
   accounts      Account[]
   sessions      Session[]
   activities    Activity[]
+  settings UserSettings? // in the case this is null, just give defaults
+}
+
+enum Timezone {
+    AfricaAbidjan
+    AfricaAlgiers
+    // TODO - do we just want a giant enum of all possible time zones?
+    // https://nodatime.org/TimeZones
+}
+
+enum DateFormat {
+    DayMonthYear
+    MonthDayYear
+    YearMonthDay
+}
+
+enum TimeFormat {
+    MidDay
+    Military
+}
+model UserSettings {
+    id String @id @default(cuid())
+    timezone Timezone @default(AfricaAbidjan)
+    dateFormat DateFormat
+    timeFormat TimeFormat
+    userId String @unique
+    user User @relation(fields: [userId], references: [id])
+
 }
 
 enum ActivityType {
@@ -87,7 +115,7 @@ model Activity {
 
 // Task - something to be finished by a set time
 model Task {
-  activityId    String   @id @unique
+  activityId    String   @id
   dueDate       DateTime
   estimatedTime BigInt
   deadlineMod   BigInt
@@ -98,7 +126,7 @@ model Task {
 
 // Event - something to do at a set time
 model Event {
-  activityId    String   @id @unique
+  activityId    String   @id
   generated     Boolean
   startDate     DateTime
   estimatedTime BigInt

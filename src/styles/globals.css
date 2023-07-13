@@ -8,3 +8,7 @@ body {
     overscroll-behavior: none;
     overflow-y: hidden;
 }
+
+main {
+    padding: 1em;
+}

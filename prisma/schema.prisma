@@ -71,11 +71,10 @@ model User {
   settings UserSettings? // in the case this is null, just give defaults
 }
 
-// going to put this off for now lmao
 enum Timezone {
     AfricaAbidjan
     AfricaAlgiers
-    // do you want all of these as time zones xd
+    // TODO - do we just want a giant enum of all possible time zones?
     // https://nodatime.org/TimeZones
 }
 

@@ -52,7 +52,7 @@ export function WeekView(props: { activityList: IActivity[] }) {
     const {activityList} = props;
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     return (
-        <div className="overflow-y-scroll h-full">
+        <div className="overflow-y-scroll pr-1 h-full">
             <div className="mt-4">
                 <TimeLabels>
                     <div className='flex flex-row'>

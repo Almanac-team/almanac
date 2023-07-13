@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DayView } from './timeline-view';
+import {DayView, WeekView} from './timeline-view';
 import { IActivity } from '~/utils/types';
 const meta: Meta<typeof DayView> = {
     title: 'Day View',
@@ -25,10 +25,15 @@ const activityTwo: IActivity ={
     length: 1
 }
 
+const render = (args: any) => <div className="h-96">
+    <DayView {...args}/>
+</div>
+
 export const NoDayTasks: Story = {
     args: {
         activityList: []
-    }
+    },
+    render
 };
 
 export const OneDayTask: Story ={
@@ -36,7 +41,8 @@ export const OneDayTask: Story ={
         activityList: [
             activityOne
         ]
-    }
+    },
+    render
 }
 
 export const TwoDayTask: Story ={
@@ -45,6 +51,7 @@ export const TwoDayTask: Story ={
             activityOne,
             activityTwo
         ]
-    }
+    },
+    render
 }
 

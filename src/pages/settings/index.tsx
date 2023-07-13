@@ -2,6 +2,7 @@ import Head from "next/head";
 import {Button, Card, ThemeProvider, Typography} from "@material-tailwind/react"
 import SelectField from "~/components/forms/SelectField";
 import { useState } from "react";
+import { api } from "~/utils/api";
 
 const tzOptions = [
   {value: "test", label: "test"},
@@ -17,7 +18,6 @@ const timeFormatOptions = [
   {value: "MidDay", label: "AM/PM"},
   {value: "Military", label: "Military"}
 ]
-
 function Home() {
   const [dateFormat, setDateFormat] = useState<string>("");
   const [timeFormat, setTimeFormat] = useState<string>("");
@@ -32,9 +32,18 @@ function Home() {
     }
   }
 
+  const mutation = api.settings.updateUserSettings.useMutation()
   const onFormSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    console.log({dateFormat, timeFormat})
+    // example of request to backend
+    const body = {
+      timezone: "none",
+      dateFormat,
+      timeFormat
+    }
+    console.log(body)
+    mutation.mutate(body);
+
   }
 
   return (

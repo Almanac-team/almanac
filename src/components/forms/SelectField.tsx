@@ -1,7 +1,7 @@
 import {Select, Option} from "@material-tailwind/react"
 import { type onChange, propTypesMenuProps } from "@material-tailwind/react/types/components/select"
 import { type offsetType } from "@material-tailwind/react/types/generic"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface SelectOption {
     value: string,
@@ -17,8 +17,6 @@ interface SelectFieldProps {
     offset?: offsetType
 }
 
-propTypesMenuProps
-
 
 export default function SelectField({options, label="", disabled=false, onChange=undefined, offset = undefined, initialValue = undefined}: SelectFieldProps) {
     const [selectValue, setSelectValue] = useState<string | undefined>(initialValue? initialValue.value : undefined);
@@ -30,8 +28,10 @@ export default function SelectField({options, label="", disabled=false, onChange
         if (typeof onChange === "function") {
             onChange(value)
         }
-        
     }
+    useEffect(() => {
+        changeHandler(selectValue)
+    }, [])
     return (
         <Select label = {label} value = {selectValue} disabled = {disabled} onChange={changeHandler} offset = {offset}>
             {

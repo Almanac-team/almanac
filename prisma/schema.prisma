@@ -71,32 +71,12 @@ model User {
   settings UserSettings? // in the case this is null, just give defaults
 }
 
+// going to put this off for now lmao
 enum Timezone {
-    P0
-    P1
-    P2
-    P3
-    P4
-    P5
-    P6
-    P7
-    P8
-    P9
-    P10
-    P11
-    P12
-    N1
-    N2
-    N3
-    N4
-    N5
-    N6
-    N7
-    N8
-    N9
-    N10
-    N11
-    N12   
+    AfricaAbidjan
+    AfricaAlgiers
+    // do you want all of these as time zones xd
+    // https://nodatime.org/TimeZones
 }
 
 enum DateFormat {
@@ -111,7 +91,7 @@ enum TimeFormat {
 }
 model UserSettings {
     id String @id @default(cuid())
-    timezone Timezone @default(P0)
+    timezone Timezone @default(AfricaAbidjan)
     dateFormat DateFormat
     timeFormat TimeFormat
     userId String @unique

@@ -28,7 +28,7 @@ function ViewInner({activityList}: { activityList: IActivity[] }) {
             {activityList.map(activity => (
                 <div
                     className='absolute bg-blue-400 text-white w-full px-2 flex text-sm rounded-md'
-                    style={{height: activity.length * 19, top: activity.at.getHours() * 40 + 1}}
+                    style={{height: activity.length * 19 / 60 / 1000, top: activity.at.getHours() * 40 + 1}}
                     key={activity.id}>
                     {activity.name}
                 </div>

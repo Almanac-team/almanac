@@ -1,5 +1,5 @@
 import Head from "next/head";
-import {WeekView} from "~/components/timeline/timeline-view";
+import {TimelineView} from "~/components/timeline/timeline-view";
 
 export default function Home() {
 
@@ -13,7 +13,7 @@ export default function Home() {
       </Head>
       <main className="max-h-screen">
           <div className="w-full max-h-screen flex">
-              <WeekView activityList={[]} />
+              <TimelineView activityList={[]} />
           </div>
       </main>
     </>

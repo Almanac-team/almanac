@@ -34,39 +34,29 @@ function ViewInner({activityList}: { activityList: IActivity[] }) {
                 </div>
             ))}
         </div>
-    )
-
+    );
 }
 
-export function DayView({activityList}: { activityList: IActivity[] }) {
-    return (
-        <div className="overflow-y-scroll h-full">
-            <TimeLabels>
-                <ViewInner activityList={activityList}/>
-            </TimeLabels>
-        </div>
-    )
+interface IDayViewProps {
+    dayLabel: string,
+    activityList: IActivity[]
 }
 
-export function WeekView(props: { activityList: IActivity[] }) {
-    const {activityList} = props;
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+export function TimelineView({dayViewList}: { dayViewList: IDayViewProps[] }) {
     return (
         <div className="overflow-y-scroll pr-1 h-full">
             <div className="mt-4">
                 <TimeLabels>
                     <div className='flex flex-row'>
                         {
-                            Array.from({length: 7}, (_, i) => i).map(day => (
-                                <div key={day} className="relative -mr-0.5">
+                            dayViewList.map(dayView => (
+                                <div key={dayView.dayLabel} className="relative -mr-0.5">
                                     <div className='absolute -top-8 w-full'>
                                         <div className="mx-auto text-center">
-                                            {days[day]}
+                                            {dayView.dayLabel}
                                         </div>
                                     </div>
-                                    <ViewInner activityList={activityList.filter((activity) => {
-                                        return activity.at.getDay() === day
-                                    })}/>
+                                    <ViewInner activityList={dayView.activityList}/>
                                 </div>
                             ))
                         }
@@ -74,6 +64,5 @@ export function WeekView(props: { activityList: IActivity[] }) {
                 </TimeLabels>
             </div>
         </div>
-
     );
 }

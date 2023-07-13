@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DayView } from './day-view';
+import { DayView } from './timeline-view';
 import { IActivity } from '~/utils/types';
 const meta: Meta<typeof DayView> = {
     title: 'Day View',

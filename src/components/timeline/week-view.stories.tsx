@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { WeekView } from './week-view';
+import { WeekView } from './timeline-view';
 import { IActivity } from '~/utils/types';
 const meta: Meta<typeof WeekView> = {
     title: 'Week View',

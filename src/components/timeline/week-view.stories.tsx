@@ -15,14 +15,14 @@ const activityOne: IActivity ={
     id: "1",
     name: "Task One",
     at: new Date(2023, 7, 9, 12, 0, 0),
-    length: 2
+    length: 2 * 60 * 1000
 }
 
 const activityTwo: IActivity ={
     id: "1",
     name: "Task two",
     at: new Date(2023, 7, 13, 9, 0, 0),
-    length: 1
+    length: 1 * 60 * 1000
 }
 
 const render = (args: any) => <div className="h-96">

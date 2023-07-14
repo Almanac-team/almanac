@@ -66,7 +66,16 @@ const definitionsRouter = createTRPCRouter({
                 color: ""
             }
         });
-    })
+    }),
+
+    getCategories: protectedProcedure.query(({ctx}) => {
+        const userId = ctx?.session?.user?.id
+        return ctx.prisma.category.findMany({
+            where: {
+                userId: userId
+            }
+        })
+    }),
 })
 
 export default definitionsRouter

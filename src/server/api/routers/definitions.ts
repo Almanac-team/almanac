@@ -1,0 +1,72 @@
+import {z} from 'zod';
+import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
+
+const definitionsRouter = createTRPCRouter({
+    addCategory: protectedProcedure.input(z.object({
+        name: z.string(),
+        color: z.string(),
+    })).mutation(({ctx, input}) => {
+        const userId = ctx?.session?.user.id
+        const {name, color} = input
+
+        ctx.prisma.category.create({
+            data: {
+                name,
+                color,
+                user: {
+                    connect: {
+                        id: userId
+                    }
+                }
+            }
+        }).then((category) => {
+            return {
+                id: category.id,
+                name,
+                color
+            }
+        }).catch((error) => {
+            console.log(error)
+            return {
+                id: -1,
+                name: "",
+                color: ""
+            }
+        });
+    }),
+
+    updateCategory: protectedProcedure.input(z.object({
+        id: z.string(),
+        name: z.string(),
+        color: z.string(),
+    })).mutation(({ctx, input}) => {
+        const userId = ctx?.session?.user.id
+        const {id, name, color} = input
+
+        ctx.prisma.category.update({
+            where: {
+                id: id,
+                userId: userId
+            },
+            data: {
+                name,
+                color
+            }
+        }).then((category) => {
+            return {
+                id: category.id,
+                name,
+                color
+            }
+        }).catch((error) => {
+            console.log(error)
+            return {
+                id: -1,
+                name: "",
+                color: ""
+            }
+        });
+    })
+})
+
+export default definitionsRouter

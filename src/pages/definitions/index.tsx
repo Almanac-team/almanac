@@ -95,6 +95,10 @@ function CategorySettings({onSubmit, buttonName}: {
 export default function Home() {
     const [showCategorySettings, setShowCategorySettings] = useState(false)
 
+    function addCategory(category: CategorySetting) {
+        console.log(category);
+    }
+
 
     for (const activity of activities) {
         activity.id = Math.random().toString();
@@ -112,9 +116,8 @@ export default function Home() {
                     <div>
                         <Button onClick={() => setShowCategorySettings((value) => !value)}>Create Category</Button>
                         {showCategorySettings ? <div className="absolute z-30">
-                            <CategorySettings buttonName="Add Category"/>
+                            <CategorySettings buttonName="Add Category" onSubmit={addCategory}/>
                         </div> : null}
-
                     </div>
 
                     <ActivityColumn categoryInfo={{

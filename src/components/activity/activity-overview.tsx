@@ -104,8 +104,8 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
             <div className="relative top-24">
                 <div className="absolute inset-0">
                     <div
-                        className={clsx("w-24 origin-top-left -rotate-90 px-2 rounded-tl-lg rounded-tr-lg transition-all overflow-hidden", categoryInfo.backgroundColor)}
-                        style={{minHeight: spanWidth, maxHeight: spanWidth}}>
+                        className="w-24 origin-top-left -rotate-90 px-2 rounded-tl-lg rounded-tr-lg transition-all overflow-hidden"
+                        style={{minHeight: spanWidth, maxHeight: spanWidth, backgroundColor: categoryInfo.backgroundColor}}>
                         <span
                             className={clsx("block font-bold text-center overflow-x-hidden", categoryInfo.textColor, hover ? "whitespace-break-spaces break-words" : "whitespace-nowrap overflow-ellipsis")}>
                           {categoryInfo.categoryName}
@@ -119,14 +119,14 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
 
 export function ActivityOverview({taskName, activitySetting, categoryInfo}: TaskSettingProps) {
     return (
-        <div className="w-[520px] h-24 bg-gray-200 rounded-lg select-none relative">
+        <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">
                 <ActivityTag categoryInfo={categoryInfo}/>
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col space-y-2 w-full">
                     <div className="flex space-x-3">
                         <TimeBubble remainingTime={activitySetting.at.getTime() - new Date().getTime()}/>
                         <span
-                            className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[340px]">{taskName}</span>
+                            className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{taskName}</span>
                     </div>
                     <div className="flex">
                         <SelectMenu preview={<span className="justify-self-center text-zinc-700 font-bold text-[12px]">17:00 - 18:00</span>}>

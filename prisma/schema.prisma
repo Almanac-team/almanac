@@ -41,6 +41,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -49,6 +50,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -60,42 +63,42 @@ model VerificationToken {
 }
 
 model User {
-  id            String     @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?    @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   activities    Activity[]
-  settings UserSettings? // in the case this is null, just give defaults
+  settings      UserSettings? // in the case this is null, just give defaults
 }
 
 enum Timezone {
-    AfricaAbidjan
-    AfricaAlgiers
-    // TODO - do we just want a giant enum of all possible time zones?
-    // https://nodatime.org/TimeZones
+  AfricaAbidjan
+  AfricaAlgiers
+  // TODO - do we just want a giant enum of all possible time zones?
+  // https://nodatime.org/TimeZones
 }
 
 enum DateFormat {
-    DayMonthYear
-    MonthDayYear
-    YearMonthDay
+  DayMonthYear
+  MonthDayYear
+  YearMonthDay
 }
 
 enum TimeFormat {
-    MidDay
-    Military
+  MidDay
+  Military
 }
-model UserSettings {
-    id String @id @default(cuid())
-    timezone Timezone @default(AfricaAbidjan)
-    dateFormat DateFormat
-    timeFormat TimeFormat
-    userId String @unique
-    user User @relation(fields: [userId], references: [id])
 
+model UserSettings {
+  id         String     @id @default(cuid())
+  timezone   Timezone   @default(AfricaAbidjan)
+  dateFormat DateFormat
+  timeFormat TimeFormat
+  userId     String     @unique
+  user       User       @relation(fields: [userId], references: [id])
 }
 
 enum ActivityType {
@@ -111,6 +114,8 @@ model Activity {
   type    ActivityType @default(task)
   task    Task?
   event   Event?
+
+  @@index([ownerId])
 }
 
 // Task - something to be finished by a set time
@@ -122,6 +127,8 @@ model Task {
   reminderMod   BigInt
   startMod      BigInt
   activity      Activity @relation(fields: [activityId], references: [id])
+
+  @@index([activityId])
 }
 
 // Event - something to do at a set time
@@ -133,4 +140,6 @@ model Event {
   reminderMod   BigInt
   startMod      BigInt
   activity      Activity @relation(fields: [activityId], references: [id])
+
+  @@index([activityId])
 }

@@ -70,7 +70,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  activities    Activity[]
+  categories    Category[]
   settings      UserSettings? // in the case this is null, just give defaults
 }
 
@@ -93,21 +93,32 @@ model UserSettings {
   user       User       @relation(fields: [userId], references: [id])
 }
 
+model Category {
+  id         String     @id @default(cuid())
+  name       String
+  color      String
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activities Activity[]
+
+  @@index([userId])
+}
+
 enum ActivityType {
   task
   event
 }
 
 model Activity {
-  id      String       @id @default(cuid())
-  ownerId String
-  name    String
-  owner   User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  type    ActivityType @default(task)
-  task    Task?
-  event   Event?
+  id         String       @id @default(cuid())
+  categoryId String
+  name       String
+  category   Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  type       ActivityType @default(task)
+  task       Task?
+  event      Event?
 
-  @@index([ownerId])
+  @@index([categoryId])
 }
 
 // Task - something to be finished by a set time

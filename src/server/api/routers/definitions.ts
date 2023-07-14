@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 
 const definitionsRouter = createTRPCRouter({
-    addCategory: protectedProcedure.input(z.object({
+    createCategory: protectedProcedure.input(z.object({
         name: z.string(),
         color: z.string(),
     })).mutation(({ctx, input}) => {

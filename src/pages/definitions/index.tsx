@@ -7,16 +7,12 @@ import {DragDropContext} from "@hello-pangea/dnd";
 import {ActivitySetting} from "~/components/activity/activity-settings";
 import {
     Button,
-    Card, CardHeader,
-    Checkbox,
+    Card,
     Input,
-    TabPanel,
-    Tabs,
-    TabsBody,
-    TabsHeader,
     Typography
 } from "@material-tailwind/react";
 import {useState} from "react";
+import {useRouter} from "next/router";
 
 
 const activity: ActivitySetting = {
@@ -82,7 +78,7 @@ function CategorySettings({onSubmit, buttonName}: {
                     if (onSubmit) {
                         onSubmit({
                             id: undefined,
-                            name: "Category",
+                            name: categoryName,
                             color: color
                         })
                     }
@@ -93,11 +89,19 @@ function CategorySettings({onSubmit, buttonName}: {
 }
 
 export default function Home() {
-    const [showCategorySettings, setShowCategorySettings] = useState(false)
+    const [showCategorySettings, setShowCategorySettings] = useState(false);
+    const {mutate, error} = api.definitions.createCategory.useMutation();
 
     function addCategory(category: CategorySetting) {
-        console.log(category);
+        mutate(category, {
+            onSuccess: () => {
+                setShowCategorySettings(false);
+                void categoryList.refetch()
+            }
+        });
     }
+
+    const categoryList = api.definitions.getCategories.useQuery();
 
 
     for (const activity of activities) {
@@ -112,19 +116,24 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
             <main className="max-h-screen">
-                <div className="w-full max-h-screen overflow-y-hidden flex">
+                <div className="max-h-full overflow-hidden flex">
                     <div>
                         <Button onClick={() => setShowCategorySettings((value) => !value)}>Create Category</Button>
                         {showCategorySettings ? <div className="absolute z-30">
                             <CategorySettings buttonName="Add Category" onSubmit={addCategory}/>
                         </div> : null}
                     </div>
-
-                    <ActivityColumn categoryInfo={{
-                        categoryName: "Category 1",
-                        backgroundColor: "bg-amber-300",
-                        textColor: "text-white"
-                    }} activities={activities}/>
+                    <div className="overflow-x-auto">
+                        {categoryList.isLoading ? <div>Loading...</div> : <div className="flex gap-4">
+                            {categoryList.data?.map((category, i) => {
+                                return <ActivityColumn key={i} categoryInfo={{
+                                    categoryName: category.name,
+                                    backgroundColor: category.color,
+                                    textColor: "text-white"
+                                }} activities={activities}/>
+                            })}
+                        </div>}
+                    </div>
 
                 </div>
             </main>

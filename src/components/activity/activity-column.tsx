@@ -16,7 +16,7 @@ export function ActivityColumn({categoryInfo, activities}: {
     return (
         <div className="flex flex-col w-[520px]">
             <div
-                className={clsx("flex flex-row items-center bg-amber-300 p-2 w-full justify-center", categoryInfo.backgroundColor)}>
+                className="flex flex-row items-center bg-amber-300 p-2 w-full justify-center" style={{backgroundColor: categoryInfo.backgroundColor}}>
                 <span className={clsx("font-bold", categoryInfo.textColor)}>{categoryInfo.categoryName}</span>
             </div>
             <div className="flex flex-col w-full overflow-y-scroll space-y-2 py-2">

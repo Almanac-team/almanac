@@ -5,30 +5,16 @@ import {
     List,
     ListItem,
     ListItemPrefix,
-    ListItemSuffix,
-    Chip,
-    Accordion,
-    AccordionHeader,
-    AccordionBody,
-    Alert,
 } from "@material-tailwind/react";
 import {
-    PresentationChartBarIcon,
-    ShoppingBagIcon,
     UserCircleIcon,
     Cog6ToothIcon,
     PencilIcon,
-    PowerIcon,
     CalendarIcon,
     FlagIcon,
     BookOpenIcon,
 
 } from "@heroicons/react/24/solid";
-import {
-    ChevronRightIcon,
-    ChevronDownIcon,
-    CubeTransparentIcon,
-} from "@heroicons/react/24/outline";
 import {useRouter} from "next/router";
 
 function Sidebar() {
@@ -88,11 +74,11 @@ function Sidebar() {
 
 export function Layout({children}: {children: React.ReactNode}) {
     return (
-        <div className="flex flex-row max-h-screen min-h-screen overflow-y-hidden">
-            <div className="">
+        <div className="flex flex-row max-h-screen min-h-screen w-screen overflow-hidden">
+            <div>
                 <Sidebar />
             </div>
-            <div className="flex-grow">
+            <div className="overflow-hidden">
                 {children}
             </div>
         </div>

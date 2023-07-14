@@ -115,16 +115,16 @@ export default function Home() {
                 <meta name="description" content="Activity Definitions"/>
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
-            <main className="max-h-screen">
-                <div className="max-h-full overflow-hidden flex">
-                    <div>
+            <main className="max-h-screen h-full">
+                <div className="h-full flex flex-col">
+                    <div className="h-24 min-h-[6rem]">
                         <Button onClick={() => setShowCategorySettings((value) => !value)}>Create Category</Button>
                         {showCategorySettings ? <div className="absolute z-30">
                             <CategorySettings buttonName="Add Category" onSubmit={addCategory}/>
                         </div> : null}
                     </div>
-                    <div className="overflow-x-auto">
-                        {categoryList.isLoading ? <div>Loading...</div> : <div className="flex gap-4">
+                    <div className="overflow-x-auto h-full">
+                        {categoryList.isLoading ? <div>Loading...</div> : <div className="flex gap-4 h-full">
                             {categoryList.data?.map((category, i) => {
                                 return <ActivityColumn key={i} categoryInfo={{
                                     categoryName: category.name,

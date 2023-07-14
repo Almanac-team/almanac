@@ -14,12 +14,12 @@ export function ActivityColumn({categoryInfo, activities}: {
     activities: ActivitySetting[]
 }) {
     return (
-        <div className="flex flex-col w-[520px]">
+        <div className="flex flex-col w-96 min-w-[20em] h-full">
             <div
-                className="flex flex-row items-center bg-amber-300 p-2 w-full justify-center" style={{backgroundColor: categoryInfo.backgroundColor}}>
+                className="flex flex-row items-center p-2 w-full justify-center" style={{backgroundColor: categoryInfo.backgroundColor}}>
                 <span className={clsx("font-bold", categoryInfo.textColor)}>{categoryInfo.categoryName}</span>
             </div>
-            <div className="flex flex-col w-full overflow-y-scroll space-y-2 py-2">
+            <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 py-2">
                 {activities.map((activity, index) => (
                     <ActivityOverview key={activity.id} taskName={activity.name} activitySetting={activity} categoryInfo={categoryInfo} />
                 ))}

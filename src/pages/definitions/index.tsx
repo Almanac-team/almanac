@@ -1,10 +1,22 @@
-import { signIn, signOut, useSession } from "next-auth/react";
+import {signIn, signOut, useSession} from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { api } from "~/utils/api";
+import {api} from "~/utils/api";
 import {ActivityColumn} from "~/components/activity/activity-column";
 import {DragDropContext} from "@hello-pangea/dnd";
 import {ActivitySetting} from "~/components/activity/activity-settings";
+import {
+    Button,
+    Card, CardHeader,
+    Checkbox,
+    Input,
+    TabPanel,
+    Tabs,
+    TabsBody,
+    TabsHeader,
+    Typography
+} from "@material-tailwind/react";
+import {useState} from "react";
 
 
 const activity: ActivitySetting = {
@@ -18,36 +30,101 @@ const activity: ActivitySetting = {
 }
 
 const activities: ActivitySetting[] = new Array<ActivitySetting>(5).fill(activity)
+
+interface CategorySetting {
+    id: string | undefined,
+    name: string,
+    color: string
+}
+
+function CategorySettings({onSubmit, buttonName}: {
+    onSubmit?: (category: CategorySetting) => void,
+    buttonName: string
+}) {
+    const [categoryName, setCategoryName] = useState("");
+    const [color, setColor] = useState("#6590D5");
+
+    const [error, setError] = useState(false);
+
+
+    return <Card className="border-2 border-gray-400" color="white" shadow={true}>
+        <form className="my-8 flex flex-col gap-4 px-4">
+            <div>
+                <Typography
+                    variant="small"
+                    color="blue-gray"
+                    className="mb-4 font-medium"
+                >
+                    Category Name
+                </Typography>
+                <Input value={categoryName} error={error}
+                       onChange={(e) => {
+                           setCategoryName(e.target.value);
+                           setError(false)
+                       }} type="email" label="Category Name"/>
+
+
+                <Typography
+                    variant="small"
+                    color="blue-gray"
+                    className="mb-4 font-medium"
+                >
+                    Category Color
+                </Typography>
+
+                <input className="w-full" type="color" value={color} onChange={(e) => setColor(e.target.value)}/>
+            </div>
+
+            <Button style={{backgroundColor: color}} size="lg" onClick={() => {
+                if (categoryName === "") {
+                    setError(true);
+                } else {
+                    if (onSubmit) {
+                        onSubmit({
+                            id: undefined,
+                            name: "Category",
+                            color: color
+                        })
+                    }
+                }
+            }}>{buttonName}</Button>
+        </form>
+    </Card>
+}
+
 export default function Home() {
+    const [showCategorySettings, setShowCategorySettings] = useState(false)
 
 
     for (const activity of activities) {
         activity.id = Math.random().toString();
-
     }
 
-  return (
-    <>
-      <Head>
-        <title>Activity Definitions</title>
-        <meta name="description" content="Activity Definitions" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <main className="max-h-screen">
-          <div className="w-full max-h-screen overflow-y-hidden flex">
-              <ActivityColumn categoryInfo={{
-                  categoryName: "Category 1",
-                  backgroundColor: "bg-amber-300",
-                  textColor: "text-white"
-              }} activities={activities}/>
-              {/*<ActivityColumn categoryInfo={{*/}
-              {/*    categoryName: "Category 1",*/}
-              {/*    backgroundColor: "bg-amber-300",*/}
-              {/*    textColor: "text-white"*/}
-              {/*}} activities={[]}/>*/}
+    return (
+        <>
+            <Head>
+                <title>Activity Definitions</title>
+                <meta name="description" content="Activity Definitions"/>
+                <link rel="icon" href="/favicon.ico"/>
+            </Head>
+            <main className="max-h-screen">
+                <div className="w-full max-h-screen overflow-y-hidden flex">
+                    <div>
+                        <Button onClick={() => setShowCategorySettings((value) => !value)}>Create Category</Button>
+                        {showCategorySettings ? <div className="absolute z-30">
+                            <CategorySettings buttonName="Add Category"/>
+                        </div> : null}
 
-          </div>
-      </main>
-    </>
-  );
+                    </div>
+
+                    <ActivityColumn categoryInfo={{
+                        categoryName: "Category 1",
+                        backgroundColor: "bg-amber-300",
+                        textColor: "text-white"
+                    }} activities={activities}/>
+
+                </div>
+            </main>
+        </>
+    );
 }

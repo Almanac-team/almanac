@@ -1,10 +1,7 @@
-import {signIn, signOut, useSession} from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
 import {api} from "~/utils/api";
 import {ActivityColumn} from "~/components/activity/activity-column";
-import {DragDropContext} from "@hello-pangea/dnd";
-import {ActivitySetting} from "~/components/activity/activity-settings";
+
 import {
     Button,
     Card,
@@ -12,20 +9,6 @@ import {
     Typography
 } from "@material-tailwind/react";
 import {useState} from "react";
-import {useRouter} from "next/router";
-
-
-const activity: ActivitySetting = {
-    id: "1",
-    name: "Activity",
-    at: new Date(),
-    estimatedRequiredTime: {value: 1, unit: "hour"},
-    reminderMod: {value: 1, unit: "hour"},
-    startMod: {value: 1, unit: "hour"},
-    deadlineMod: {value: 1, unit: "hour"}
-}
-
-const activities: ActivitySetting[] = new Array<ActivitySetting>(5).fill(activity)
 
 interface CategorySetting {
     id: string | undefined,
@@ -109,11 +92,6 @@ export default function Home() {
             deleteMutation({id: category.id});
         }
         void categoryList.refetch()
-    }
-
-
-    for (const activity of activities) {
-        activity.id = Math.random().toString();
     }
 
     return (

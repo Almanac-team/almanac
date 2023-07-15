@@ -11,7 +11,7 @@ import {
     EventSettingConfig, isEventSetting, isTaskSetting,
     TaskSettingConfig
 } from "~/components/activity/activity-settings";
-import {Tab, Tabs} from "~/components/activity/tab";
+import {Tab, Tabs} from "~/components/generic/tab";
 import {timeConfigToMilliseconds} from "~/components/time_picker/date";
 
 export interface CategoryInfo {

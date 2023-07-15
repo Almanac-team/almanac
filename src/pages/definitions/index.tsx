@@ -90,18 +90,26 @@ function CategorySettings({onSubmit, buttonName}: {
 
 export default function Home() {
     const [showCategorySettings, setShowCategorySettings] = useState(false);
-    const {mutate, error} = api.definitions.createCategory.useMutation();
+    const {mutate: deleteMutation} = api.definitions.deleteCategory.useMutation();
+    const {mutate} = api.definitions.createCategory.useMutation();
+
+    const categoryList = api.definitions.getCategories.useQuery();
 
     function addCategory(category: CategorySetting) {
         mutate(category, {
             onSuccess: () => {
                 setShowCategorySettings(false);
-                void categoryList.refetch()
+
             }
         });
     }
 
-    const categoryList = api.definitions.getCategories.useQuery();
+    function deleteAllCategories() {
+        for (const category of categoryList.data ?? []) {
+            deleteMutation({id: category.id});
+        }
+        void categoryList.refetch()
+    }
 
 
     for (const activity of activities) {
@@ -122,9 +130,10 @@ export default function Home() {
                         {showCategorySettings ? <div className="absolute z-30">
                             <CategorySettings buttonName="Add Category" onSubmit={addCategory}/>
                         </div> : null}
+                        <Button onClick={() => deleteAllCategories()}>Delete all Categories</Button>
                     </div>
                     <div className="overflow-x-auto h-full">
-                        {categoryList.isLoading ? <div>Loading...</div> : <div className="flex gap-4 h-full">
+                        {categoryList.isLoading ? null : <div className="flex gap-4 h-full">
                             {categoryList.data?.map((category, i) => {
                                 return <ActivityColumn key={i} categoryInfo={{
                                     categoryName: category.name,

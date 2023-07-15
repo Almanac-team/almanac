@@ -22,13 +22,13 @@ function Sidebar() {
 
     return (
         <Card className="h-full w-full max-w-[20rem] p-4 shadow-blue-gray-900/5">
-            <div className="mb-2 flex items-center gap-4 p-4">
+            <div className="mb-2 flex items-center gap-4 p-4 select-none">
                 <img src="/img/logo-ct-dark.png" alt="brand" className="h-8 w-8" />
                 <Typography variant="h5" color="blue-gray">
                     Sidebar
                 </Typography>
             </div>
-            <List>
+            <List className="select-none">
                 <hr className="my-2 border-blue-gray-50" />
                 <ListItem onClick={() => void router.push('/track')}>
                     <ListItemPrefix>

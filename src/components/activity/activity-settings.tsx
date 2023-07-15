@@ -38,7 +38,7 @@ export function TaskSettingConfig(props: {
     disabled?: boolean
 }) {
     return (
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-2 select-none">
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Due Date</span>
                 <LocalDateInput value={props.setting.at}
@@ -128,7 +128,7 @@ export function EventSettingConfig(props: {
     localTime.setHours(localTime.getHours() - new Date().getTimezoneOffset() / 60);
 
     return (
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-2 select-none">
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>At</span>
                 <LocalDateInput value={props.setting.at}

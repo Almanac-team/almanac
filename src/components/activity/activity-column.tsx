@@ -132,7 +132,7 @@ export function ActivityColumn({categoryInfo}: {
         <div className="flex flex-col w-96 min-w-[20em] h-full border-2 rounded-tl-md rounded-tr-md"
              style={{borderColor: categoryInfo.backgroundColor}}>
             <div
-                className="flex flex-row items-center p-2 w-full justify-center"
+                className="flex flex-row items-center p-2 w-full justify-center select-none"
                 style={{backgroundColor: categoryInfo.backgroundColor}}>
                 <span className={clsx("font-bold", textColor)}>{categoryInfo.categoryName}</span>
             </div>
@@ -148,7 +148,7 @@ export function ActivityColumn({categoryInfo}: {
             <Menu open={isOpen} handler={setIsOpen}>
                 <MenuHandler>
                     <div
-                        className={clsx("flex flex-row p-2 w-full hover:contrast-200 cursor-pointer", textColor)}
+                        className={clsx("flex flex-row p-2 w-full hover:contrast-200 cursor-pointer select-none", textColor)}
                         style={{backgroundColor: categoryInfo.backgroundColor}}>
 
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"

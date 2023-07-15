@@ -1,6 +1,3 @@
-import {Button} from "@material-tailwind/react";
-import {Tab, Tabs} from "~/components/activity/tab";
-
 export type TimeConfigUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 
 export interface TimeConfig {
@@ -68,10 +65,31 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
                 <span>Due Date</span>
                 <input
                     type="date"
-                    value={props.setting.at.toISOString().slice(0, 10)}
+                    value={props.setting.at.getFullYear().toString() + '-' + (props.setting.at.getMonth() + 1).toString().padStart(2, '0') + '-' + props.setting.at.getDate().toString().padStart(2, '0')}
                     className="p-2 mr-2 border border-gray-300 rounded"
                     onChange={(e) => {
-                        props.onChange && props.onChange({...props.setting, at: new Date(e.target.value)})
+                        const newDate = new Date();
+                        newDate.setFullYear(parseInt(e.target.value.slice(0, 4)));
+                        newDate.setMonth(parseInt(e.target.value.slice(5, 7)) - 1);
+                        newDate.setDate(parseInt(e.target.value.slice(8, 10)));
+
+                        newDate.setHours(props.setting.at.getHours());
+                        newDate.setMinutes(props.setting.at.getMinutes());
+
+                        props.onChange && props.onChange({...props.setting, at: newDate})
+                    }}
+                />
+
+                <input
+                    type="time"
+                    value={props.setting.at.getHours().toString().padStart(2, '0') + ':' + props.setting.at.getMinutes().toString().padStart(2, '0')}
+                    className="p-2 mr-2 border border-gray-300 rounded"
+                    onChange={(e) => {
+                        const newDate = new Date(props.setting.at);
+                        newDate.setHours(parseInt(e.target.value.slice(0, 2)));
+                        newDate.setMinutes(parseInt(e.target.value.slice(3, 5)));
+
+                        props.onChange && props.onChange({...props.setting, at: newDate})
                     }}
                 />
             </div>
@@ -139,16 +157,27 @@ export function EventSettingConfig(props: {
     setting: EventSetting,
     onChange?: (eventSetting: EventSetting) => void
 }) {
+    const localTime = new Date(props.setting.at);
+    localTime.setHours(localTime.getHours() - new Date().getTimezoneOffset() / 60);
+
     return (
         <div className="flex flex-col space-y-2">
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>At</span>
                 <input
                     type="date"
-                    value={props.setting.at.toISOString().slice(0, 10)}
+                    value={props.setting.at.getFullYear().toString() + '-' + (props.setting.at.getMonth() + 1).toString().padStart(2, '0') + '-' + props.setting.at.getDate().toString().padStart(2, '0')}
                     className="p-2 mr-2 border border-gray-300 rounded"
                     onChange={(e) => {
-                        props.onChange && props.onChange({...props.setting, at: new Date(e.target.value)})
+                        const newDate = new Date();
+                        newDate.setFullYear(parseInt(e.target.value.slice(0, 4)));
+                        newDate.setMonth(parseInt(e.target.value.slice(5, 7)) - 1);
+                        newDate.setDate(parseInt(e.target.value.slice(8, 10)));
+
+                        newDate.setHours(props.setting.at.getHours());
+                        newDate.setMinutes(props.setting.at.getMinutes());
+
+                        props.onChange && props.onChange({...props.setting, at: newDate})
                     }}
                 />
             </div>

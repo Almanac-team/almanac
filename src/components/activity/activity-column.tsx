@@ -4,11 +4,11 @@ import {api} from "~/utils/api";
 import {useState} from "react";
 import {Button, Menu, MenuHandler, MenuList} from "@material-tailwind/react";
 import {
-    ActivitySetting,
-    ActivityType,
-    EventSetting,
+    type ActivitySetting,
+    type ActivityType,
+    type EventSetting,
+    type TaskSetting,
     EventSettingConfig, isEventSetting, isTaskSetting,
-    TaskSetting,
     TaskSettingConfig
 } from "~/components/activity/activity-settings";
 import {Tab, Tabs} from "~/components/activity/tab";
@@ -21,8 +21,9 @@ export interface CategoryInfo {
     textColor: string;
 }
 
-function AddActivityModal({onSubmit}: {
+function AddActivityModal({onSubmit, updating}: {
     onSubmit?: (activitySetting: ActivitySetting) => void,
+    updating?: boolean
 }) {
     const [activitySetting, setActivitySetting] = useState<ActivitySetting>({
         id: "-1",
@@ -48,7 +49,7 @@ function AddActivityModal({onSubmit}: {
     const [error, setError] = useState(false);
 
     return (
-        <div className="flex flex-col space-y-2 w-96 h-96 justify-start">
+        <div className={clsx("flex flex-col space-y-2 w-96 h-96 justify-start", updating && "")}>
             <input
                 type="text"
                 value={activitySetting.name}
@@ -58,10 +59,13 @@ function AddActivityModal({onSubmit}: {
                     setError(false);
                     setActivitySetting({...activitySetting, name: e.target.value})
                 }}
+                disabled={updating}
             />
 
             <Tabs activeValue={activitySetting.activityType}
-                  onChange={(type) => setActivitySetting({...activitySetting, activityType: type as ActivityType})}>
+                  onChange={(type) => setActivitySetting({...activitySetting, activityType: type as ActivityType})}
+                  disabled={updating}
+            >
                 <Tab value="task">
                     Task
                 </Tab>
@@ -74,11 +78,15 @@ function AddActivityModal({onSubmit}: {
                 <TaskSettingConfig setting={unionSetting}
                                    onChange={(newSetting: TaskSetting) => setUnionSetting((setting) => {
                                        return {...setting, ...newSetting}
-                                   })}/> :
+                                   })}
+                                   disabled={updating}
+                /> :
                 <EventSettingConfig setting={unionSetting}
                                     onChange={(newSetting: EventSetting) => setUnionSetting((setting) => {
                                         return {...setting, ...newSetting}
-                                    })}/>}
+                                    })}
+                                    disabled={updating}
+                />}
             <Button onClick={
                 () => {
                     if (activitySetting.name.trim() === "") {
@@ -92,7 +100,9 @@ function AddActivityModal({onSubmit}: {
                         });
                     }
                 }
-            }>Create</Button>
+            }
+                    disabled={updating}
+            >Create</Button>
         </div>
     );
 }
@@ -109,11 +119,14 @@ const hexToGray = (hex: string): number => {
 export function ActivityColumn({categoryInfo}: {
     categoryInfo: CategoryInfo
 }) {
-    const {data: activities} = api.activities.getActivities.useQuery({categoryId: categoryInfo.id});
-    const {mutate: createTask} = api.activities.createTask.useMutation();
-    const {mutate: createEvent} = api.activities.createEvent.useMutation();
+    const {data: activities, refetch} = api.activities.getActivities.useQuery({categoryId: categoryInfo.id});
+    const {mutateAsync: createTask} = api.activities.createTask.useMutation();
+    const {mutateAsync: createEvent} = api.activities.createEvent.useMutation();
+    const [isOpen, setIsOpen] = useState(false);
+    const [updating, setUpdating] = useState(false);
 
     const textColor = hexToGray(categoryInfo.backgroundColor) > 0.7 ? "text-gray-800" : "text-white";
+
 
     return (
         <div className="flex flex-col w-96 min-w-[20em] h-full border-2 rounded-tl-md rounded-tr-md"
@@ -132,7 +145,7 @@ export function ActivityColumn({categoryInfo}: {
                 }
             </div>
 
-            <Menu>
+            <Menu open={isOpen} handler={setIsOpen}>
                 <MenuHandler>
                     <div
                         className={clsx("flex flex-row p-2 w-full hover:contrast-200 cursor-pointer", textColor)}
@@ -149,8 +162,10 @@ export function ActivityColumn({categoryInfo}: {
                 <MenuList>
                     <AddActivityModal onSubmit={
                         (activitySetting: ActivitySetting) => {
+                            let res;
+                            setUpdating(true);
                             if (isTaskSetting(activitySetting.setting)) {
-                                createTask({
+                                res = createTask({
                                     categoryId: categoryInfo.id,
                                     name: activitySetting.name,
                                     setting: {
@@ -162,7 +177,7 @@ export function ActivityColumn({categoryInfo}: {
                                     }
                                 });
                             } else if (isEventSetting(activitySetting.setting)) {
-                                createEvent({
+                                res = createEvent({
                                     categoryId: categoryInfo.id,
                                     name: activitySetting.name,
                                     setting: {
@@ -173,8 +188,18 @@ export function ActivityColumn({categoryInfo}: {
                                     }
                                 });
                             }
+
+                            void res?.then(() => {
+                                setIsOpen(false);
+                                setUpdating(false);
+                                void refetch();
+                            }).catch(() => {
+                                setUpdating(false);
+                            });
                         }
-                    }/>
+                    }
+                                      updating={updating}
+                    />
                 </MenuList>
             </Menu>
         </div>

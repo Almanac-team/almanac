@@ -137,7 +137,6 @@ model Task {
 // Event - something to do at a set time
 model Event {
   activityId    String   @id
-  generated     Boolean
   startDate     DateTime
   estimatedTime BigInt
   reminderMod   BigInt

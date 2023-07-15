@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 
-const definitionsRouter = createTRPCRouter({
+const categoriesRouter = createTRPCRouter({
     createCategory: protectedProcedure.input(z.object({
         name: z.string(),
         color: z.string(),
@@ -105,4 +105,4 @@ const definitionsRouter = createTRPCRouter({
     }),
 })
 
-export default definitionsRouter
+export default categoriesRouter

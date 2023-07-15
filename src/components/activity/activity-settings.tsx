@@ -7,6 +7,14 @@ export interface ActivitySetting {
     setting: TaskSetting | EventSetting | undefined
 }
 
+export function isTaskSetting(setting: TaskSetting | EventSetting | undefined): setting is TaskSetting {
+    return (setting as TaskSetting).deadlineMod !== undefined;
+}
+
+export function isEventSetting(setting: TaskSetting | EventSetting | undefined): setting is EventSetting {
+    return setting !== undefined && !isTaskSetting(setting);
+}
+
 export interface TaskSetting {
     at: Date,
     estimatedRequiredTime: TimeConfig,

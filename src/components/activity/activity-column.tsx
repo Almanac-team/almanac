@@ -7,11 +7,12 @@ import {
     ActivitySetting,
     ActivityType,
     EventSetting,
-    EventSettingConfig,
+    EventSettingConfig, isEventSetting, isTaskSetting,
     TaskSetting,
     TaskSettingConfig
 } from "~/components/activity/activity-settings";
 import {Tab, Tabs} from "~/components/activity/tab";
+import {timeConfigToMilliseconds} from "~/components/time_picker/date";
 
 export interface CategoryInfo {
     id: string;
@@ -109,6 +110,8 @@ export function ActivityColumn({categoryInfo}: {
     categoryInfo: CategoryInfo
 }) {
     const {data: activities} = api.activities.getActivities.useQuery({categoryId: categoryInfo.id});
+    const {mutate: createTask} = api.activities.createTask.useMutation();
+    const {mutate: createEvent} = api.activities.createEvent.useMutation();
 
     const textColor = hexToGray(categoryInfo.backgroundColor) > 0.7 ? "text-gray-800" : "text-white";
 
@@ -144,7 +147,34 @@ export function ActivityColumn({categoryInfo}: {
                     </div>
                 </MenuHandler>
                 <MenuList>
-                    <AddActivityModal/>
+                    <AddActivityModal onSubmit={
+                        (activitySetting: ActivitySetting) => {
+                            if (isTaskSetting(activitySetting.setting)) {
+                                createTask({
+                                    categoryId: categoryInfo.id,
+                                    name: activitySetting.name,
+                                    setting: {
+                                        at: activitySetting.setting.at,
+                                        estimatedRequiredTime: timeConfigToMilliseconds(activitySetting.setting.estimatedRequiredTime),
+                                        deadlineMod: timeConfigToMilliseconds(activitySetting.setting.deadlineMod),
+                                        reminderMod: timeConfigToMilliseconds(activitySetting.setting.reminderMod),
+                                        startMod: timeConfigToMilliseconds(activitySetting.setting.startMod),
+                                    }
+                                });
+                            } else if (isEventSetting(activitySetting.setting)) {
+                                createEvent({
+                                    categoryId: categoryInfo.id,
+                                    name: activitySetting.name,
+                                    setting: {
+                                        at: activitySetting.setting.at,
+                                        estimatedRequiredTime: timeConfigToMilliseconds(activitySetting.setting.estimatedRequiredTime),
+                                        reminderMod: timeConfigToMilliseconds(activitySetting.setting.reminderMod),
+                                        startMod: timeConfigToMilliseconds(activitySetting.setting.startMod),
+                                    }
+                                });
+                            }
+                        }
+                    }/>
                 </MenuList>
             </Menu>
         </div>

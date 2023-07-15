@@ -21,7 +21,7 @@ export interface CategoryInfo {
 }
 
 function AddActivityModal({onSubmit}: {
-    onSubmit?: (activity: any) => void,
+    onSubmit?: (activitySetting: ActivitySetting) => void,
 }) {
     const [activitySetting, setActivitySetting] = useState<ActivitySetting>({
         id: "-1",
@@ -44,14 +44,19 @@ function AddActivityModal({onSubmit}: {
         }
     );
 
+    const [error, setError] = useState(false);
+
     return (
         <div className="flex flex-col space-y-2 w-96 h-96 justify-start">
             <input
                 type="text"
                 value={activitySetting.name}
-                className="p-2 mr-2 border-gray-300 border-b-2 focus:border-blue-500 focus:outline-none transition-colors text-gray-700 text-xl"
+                className={clsx("p-2 mr-2 border-b-2 focus:outline-none transition-colors text-gray-700 text-xl", !error ? "border-gray-300 focus:border-blue-500" : "border-red-200 focus:border-red-500 placeholder-red-500")}
                 placeholder="Activity Name"
-                onChange={(e) => setActivitySetting({...activitySetting, name: e.target.value})}
+                onChange={(e) => {
+                    setError(false);
+                    setActivitySetting({...activitySetting, name: e.target.value})
+                }}
             />
 
             <Tabs activeValue={activitySetting.activityType}
@@ -65,13 +70,28 @@ function AddActivityModal({onSubmit}: {
             </Tabs>
 
             {activitySetting.activityType === 'task' ?
-                <TaskSettingConfig setting={unionSetting} onChange={(newSetting: TaskSetting) => setUnionSetting((setting) => {
-                    return {...setting, ...newSetting}
-                })}/> :
-                <EventSettingConfig setting={unionSetting} onChange={(newSetting: EventSetting) => setUnionSetting((setting) => {
-                    return {...setting, ...newSetting}
-                })}/>}
-            <Button>Save</Button>
+                <TaskSettingConfig setting={unionSetting}
+                                   onChange={(newSetting: TaskSetting) => setUnionSetting((setting) => {
+                                       return {...setting, ...newSetting}
+                                   })}/> :
+                <EventSettingConfig setting={unionSetting}
+                                    onChange={(newSetting: EventSetting) => setUnionSetting((setting) => {
+                                        return {...setting, ...newSetting}
+                                    })}/>}
+            <Button onClick={
+                () => {
+                    if (activitySetting.name.trim() === "") {
+                        setError(true);
+                    } else if (onSubmit) {
+                        const setting = activitySetting.activityType === 'task' ? unionSetting as TaskSetting : unionSetting as EventSetting;
+
+                        onSubmit({
+                            ...activitySetting,
+                            setting
+                        });
+                    }
+                }
+            }>Create</Button>
         </div>
     );
 }
@@ -102,7 +122,6 @@ export function ActivityColumn({categoryInfo}: {
             </div>
             <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 py-2">
                 {activities ?
-
                     activities.map((activity) => (
                         <ActivityOverview key={activity.id} taskName={activity.name} activityId={activity.id}
                                           categoryInfo={{...categoryInfo, textColor}}/>

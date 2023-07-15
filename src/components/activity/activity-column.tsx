@@ -32,7 +32,11 @@ function AddActivityModal({onSubmit}: {
 
     const [unionSetting, setUnionSetting] = useState<TaskSetting & EventSetting>(
         {
-            at: new Date(),
+            at: (() => {
+                const date = new Date();
+                date.setHours(23, 59, 0, 0);
+                return date;
+            })(),
             estimatedRequiredTime: {value: 1, unit: "hour"},
             deadlineMod: {value: 0, unit: "minute"},
             reminderMod: {value: 0, unit: "minute"},

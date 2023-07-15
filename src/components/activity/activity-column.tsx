@@ -70,8 +70,8 @@ function AddActivityModal({onSubmit}: {
             </Tabs>
 
             {activitySetting.activityType === 'task' ?
-                <TaskSettingConfig taskSetting={taskSetting} onChange={setTaskSetting}/> :
-                <EventSettingConfig eventSetting={eventSetting} onChange={setEventSetting}/>}
+                <TaskSettingConfig setting={taskSetting} onChange={setTaskSetting}/> :
+                <EventSettingConfig setting={eventSetting} onChange={setEventSetting}/>}
             <Button>Save</Button>
         </div>
     );

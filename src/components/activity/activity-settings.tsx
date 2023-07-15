@@ -61,69 +61,137 @@ export function TimeConfigInput(props: {
     )
 }
 
-export function TaskSettingConfig(props: { taskSetting: TaskSetting, onChange?: (taskSetting: TaskSetting) => void }) {
+export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (taskSetting: TaskSetting) => void }) {
     return (
         <div className="flex flex-col space-y-2">
-
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Due Date</span>
                 <input
                     type="datetime-local"
-                    value={props.taskSetting.due.toISOString().slice(0, 16)}
+                    value={props.setting.due.getTime()}
                     className="p-2 mr-2 border border-gray-300 rounded"
+                    onChange={(e) => {
+                        props.onChange && props.onChange({...props.setting, due: new Date(e.target.value)})
+                    }}
                 />
             </div>
 
-
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Estimated Time Required</span>
-                <TimeConfigInput timeConfig={props.taskSetting.estimatedRequiredTime}/>
+                <TimeConfigInput timeConfig={props.setting.estimatedRequiredTime}
+                                 onChange={(value, unit) => {
+                                     props.onChange && props.onChange({
+                                         ...props.setting,
+                                         estimatedRequiredTime: {
+                                             value: Math.max(value ?? props.setting.estimatedRequiredTime.value, 0),
+                                             unit: unit ?? props.setting.estimatedRequiredTime.unit
+                                         }
+                                     })
+                                 }}/>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Try and finish</span>
-                <TimeConfigInput timeConfig={props.taskSetting.reminderMod}/>
+                <TimeConfigInput timeConfig={props.setting.deadlineMod}
+                                 onChange={(value, unit) => {
+                                     props.onChange && props.onChange({
+                                         ...props.setting,
+                                         deadlineMod: {
+                                             value: Math.max(value ?? props.setting.deadlineMod.value, 0),
+                                             unit: unit ?? props.setting.deadlineMod.unit
+                                         }
+                                     })
+                                 }}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Remind me</span>
-                <TimeConfigInput timeConfig={props.taskSetting.startMod}/>
+                <TimeConfigInput timeConfig={props.setting.reminderMod}
+                                 onChange={(value, unit) => {
+                                     props.onChange && props.onChange({
+                                         ...props.setting,
+                                         reminderMod: {
+                                             value: Math.max(value ?? props.setting.reminderMod.value, 0),
+                                             unit: unit ?? props.setting.reminderMod.unit
+                                         }
+                                     })
+                                 }}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Ignore until</span>
-                <TimeConfigInput timeConfig={props.taskSetting.startMod}/>
+                <TimeConfigInput timeConfig={props.setting.startMod}
+                                 onChange={(value, unit) => {
+                                     props.onChange && props.onChange({
+                                         ...props.setting,
+                                         startMod: {
+                                             value: Math.max(value ?? props.setting.startMod.value, 0),
+                                             unit: unit ?? props.setting.startMod.unit
+                                         }
+                                     })
+                                 }}/>
                 <span>before</span>
             </div>
         </div>
     )
 }
 
-export function EventSettingConfig(props: { eventSetting: EventSetting, onChange?: (eventSetting: EventSetting) => void }) {
+export function EventSettingConfig(props: {
+    setting: EventSetting,
+    onChange?: (eventSetting: EventSetting) => void
+}) {
     return (
         <div className="flex flex-col space-y-2">
-
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>At</span>
                 <input
                     type="datetime-local"
-                    value={props.eventSetting.at.toISOString().slice(0, 16)}
+                    value={props.setting.at.getTime()}
                     className="p-2 mr-2 border border-gray-300 rounded"
+                    onChange={(e) => {
+                        props.onChange && props.onChange({...props.setting, at: new Date(e.target.value)})
+                    }}
                 />
             </div>
 
-
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Estimated Time Required</span>
-                <TimeConfigInput timeConfig={props.eventSetting.estimatedRequiredTime}/>
+                <TimeConfigInput timeConfig={props.setting.estimatedRequiredTime}
+                                 onChange={(value, unit) => {
+                                     props.onChange && props.onChange({
+                                         ...props.setting,
+                                         estimatedRequiredTime: {
+                                             value: Math.max(value ?? props.setting.estimatedRequiredTime.value, 0),
+                                             unit: unit ?? props.setting.estimatedRequiredTime.unit
+                                         }
+                                     })
+                                 }}/>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Remind me</span>
-                <TimeConfigInput timeConfig={props.eventSetting.startMod}/>
+                <TimeConfigInput timeConfig={props.setting.reminderMod}
+                                 onChange={(value, unit) => {
+                                     props.onChange && props.onChange({
+                                         ...props.setting,
+                                         reminderMod: {
+                                             value: Math.max(value ?? props.setting.reminderMod.value, 0),
+                                             unit: unit ?? props.setting.reminderMod.unit
+                                         }
+                                     })
+                                 }}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Ignore until</span>
-                <TimeConfigInput timeConfig={props.eventSetting.startMod}/>
+                <TimeConfigInput timeConfig={props.setting.startMod}
+                                 onChange={(value, unit) => {
+                                     props.onChange && props.onChange({
+                                         ...props.setting,
+                                         startMod: {
+                                             value: Math.max(value ?? props.setting.startMod.value, 0),
+                                             unit: unit ?? props.setting.startMod.unit
+                                         }
+                                     })
+                                 }}/>
                 <span>before</span>
             </div>
         </div>

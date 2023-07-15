@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import {
-    ActivitySettingModal,
+    AddActivityModal,
     ActivityType,
     TimeConfig,
     TimeConfigInput,
@@ -8,14 +8,14 @@ import {
 } from "~/components/activity/activity-settings";
 import {useState} from "react";
 
-const meta: Meta<typeof ActivitySettingModal> = {
+const meta: Meta<typeof AddActivityModal> = {
     title: 'Activity Settings',
-    component: ActivitySettingModal,
+    component: AddActivityModal,
     tags: ['autodocs'],
 };
 
 export default meta;
-type Story = StoryObj<typeof ActivitySettingModal>;
+type Story = StoryObj<typeof AddActivityModal>;
 
 function ActivitySettingWrapper() {
     const [activityType, setActivityType] = useState<ActivityType>("task");
@@ -30,7 +30,7 @@ function ActivitySettingWrapper() {
 
 
     return (
-        <ActivitySettingModal activityType={activityType} activitySetting={{
+        <AddActivityModal activityType={activityType} activitySetting={{
             id: "1",
             name,
             at,

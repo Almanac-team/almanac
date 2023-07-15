@@ -2,14 +2,60 @@ import clsx from "clsx";
 import {ActivityOverview} from "~/components/activity/activity-overview";
 import {api} from "~/utils/api";
 import {useState} from "react";
-import {Menu, MenuHandler, MenuList} from "@material-tailwind/react";
-import {ActivitySetting, ActivitySettingModal} from "~/components/activity/activity-settings";
+import {Button, Menu, MenuHandler, MenuList} from "@material-tailwind/react";
+import {ActivitySetting, ActivityType, EventSetting, TaskSetting, TaskSettingConfig, EventSettingConfig} from "~/components/activity/activity-settings";
+import {Tab, Tabs} from "~/components/activity/tab";
 
 export interface CategoryInfo {
     id: string;
     categoryName: string;
     backgroundColor: string;
     textColor: string;
+}
+
+function AddActivityModal(props: {
+    activitySetting: ActivitySetting,
+    onChange?: (activitySetting: ActivitySetting) => void,
+    onSubmit?: () => void
+}) {
+
+    function changeTaskSetting(taskSetting: TaskSetting) {
+        if (props.onChange) props.onChange({...props.activitySetting, taskSetting})
+    }
+
+    function changeEventSetting(eventSetting: EventSetting) {
+        if (props.onChange) props.onChange({...props.activitySetting, eventSetting})
+    }
+
+    return (
+        <div className="flex flex-col space-y-2 w-96 h-96 justify-start">
+            <input
+                type="text"
+                value={props.activitySetting.name}
+                className="p-2 mr-2 border-gray-300 border-b-2 focus:border-blue-500 focus:outline-none transition-colors text-gray-700 text-xl"
+                placeholder="Activity Name"
+                onChange={(e) => {
+                    if (props.onChange) props.onChange({...props.activitySetting, name: e.target.value})
+                }}
+            />
+
+            <Tabs activeValue={props.activitySetting.activityType} onChange={(type) => {
+                if (props.onChange) props.onChange({...props.activitySetting, activityType: type as ActivityType})
+            }}>
+                <Tab value="task">
+                    Task
+                </Tab>
+                <Tab value="event">
+                    Event
+                </Tab>
+            </Tabs>
+
+            {props.activitySetting.activityType === 'task' ?
+                <TaskSettingConfig taskSetting={props.activitySetting.taskSetting} onChange={changeTaskSetting}/> :
+                <EventSettingConfig eventSetting={props.activitySetting.eventSetting} onChange={changeEventSetting}/>}
+            <Button>Save</Button>
+        </div>
+    );
 }
 
 function AddDefinition({onSubmit}: {
@@ -34,8 +80,8 @@ function AddDefinition({onSubmit}: {
         }
     });
 
-    return <ActivitySettingModal activitySetting={activitySetting}
-                                 onChange={setActivitySetting}
+    return <AddActivityModal activitySetting={activitySetting}
+                             onChange={setActivitySetting}
     />
 }
 

@@ -2,9 +2,10 @@ import {useRef, useState} from "react";
 import clsx from "clsx";
 import {CategoryInfo} from "~/components/activity/activity-column";
 import {ActivitySetting} from "~/components/activity/activity-settings";
+import {api} from "~/utils/api";
 
 interface TaskSettingProps {
-    activityId: string;
+    activity: ActivitySetting;
     taskName: string;
     categoryInfo: CategoryInfo;
 }
@@ -117,7 +118,7 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     );
 }
 
-export function ActivityOverview({taskName, activityId, categoryInfo}: TaskSettingProps) {
+export function ActivityOverview({taskName, activity, categoryInfo}: TaskSettingProps) {
     return (
         <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">

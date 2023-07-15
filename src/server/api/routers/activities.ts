@@ -1,26 +1,131 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
+import {
+    type ActivitySetting,
+    type ActivityType,
+    type EventSetting,
+    type TaskSetting
+} from "~/components/activity/activity-settings";
+import {ActivityType as PrismaActivityType} from ".prisma/client";
+import {type TimeConfig as InternalTimeConfig} from "~/components/time_picker/date";
+
+const TimeConfig = z.object({
+    unit: z.enum(['year', 'month', 'week', 'day', 'hour', 'minute']),
+    value: z.number()
+});
+
+function convertIntToTimeConfig(time: number): InternalTimeConfig {
+    if (time >= 525600) {
+        return {
+            unit: 'year',
+            value: time / 525600
+        }
+    } else if (time >= 43200) {
+        return {
+            unit: 'month',
+            value: time / 43200
+        }
+    } else if (time >= 10080) {
+        return {
+            unit: 'week',
+            value: time / 10080
+        }
+    } else if (time >= 1440) {
+        return {
+            unit: 'day',
+            value: time / 1440
+        }
+    } else if (time >= 60) {
+        return {
+            unit: 'hour',
+            value: time / 60
+        }
+    } else {
+        return {
+            unit: 'minute',
+            value: time
+        }
+    }
+}
+
+function convertTimeConfigToInt(timeConfig: InternalTimeConfig): number {
+    switch (timeConfig.unit) {
+        case "minute":
+            return timeConfig.value;
+        case "hour":
+            return timeConfig.value * 60;
+        case "day":
+            return timeConfig.value * 24 * 60;
+        case "week":
+            return timeConfig.value * 7 * 24 * 60;
+        case "month":
+            return timeConfig.value * 30 * 24 * 60;
+        case "year":
+            return timeConfig.value * 365 * 24 * 60;
+    }
+}
+
+function ConvertTask(task: {
+    activityId: string,
+    dueDate: Date,
+    estimatedTime: number,
+    deadlineMod: number,
+    reminderMod: number,
+    startMod: number
+} | null | undefined): TaskSetting | null {
+    if (task === null || task === undefined) return null
+    return {
+        at: task.dueDate,
+        estimatedRequiredTime: convertIntToTimeConfig(task.estimatedTime),
+        deadlineMod: convertIntToTimeConfig(task.deadlineMod),
+        reminderMod: convertIntToTimeConfig(task.reminderMod),
+        startMod: convertIntToTimeConfig(task.startMod)
+    }
+}
+
+function ConvertEvent(event: {
+    activityId: string,
+    startDate: Date,
+    estimatedTime: number,
+    reminderMod: number,
+    startMod: number
+} | null | undefined): EventSetting | null {
+    if (event === null || event === undefined) return null
+    return {
+        at: event.startDate,
+        estimatedRequiredTime: convertIntToTimeConfig(event.estimatedTime),
+        reminderMod: convertIntToTimeConfig(event.reminderMod),
+        startMod: convertIntToTimeConfig(event.startMod)
+    }
+}
 
 const activitiesRouter = createTRPCRouter({
     getActivities: protectedProcedure.input(z.object({
         categoryId: z.string()
-    })).query(({ctx, input}) => {
+    })).query(async ({ctx, input}): Promise<ActivitySetting[]> => {
         const userId = ctx?.session?.user?.id
-        return ctx.prisma.activity.findMany({
+        return (await ctx.prisma.activity.findMany({
             where: {
                 category: {
                     id: input.categoryId,
                     userId: userId
                 }
             }
+        })).map((activity): ActivitySetting => {
+            return {
+                id: activity.id,
+                name: activity.name,
+                activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
+                setting: undefined
+            }
         })
     }),
 
     getDetailedActivities: protectedProcedure.input(z.object({
         categoryId: z.string()
-    })).query(({ctx, input}) => {
+    })).query(async ({ctx, input}): Promise<ActivitySetting[]> => {
         const userId = ctx?.session?.user?.id
-        return ctx.prisma.activity.findMany({
+        return (await ctx.prisma.activity.findMany({
             where: {
                 category: {
                     id: input.categoryId,
@@ -31,12 +136,29 @@ const activitiesRouter = createTRPCRouter({
                 task: true,
                 event: true
             }
+        })).map((activity): ActivitySetting => {
+            let setting;
+            if (activity.type === PrismaActivityType.task) {
+                setting = ConvertTask(activity.task);
+            } else if (activity.type === PrismaActivityType.event) {
+                setting = ConvertEvent(activity.event);
+            }
+            if (setting === null){
+                setting = undefined
+            }
+
+            return {
+                id: activity.id,
+                name: activity.name,
+                activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
+                setting
+            }
         })
     }),
 
     getActivitySpecifics: protectedProcedure.input(z.object({
         activityIds: z.array(z.string())
-    })).query(async ({ctx, input}) => {
+    })).query(async ({ctx, input}): Promise<(TaskSetting | EventSetting | null)[] | null> => {
         const userId = ctx?.session?.user?.id
         const ids = input.activityIds;
         const reverseMap = ids.map((id, index) => {
@@ -84,10 +206,10 @@ const activitiesRouter = createTRPCRouter({
 
         for (const item of reverseMap) {
             if (item.id === tasks[tp]?.activityId) {
-                result.push(tasks[tp])
+                result.push(ConvertTask(tasks[tp]))
                 tp++
             } else if (item.id === events[ep]?.activityId) {
-                result.push(events[ep])
+                result.push(ConvertEvent(events[ep]))
                 ep++
             } else {
                 result.push(null)
@@ -101,9 +223,9 @@ const activitiesRouter = createTRPCRouter({
 
     getTask: protectedProcedure.input(z.object({
         id: z.string()
-    })).query(({ctx, input}) => {
+    })).query(async ({ctx, input}) => {
         const userId = ctx?.session?.user?.id
-        return ctx.prisma.task.findUnique({
+        return ConvertTask(await ctx.prisma.task.findUnique({
             where: {
                 activityId: input.id,
                 activity: {
@@ -112,14 +234,14 @@ const activitiesRouter = createTRPCRouter({
                     }
                 }
             }
-        })
+        }))
     }),
 
     getEvent: protectedProcedure.input(z.object({
         id: z.string()
-    })).query(({ctx, input}) => {
+    })).query(async ({ctx, input}) => {
         const userId = ctx?.session?.user?.id
-        return ctx.prisma.event.findUnique({
+        return ConvertEvent(await ctx.prisma.event.findUnique({
             where: {
                 activityId: input.id,
                 activity: {
@@ -128,7 +250,7 @@ const activitiesRouter = createTRPCRouter({
                     }
                 }
             }
-        })
+        }))
     }),
 
     createTask: protectedProcedure.input(z.object({
@@ -137,10 +259,10 @@ const activitiesRouter = createTRPCRouter({
         setting:
             z.object({
                 at: z.date(),
-                estimatedRequiredTime: z.number(),
-                deadlineMod: z.number(),
-                reminderMod: z.number(),
-                startMod: z.number(),
+                estimatedRequiredTime: TimeConfig,
+                deadlineMod: TimeConfig,
+                reminderMod: TimeConfig,
+                startMod: TimeConfig,
             })
     })).mutation(({ctx, input}) => {
         const userId = ctx?.session?.user?.id
@@ -157,10 +279,10 @@ const activitiesRouter = createTRPCRouter({
                 task: {
                     create: {
                         dueDate: input.setting.at,
-                        estimatedTime: input.setting.estimatedRequiredTime,
-                        deadlineMod: input.setting.deadlineMod,
-                        reminderMod: input.setting.reminderMod,
-                        startMod: input.setting.startMod
+                        estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
+                        deadlineMod: convertTimeConfigToInt(input.setting.deadlineMod),
+                        reminderMod: convertTimeConfigToInt(input.setting.reminderMod),
+                        startMod: convertTimeConfigToInt(input.setting.startMod)
                     }
                 }
             }
@@ -173,9 +295,9 @@ const activitiesRouter = createTRPCRouter({
         setting:
             z.object({
                 at: z.date(),
-                estimatedRequiredTime: z.number(),
-                reminderMod: z.number(),
-                startMod: z.number(),
+                estimatedRequiredTime: TimeConfig,
+                reminderMod: TimeConfig,
+                startMod: TimeConfig,
             })
     })).mutation(({ctx, input}) => {
         const userId = ctx?.session?.user?.id
@@ -193,9 +315,9 @@ const activitiesRouter = createTRPCRouter({
                 event: {
                     create: {
                         startDate: input.setting.at,
-                        estimatedTime: input.setting.estimatedRequiredTime,
-                        reminderMod: input.setting.reminderMod,
-                        startMod: input.setting.startMod
+                        estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
+                        reminderMod: convertTimeConfigToInt(input.setting.reminderMod),
+                        startMod: convertTimeConfigToInt(input.setting.startMod)
                     }
                 }
             }

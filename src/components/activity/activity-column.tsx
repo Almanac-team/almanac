@@ -30,20 +30,12 @@ function AddActivityModal({onSubmit}: {
         setting: undefined
     });
 
-    const [taskSetting, setTaskSetting] = useState<TaskSetting>(
+    const [unionSetting, setUnionSetting] = useState<TaskSetting & EventSetting>(
         {
             due: new Date(),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 0, unit: "minute"},
-            reminderMod: {value: 0, unit: "minute"},
-            startMod: {value: 0, unit: "minute"},
-        }
-    );
-
-    const [eventSetting, setEventSetting] = useState<EventSetting>(
-        {
             at: new Date(),
             estimatedRequiredTime: {value: 1, unit: "hour"},
+            deadlineMod: {value: 0, unit: "minute"},
             reminderMod: {value: 0, unit: "minute"},
             startMod: {value: 0, unit: "minute"},
         }
@@ -70,8 +62,12 @@ function AddActivityModal({onSubmit}: {
             </Tabs>
 
             {activitySetting.activityType === 'task' ?
-                <TaskSettingConfig setting={taskSetting} onChange={setTaskSetting}/> :
-                <EventSettingConfig setting={eventSetting} onChange={setEventSetting}/>}
+                <TaskSettingConfig setting={unionSetting} onChange={(newSetting: TaskSetting) => setUnionSetting((setting) => {
+                    return {...setting, ...newSetting, at: newSetting.due}
+                })}/> :
+                <EventSettingConfig setting={unionSetting} onChange={(newSetting: EventSetting) => setUnionSetting((setting) => {
+                    return {...setting, ...newSetting, due: newSetting.at}
+                })}/>}
             <Button>Save</Button>
         </div>
     );

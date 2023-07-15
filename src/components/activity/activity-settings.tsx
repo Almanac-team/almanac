@@ -67,8 +67,8 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Due Date</span>
                 <input
-                    type="datetime-local"
-                    value={props.setting.due.getTime()}
+                    type="date"
+                    value={props.setting.due.toISOString().slice(0, 10)}
                     className="p-2 mr-2 border border-gray-300 rounded"
                     onChange={(e) => {
                         props.onChange && props.onChange({...props.setting, due: new Date(e.target.value)})
@@ -144,8 +144,8 @@ export function EventSettingConfig(props: {
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>At</span>
                 <input
-                    type="datetime-local"
-                    value={props.setting.at.getTime()}
+                    type="date"
+                    value={props.setting.at.toISOString().slice(0, 10)}
                     className="p-2 mr-2 border border-gray-300 rounded"
                     onChange={(e) => {
                         props.onChange && props.onChange({...props.setting, at: new Date(e.target.value)})

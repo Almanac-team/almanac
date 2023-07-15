@@ -62,7 +62,7 @@ export function TimeConfigInput(props: {
     )
 }
 
-function TaskSetting(props: { taskSetting: TaskSetting, onChange?: (taskSetting: TaskSetting) => void }) {
+export function TaskSettingConfig(props: { taskSetting: TaskSetting, onChange?: (taskSetting: TaskSetting) => void }) {
     return (
         <div className="flex flex-col space-y-2">
 
@@ -99,7 +99,7 @@ function TaskSetting(props: { taskSetting: TaskSetting, onChange?: (taskSetting:
     )
 }
 
-function EventSetting(props: { eventSetting: EventSetting, onChange?: (eventSetting: EventSetting) => void }) {
+export function EventSettingConfig(props: { eventSetting: EventSetting, onChange?: (eventSetting: EventSetting) => void }) {
     return (
         <div className="flex flex-col space-y-2">
 
@@ -129,49 +129,4 @@ function EventSetting(props: { eventSetting: EventSetting, onChange?: (eventSett
             </div>
         </div>
     )
-}
-
-export function ActivitySettingModal(props: {
-    activitySetting: ActivitySetting,
-    onChange?: (activitySetting: ActivitySetting) => void,
-    onSubmit?: () => void
-}) {
-
-    function changeTaskSetting(taskSetting: TaskSetting) {
-        if (props.onChange) props.onChange({...props.activitySetting, taskSetting})
-    }
-
-    function changeEventSetting(eventSetting: EventSetting) {
-        if (props.onChange) props.onChange({...props.activitySetting, eventSetting})
-    }
-
-    return (
-        <div className="flex flex-col space-y-2 w-96 h-96 justify-start">
-            <input
-                type="text"
-                value={props.activitySetting.name}
-                className="p-2 mr-2 border-gray-300 border-b-2 focus:border-blue-500 focus:outline-none transition-colors text-gray-700 text-xl"
-                placeholder="Activity Name"
-                onChange={(e) => {
-                    if (props.onChange) props.onChange({...props.activitySetting, name: e.target.value})
-                }}
-            />
-
-            <Tabs activeValue={props.activitySetting.activityType} onChange={(type) => {
-                if (props.onChange) props.onChange({...props.activitySetting, activityType: type as ActivityType})
-            }}>
-                <Tab value="task">
-                    Task
-                </Tab>
-                <Tab value="event">
-                    Event
-                </Tab>
-            </Tabs>
-
-            {props.activitySetting.activityType === 'task' ?
-                <TaskSetting taskSetting={props.activitySetting.taskSetting} onChange={changeTaskSetting}/> :
-                <EventSetting eventSetting={props.activitySetting.eventSetting} onChange={changeEventSetting}/>}
-            <Button>Save</Button>
-        </div>
-    );
 }

@@ -76,6 +76,33 @@ const definitionsRouter = createTRPCRouter({
             }
         })
     }),
+
+    deleteCategory: protectedProcedure.input(z.object({
+        id: z.string()
+    })).mutation(({ctx, input}) => {
+        const userId = ctx?.session?.user.id
+        const {id} = input
+
+        ctx.prisma.category.delete({
+            where: {
+                id: id,
+                userId: userId
+            }
+        }).then((category) => {
+            return {
+                id: category.id,
+                name: category.name,
+                color: category.color
+            }
+        }).catch((error) => {
+            console.log(error)
+            return {
+                id: -1,
+                name: "",
+                color: ""
+            }
+        });
+    }),
 })
 
 export default definitionsRouter

@@ -16,3 +16,18 @@ export function LocalDateInput({value, onChange}: { value: Date, onChange?: (dat
         }}
     />
 }
+
+export function LocalTimeInput({value, onChange}: { value: Date, onChange?: (date: Date) => void }) {
+    return <input
+        type="time"
+        value={value.getHours().toString().padStart(2, '0') + ':' + value.getMinutes().toString().padStart(2, '0')}
+        className="p-2 mr-2 border border-gray-300 rounded"
+        onChange={(e) => {
+            const newDate = new Date(value);
+            newDate.setHours(parseInt(e.target.value.slice(0, 2)));
+            newDate.setMinutes(parseInt(e.target.value.slice(3, 5)));
+
+            onChange && onChange(newDate)
+        }}
+    />
+}

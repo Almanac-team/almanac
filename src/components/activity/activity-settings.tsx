@@ -1,4 +1,4 @@
-import {LocalDateInput} from "~/components/time_picker/date";
+import {LocalDateInput, LocalTimeInput} from "~/components/time_picker/date";
 
 export type TimeConfigUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 
@@ -70,18 +70,10 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
                     at: newDate
                 })}/>
 
-                <input
-                    type="time"
-                    value={props.setting.at.getHours().toString().padStart(2, '0') + ':' + props.setting.at.getMinutes().toString().padStart(2, '0')}
-                    className="p-2 mr-2 border border-gray-300 rounded"
-                    onChange={(e) => {
-                        const newDate = new Date(props.setting.at);
-                        newDate.setHours(parseInt(e.target.value.slice(0, 2)));
-                        newDate.setMinutes(parseInt(e.target.value.slice(3, 5)));
-
-                        props.onChange && props.onChange({...props.setting, at: newDate})
-                    }}
-                />
+                <LocalTimeInput value={props.setting.at} onChange={(newDate: Date) => props.onChange && props.onChange({
+                    ...props.setting,
+                    at: newDate
+                })}/>
             </div>
 
             <div className="flex items-center whitespace-nowrap space-x-2">

@@ -90,10 +90,10 @@ function CategorySettings({onSubmit, buttonName}: {
 
 export default function Home() {
     const [showCategorySettings, setShowCategorySettings] = useState(false);
-    const {mutate: deleteMutation} = api.definitions.deleteCategory.useMutation();
-    const {mutate} = api.definitions.createCategory.useMutation();
+    const {mutate: deleteMutation} = api.categories.deleteCategory.useMutation();
+    const {mutate} = api.categories.createCategory.useMutation();
 
-    const categoryList = api.definitions.getCategories.useQuery();
+    const categoryList = api.categories.getCategories.useQuery();
 
     function addCategory(category: CategorySetting) {
         mutate(category, {

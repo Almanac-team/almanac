@@ -12,8 +12,7 @@ export interface ActivitySetting {
     id: string,
     name: string,
     activityType: ActivityType,
-    taskSetting: TaskSetting, // we keep both copies so data is not lost when switching between task and event
-    eventSetting: EventSetting,
+    setting: TaskSetting | EventSetting | undefined
 }
 
 export interface TaskSetting {

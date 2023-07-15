@@ -2,8 +2,8 @@ import clsx from "clsx";
 import {ActivityOverview} from "~/components/activity/activity-overview";
 import {api} from "~/utils/api";
 import {useState} from "react";
-import {Button, Card, Input, Menu, MenuHandler, MenuList, Typography} from "@material-tailwind/react";
-import {ActivitySetting, ActivitySettingModal, ActivityType, TimeConfig} from "~/components/activity/activity-settings";
+import {Menu, MenuHandler, MenuList} from "@material-tailwind/react";
+import {ActivitySetting, ActivitySettingModal} from "~/components/activity/activity-settings";
 
 export interface CategoryInfo {
     id: string;
@@ -15,19 +15,26 @@ export interface CategoryInfo {
 function AddDefinition({onSubmit}: {
     onSubmit?: (activity: any) => void,
 }) {
-    const [activityType, setActivityType] = useState<ActivityType>("task");
     const [activitySetting, setActivitySetting] = useState<ActivitySetting>({
         id: "-1",
         name: "",
-        at: new Date(),
-        estimatedRequiredTime: {value: 1, unit: "hour"},
-        deadlineMod: {value: 1, unit: "hour"},
-        reminderMod: {value: 1, unit: "hour"},
-        startMod: {value: 1, unit: "hour"},
+        activityType: 'task',
+        taskSetting: {
+            due: new Date(),
+            estimatedRequiredTime: {value: 1, unit: "hour"},
+            deadlineMod: {value: 0, unit: "minute"},
+            reminderMod: {value: 0, unit: "minute"},
+            startMod: {value: 0, unit: "minute"},
+        },
+        eventSetting: {
+            at: new Date(),
+            estimatedRequiredTime: {value: 1, unit: "hour"},
+            reminderMod: {value: 0, unit: "minute"},
+            startMod: {value: 0, unit: "minute"},
+        }
     });
 
-    return <ActivitySettingModal activityType={activityType} activitySetting={activitySetting}
-                                 onSwitchActivityType={setActivityType}
+    return <ActivitySettingModal activitySetting={activitySetting}
                                  onChange={setActivitySetting}
     />
 }

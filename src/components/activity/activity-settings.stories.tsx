@@ -1,12 +1,10 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import {
     AddActivityModal,
-    ActivityType,
-    TimeConfig,
-    TimeConfigInput,
-    TimeConfigUnit
+    ActivityType
 } from "~/components/activity/activity-settings";
 import {useState} from "react";
+import {TimeConfig, TimeConfigInput, TimeConfigUnit} from "~/components/time_picker/date";
 
 const meta: Meta<typeof AddActivityModal> = {
     title: 'Activity Settings',

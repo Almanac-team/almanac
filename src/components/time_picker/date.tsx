@@ -31,3 +31,39 @@ export function LocalTimeInput({value, onChange}: { value: Date, onChange?: (dat
         }}
     />
 }
+
+export type TimeConfigUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
+
+export interface TimeConfig {
+    value: number,
+    unit: TimeConfigUnit
+}
+
+export function TimeConfigInput(props: {
+    timeConfig: TimeConfig,
+    onChange?: (value?: number, unit?: TimeConfigUnit) => void
+}) {
+    return (
+        <div className="flex items-center">
+            <input
+                type="number"
+                value={props.timeConfig.value}
+                onChange={(e) => {
+                    if (props.onChange) props.onChange(parseInt(e.target.value), undefined)
+                }}
+                className="p-2 mr-2 border border-gray-300 rounded w-16 h-full"
+            />
+            <select className="p-2 border border-gray-300 rounded h-full" value={props.timeConfig.unit}
+                    onChange={(e) => {
+                        if (props.onChange) props.onChange(undefined, e.target.value as TimeConfigUnit)
+                    }}>
+                <option value="minute">Minutes</option>
+                <option value="hour">Hours</option>
+                <option value="day">Days</option>
+                <option value="week">Weeks</option>
+                <option value="month">Months</option>
+                <option value="year">Years</option>
+            </select>
+        </div>
+    )
+}

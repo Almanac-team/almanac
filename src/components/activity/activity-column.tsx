@@ -12,7 +12,6 @@ import {
     TaskSettingConfig
 } from "~/components/activity/activity-settings";
 import {Tab, Tabs} from "~/components/generic/tab";
-import {timeConfigToMilliseconds} from "~/components/time_picker/date";
 
 export interface CategoryInfo {
     id: string;
@@ -139,7 +138,14 @@ export function ActivityColumn({categoryInfo}: {
             <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 py-2">
                 {activities ?
                     activities.map((activity) => (
-                        <ActivityOverview key={activity.id} taskName={activity.name} activityId={activity.id}
+                        <ActivityOverview key={activity.id} taskName={activity.name} activity={
+                            {
+                                id: activity.id,
+                                name: activity.name,
+                                activityType: activity.activityType,
+                                setting: undefined
+                            }
+                        }
                                           categoryInfo={{...categoryInfo, textColor}}/>
                     )) : null
                 }
@@ -170,10 +176,10 @@ export function ActivityColumn({categoryInfo}: {
                                     name: activitySetting.name,
                                     setting: {
                                         at: activitySetting.setting.at,
-                                        estimatedRequiredTime: timeConfigToMilliseconds(activitySetting.setting.estimatedRequiredTime),
-                                        deadlineMod: timeConfigToMilliseconds(activitySetting.setting.deadlineMod),
-                                        reminderMod: timeConfigToMilliseconds(activitySetting.setting.reminderMod),
-                                        startMod: timeConfigToMilliseconds(activitySetting.setting.startMod),
+                                        estimatedRequiredTime: activitySetting.setting.estimatedRequiredTime,
+                                        deadlineMod: activitySetting.setting.deadlineMod,
+                                        reminderMod: activitySetting.setting.reminderMod,
+                                        startMod: activitySetting.setting.startMod,
                                     }
                                 });
                             } else if (isEventSetting(activitySetting.setting)) {
@@ -182,9 +188,9 @@ export function ActivityColumn({categoryInfo}: {
                                     name: activitySetting.name,
                                     setting: {
                                         at: activitySetting.setting.at,
-                                        estimatedRequiredTime: timeConfigToMilliseconds(activitySetting.setting.estimatedRequiredTime),
-                                        reminderMod: timeConfigToMilliseconds(activitySetting.setting.reminderMod),
-                                        startMod: timeConfigToMilliseconds(activitySetting.setting.startMod),
+                                        estimatedRequiredTime: activitySetting.setting.estimatedRequiredTime,
+                                        reminderMod: activitySetting.setting.reminderMod,
+                                        startMod: activitySetting.setting.startMod,
                                     }
                                 });
                             }

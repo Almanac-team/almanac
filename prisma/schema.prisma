@@ -125,10 +125,10 @@ model Activity {
 model Task {
   activityId    String   @id
   dueDate       DateTime
-  estimatedTime BigInt
-  deadlineMod   BigInt
-  reminderMod   BigInt
-  startMod      BigInt
+  estimatedTime Int
+  deadlineMod   Int
+  reminderMod   Int
+  startMod      Int
   activity      Activity @relation(fields: [activityId], references: [id])
 
   @@index([activityId])
@@ -138,9 +138,9 @@ model Task {
 model Event {
   activityId    String   @id
   startDate     DateTime
-  estimatedTime BigInt
-  reminderMod   BigInt
-  startMod      BigInt
+  estimatedTime Int
+  reminderMod   Int
+  startMod      Int
   activity      Activity @relation(fields: [activityId], references: [id])
 
   @@index([activityId])

@@ -6,7 +6,7 @@ import {
 import {useState} from "react";
 
 const meta: Meta<typeof TaskSettingConfig> = {
-    title: 'Activity Settings',
+    title: 'Task Settings',
     component: TaskSettingConfig,
     tags: ['autodocs'],
 };

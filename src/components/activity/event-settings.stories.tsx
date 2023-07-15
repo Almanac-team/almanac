@@ -6,7 +6,7 @@ import {
 import {useState} from "react";
 
 const meta: Meta<typeof EventSettingConfig> = {
-    title: 'Activity Settings',
+    title: 'Event Settings',
     component: EventSettingConfig,
     tags: ['autodocs'],
 };

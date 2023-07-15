@@ -1,3 +1,5 @@
+import {LocalDateInput} from "~/components/time_picker/date";
+
 export type TimeConfigUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 
 export interface TimeConfig {
@@ -63,22 +65,10 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
         <div className="flex flex-col space-y-2">
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Due Date</span>
-                <input
-                    type="date"
-                    value={props.setting.at.getFullYear().toString() + '-' + (props.setting.at.getMonth() + 1).toString().padStart(2, '0') + '-' + props.setting.at.getDate().toString().padStart(2, '0')}
-                    className="p-2 mr-2 border border-gray-300 rounded"
-                    onChange={(e) => {
-                        const newDate = new Date();
-                        newDate.setFullYear(parseInt(e.target.value.slice(0, 4)));
-                        newDate.setMonth(parseInt(e.target.value.slice(5, 7)) - 1);
-                        newDate.setDate(parseInt(e.target.value.slice(8, 10)));
-
-                        newDate.setHours(props.setting.at.getHours());
-                        newDate.setMinutes(props.setting.at.getMinutes());
-
-                        props.onChange && props.onChange({...props.setting, at: newDate})
-                    }}
-                />
+                <LocalDateInput value={props.setting.at} onChange={(newDate: Date) => props.onChange && props.onChange({
+                    ...props.setting,
+                    at: newDate
+                })}/>
 
                 <input
                     type="time"
@@ -164,22 +154,10 @@ export function EventSettingConfig(props: {
         <div className="flex flex-col space-y-2">
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>At</span>
-                <input
-                    type="date"
-                    value={props.setting.at.getFullYear().toString() + '-' + (props.setting.at.getMonth() + 1).toString().padStart(2, '0') + '-' + props.setting.at.getDate().toString().padStart(2, '0')}
-                    className="p-2 mr-2 border border-gray-300 rounded"
-                    onChange={(e) => {
-                        const newDate = new Date();
-                        newDate.setFullYear(parseInt(e.target.value.slice(0, 4)));
-                        newDate.setMonth(parseInt(e.target.value.slice(5, 7)) - 1);
-                        newDate.setDate(parseInt(e.target.value.slice(8, 10)));
-
-                        newDate.setHours(props.setting.at.getHours());
-                        newDate.setMinutes(props.setting.at.getMinutes());
-
-                        props.onChange && props.onChange({...props.setting, at: newDate})
-                    }}
-                />
+                <LocalDateInput value={props.setting.at} onChange={(newDate: Date) => props.onChange && props.onChange({
+                    ...props.setting,
+                    at: newDate
+                })}/>
             </div>
 
             <div className="flex items-center whitespace-nowrap space-x-2">

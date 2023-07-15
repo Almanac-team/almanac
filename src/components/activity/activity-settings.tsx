@@ -1,111 +1,4 @@
-// enum RepeatType {
-//     Never = 'never',
-//     Daily = 'daily',
-//     Weekly = 'weekly',
-//     Monthly = 'monthly',
-//     Yearly = 'yearly'
-// }
-//
-// enum DayOfWeek {
-//     Monday = 'monday',
-//     Tuesday = 'tuesday',
-//     Wednesday = 'wednesday',
-//     Thursday = 'thursday',
-//     Friday = 'friday',
-//     Saturday = 'saturday',
-//     Sunday = 'sunday'
-// }
-//
-// enum RepeatEnd {
-//     Never = 'never',
-//     After = 'after',
-//     On = 'on'
-// }
-//
-// const MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
-//
-// function monthDiff(dateFrom: Date, dateTo: Date) {
-//     return dateTo.getMonth() - dateFrom.getMonth() +
-//         (12 * (dateTo.getFullYear() - dateFrom.getFullYear()))
-// }
-//
-// class RepeatOptions {
-//     firstActivityDate: Date = new Date();
-//
-//     // Repeat every "repeatPeriod" days/weeks/months/years
-//     repeatPeriod = 1
-//     repeatType: RepeatType = RepeatType.Never;
-//
-//     repeatEnd: RepeatEnd = RepeatEnd.Never;
-//     repeatEndAfter = 1;
-//     repeatEndOn: Date = new Date();
-//
-//     setRepeatEvery(period: number, type: RepeatType) {
-//         this.repeatPeriod = period;
-//         this.repeatType = type;
-//     }
-//
-//     setRepeatNever() {
-//         this.repeatEnd = RepeatEnd.Never;
-//     }
-//
-//     setRepeatEndAfter(after: number) {
-//         this.repeatEnd = RepeatEnd.After;
-//         this.repeatEndAfter = after;
-//     }
-//
-//     setRepeatEndOn(date: Date) {
-//         this.repeatEnd = RepeatEnd.On;
-//         this.repeatEndOn = date;
-//     }
-//
-//     getTotalRepeatCount() {
-//         if (this.repeatEnd === RepeatEnd.Never) {
-//             return -1;
-//         } else if (this.repeatEnd === RepeatEnd.After) {
-//             return this.repeatEndAfter;
-//         }
-//
-//         if (this.repeatType === RepeatType.Never) {
-//             return 1;
-//         } else {
-//             const firstTaskDate = new Date(this.firstActivityDate.getTime());
-//             const repeatEndOn = new Date(this.repeatEndOn.getTime());
-//
-//             firstTaskDate.setHours(0, 0, 0, 0);
-//             repeatEndOn.setHours(0, 0, 0, 0);
-//
-//             if (this.repeatType === RepeatType.Daily) {
-//                 return Math.floor((repeatEndOn.getTime() - firstTaskDate.getTime() + 1) / MILLIS_IN_DAY / this.repeatPeriod);
-//             } else if (this.repeatType === RepeatType.Weekly) {
-//                 return Math.floor((repeatEndOn.getTime() - firstTaskDate.getTime() + 1) / MILLIS_IN_DAY / 7 / this.repeatPeriod);
-//             }
-//         }
-//     }
-//
-//     getRepeatDate(i: number) {
-//         if (this.repeatType === RepeatType.Never) {
-//             return this.firstActivityDate;
-//         } else {
-//             const activityDate = new Date(this.firstActivityDate.getTime());
-//             activityDate.setHours(0, 0, 0, 0);
-//
-//             if (this.repeatType === RepeatType.Daily) {
-//                 activityDate.setDate(activityDate.getDate() + i * this.repeatPeriod);
-//             } else if (this.repeatType === RepeatType.Weekly) {
-//                 activityDate.setDate(activityDate.getDate() + i * this.repeatPeriod * 7);
-//             }
-//
-//             return activityDate;
-//         }
-//
-//
-//     }
-// }
-
-import activitySettingsStories from "~/components/activity/activity-settings-time-config.stories";
-import {ReactNode, useState} from "react";
-import {Button, Select, Option, TabPanel, TabsBody, TabsHeader} from "@material-tailwind/react";
+import {Button} from "@material-tailwind/react";
 import {Tab, Tabs} from "~/components/activity/tab";
 
 export type TimeConfigUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
@@ -118,40 +11,26 @@ export interface TimeConfig {
 export interface ActivitySetting {
     id: string,
     name: string,
-    at: Date,
+    activityType: ActivityType,
+    setting: TaskSetting | EventSetting,
+}
+
+export interface TaskSetting {
+    id: string,
+    due: Date,
     estimatedRequiredTime: TimeConfig,
     deadlineMod: TimeConfig,
     reminderMod: TimeConfig,
     startMod: TimeConfig,
 }
 
-// export abstract class ActivitySetting {
-//     public id: string;
-//     public name: string;
-//     public at: Date;
-//     public estimatedRequiredTime: TimeConfig;
-//     public reminderMod: TimeConfig;
-//     public startMod: TimeConfig;
-//
-//     protected constructor(id: string, name: string, at: Date, estimatedRequiredTime: TimeConfig, reminderMod: TimeConfig, startMod: TimeConfig) {
-//         this.id = id;
-//         this.name = name;
-//         this.at = at;
-//         this.estimatedRequiredTime = estimatedRequiredTime;
-//         this.reminderMod = reminderMod;
-//         this.startMod = startMod;
-//     }
-// }
-//
-// export class TaskSettingClass extends ActivitySetting {
-//     public deadlineMod: TimeConfig;
-//     constructor(id: string, name: string, at: Date, estimatedRequiredTime: TimeConfig, reminderMod: TimeConfig, startMod: TimeConfig, deadlineMod: TimeConfig) {
-//         super(id, name, at, estimatedRequiredTime, reminderMod, startMod);
-//         this.deadlineMod = deadlineMod;
-//     }
-// }
-
-
+export interface EventSetting {
+    id: string,
+    at: Date,
+    estimatedRequiredTime: TimeConfig,
+    reminderMod: TimeConfig,
+    startMod: TimeConfig,
+}
 
 export type ActivityType = 'task' | 'event';
 
@@ -169,9 +48,10 @@ export function TimeConfigInput(props: {
                 }}
                 className="p-2 mr-2 border border-gray-300 rounded w-16 h-full"
             />
-            <select className="p-2 border border-gray-300 rounded h-full" value={props.timeConfig.unit} onChange={(e) => {
-                if (props.onChange) props.onChange(undefined, e.target.value as TimeConfigUnit)
-            }}>
+            <select className="p-2 border border-gray-300 rounded h-full" value={props.timeConfig.unit}
+                    onChange={(e) => {
+                        if (props.onChange) props.onChange(undefined, e.target.value as TimeConfigUnit)
+                    }}>
                 <option value="minute">Minutes</option>
                 <option value="hour">Hours</option>
                 <option value="day">Days</option>
@@ -183,7 +63,7 @@ export function TimeConfigInput(props: {
     )
 }
 
-function TaskSetting(props: { activitySetting: ActivitySetting }) {
+function TaskSetting(props: { taskSetting: TaskSetting, onChange?: (taskSetting: TaskSetting) => void }) {
     return (
         <div className="flex flex-col space-y-2">
 
@@ -191,7 +71,7 @@ function TaskSetting(props: { activitySetting: ActivitySetting }) {
                 <span>Due Date</span>
                 <input
                     type="datetime-local"
-                    value={props.activitySetting.at.toISOString().slice(0, 16)}
+                    value={props.taskSetting.due.toISOString().slice(0, 16)}
                     className="p-2 mr-2 border border-gray-300 rounded"
                 />
             </div>
@@ -199,28 +79,28 @@ function TaskSetting(props: { activitySetting: ActivitySetting }) {
 
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Estimated Time Required</span>
-                <TimeConfigInput timeConfig={props.activitySetting.estimatedRequiredTime}/>
+                <TimeConfigInput timeConfig={props.taskSetting.estimatedRequiredTime}/>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Try and finish</span>
-                <TimeConfigInput timeConfig={props.activitySetting.reminderMod}/>
+                <TimeConfigInput timeConfig={props.taskSetting.reminderMod}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Remind me</span>
-                <TimeConfigInput timeConfig={props.activitySetting.startMod}/>
+                <TimeConfigInput timeConfig={props.taskSetting.startMod}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Ignore until</span>
-                <TimeConfigInput timeConfig={props.activitySetting.startMod}/>
+                <TimeConfigInput timeConfig={props.taskSetting.startMod}/>
                 <span>before</span>
             </div>
         </div>
     )
 }
 
-function EventSetting(props: { activitySetting: ActivitySetting }) {
+function EventSetting(props: { eventSetting: EventSetting, onChange?: (eventSetting: EventSetting) => void }) {
     return (
         <div className="flex flex-col space-y-2">
 
@@ -228,7 +108,7 @@ function EventSetting(props: { activitySetting: ActivitySetting }) {
                 <span>At</span>
                 <input
                     type="datetime-local"
-                    value={props.activitySetting.at.toISOString().slice(0, 16)}
+                    value={props.eventSetting.at.toISOString().slice(0, 16)}
                     className="p-2 mr-2 border border-gray-300 rounded"
                 />
             </div>
@@ -236,37 +116,55 @@ function EventSetting(props: { activitySetting: ActivitySetting }) {
 
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Estimated Time Required</span>
-                <TimeConfigInput timeConfig={props.activitySetting.estimatedRequiredTime}/>
-            </div>
-            <div className="flex items-center whitespace-nowrap space-x-2">
-                <span>Try and finish</span>
-                <TimeConfigInput timeConfig={props.activitySetting.reminderMod}/>
-                <span>before</span>
+                <TimeConfigInput timeConfig={props.eventSetting.estimatedRequiredTime}/>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Remind me</span>
-                <TimeConfigInput timeConfig={props.activitySetting.startMod}/>
+                <TimeConfigInput timeConfig={props.eventSetting.startMod}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Ignore until</span>
-                <TimeConfigInput timeConfig={props.activitySetting.startMod}/>
+                <TimeConfigInput timeConfig={props.eventSetting.startMod}/>
                 <span>before</span>
             </div>
         </div>
     )
 }
 
-export function ActivitySettingModal(props: { activityType: ActivityType, activitySetting: ActivitySetting }) {
+export function ActivitySettingModal(props: {
+    activitySetting: ActivitySetting,
+    onChange?: (activitySetting: ActivitySetting) => void,
+    onSubmit?: () => void
+}) {
+
+    function changeTaskSetting(taskSetting: TaskSetting) {
+        if (props.onChange) props.onChange({...props.activitySetting, setting: taskSetting})
+    }
+
+    function changeEventSetting(eventSetting: EventSetting) {
+        if (props.onChange) props.onChange({...props.activitySetting, setting: eventSetting})
+    }
+
+    function isTaskSetting(setting: TaskSetting | EventSetting): setting is TaskSetting {
+        return (setting as TaskSetting).due !== undefined;
+    }
+
     return (
-        <div className="flex flex-col space-y-2 w-96 justify-center">
+        <div className="flex flex-col space-y-2 w-96 h-96 justify-start">
             <input
                 type="text"
                 value={props.activitySetting.name}
                 className="p-2 mr-2 border-gray-300 border-b-2 focus:border-blue-500 focus:outline-none transition-colors text-gray-700 text-xl"
+                placeholder="Activity Name"
+                onChange={(e) => {
+                    if (props.onChange) props.onChange({...props.activitySetting, name: e.target.value})
+                }}
             />
 
-            <Tabs activeValue={props.activityType}>
+            <Tabs activeValue={props.activitySetting.activityType} onChange={(type) => {
+                if (props.onChange) props.onChange({...props.activitySetting, activityType: type as ActivityType})
+            }}>
                 <Tab value="task">
                     Task
                 </Tab>
@@ -275,7 +173,10 @@ export function ActivitySettingModal(props: { activityType: ActivityType, activi
                 </Tab>
             </Tabs>
 
-            {props.activityType === 'task' ? <TaskSetting activitySetting={props.activitySetting}/> : <EventSetting activitySetting={props.activitySetting}/>}
+            {isTaskSetting(props.activitySetting.setting) ?
+                <TaskSetting taskSetting={props.activitySetting.setting} onChange={changeTaskSetting}/> :
+                <EventSetting eventSetting={props.activitySetting.setting} onChange={changeEventSetting}/>}
+            <Button>Save</Button>
         </div>
     );
 }

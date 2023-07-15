@@ -41,7 +41,7 @@ export function Tab({value, children}: TabProps) {
 
     return (
         <li className="mr-2 w-full" onClick={() => {if (onChange != undefined && value != undefined && !disabled) {onChange(value)}}}>
-            <p className={clsx(" w-full inline-block p-4 border-b-2 rounded-t-lg", activeValue === value ? "text-blue-600 border-blue-600 active dark:text-blue-500 dark:border-blue-500" : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300")}>{children}</p>
+            <p className={clsx(" w-full inline-block p-4 border-b-2 rounded-t-lg select-none", activeValue === value ? "text-blue-600 border-blue-600 active dark:text-blue-500 dark:border-blue-500" : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300")}>{children}</p>
         </li>
     )
 }

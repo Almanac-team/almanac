@@ -12,11 +12,11 @@ export interface ActivitySetting {
     id: string,
     name: string,
     activityType: ActivityType,
-    setting: TaskSetting | EventSetting,
+    taskSetting: TaskSetting, // we keep both copies so data is not lost when switching between task and event
+    eventSetting: EventSetting,
 }
 
 export interface TaskSetting {
-    id: string,
     due: Date,
     estimatedRequiredTime: TimeConfig,
     deadlineMod: TimeConfig,
@@ -25,7 +25,6 @@ export interface TaskSetting {
 }
 
 export interface EventSetting {
-    id: string,
     at: Date,
     estimatedRequiredTime: TimeConfig,
     reminderMod: TimeConfig,
@@ -139,15 +138,11 @@ export function ActivitySettingModal(props: {
 }) {
 
     function changeTaskSetting(taskSetting: TaskSetting) {
-        if (props.onChange) props.onChange({...props.activitySetting, setting: taskSetting})
+        if (props.onChange) props.onChange({...props.activitySetting, taskSetting})
     }
 
     function changeEventSetting(eventSetting: EventSetting) {
-        if (props.onChange) props.onChange({...props.activitySetting, setting: eventSetting})
-    }
-
-    function isTaskSetting(setting: TaskSetting | EventSetting): setting is TaskSetting {
-        return (setting as TaskSetting).due !== undefined;
+        if (props.onChange) props.onChange({...props.activitySetting, eventSetting})
     }
 
     return (
@@ -173,9 +168,9 @@ export function ActivitySettingModal(props: {
                 </Tab>
             </Tabs>
 
-            {isTaskSetting(props.activitySetting.setting) ?
-                <TaskSetting taskSetting={props.activitySetting.setting} onChange={changeTaskSetting}/> :
-                <EventSetting eventSetting={props.activitySetting.setting} onChange={changeEventSetting}/>}
+            {props.activitySetting.activityType === 'task' ?
+                <TaskSetting taskSetting={props.activitySetting.taskSetting} onChange={changeTaskSetting}/> :
+                <EventSetting eventSetting={props.activitySetting.eventSetting} onChange={changeEventSetting}/>}
             <Button>Save</Button>
         </div>
     );

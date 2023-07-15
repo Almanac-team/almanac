@@ -32,7 +32,6 @@ function AddActivityModal({onSubmit}: {
 
     const [unionSetting, setUnionSetting] = useState<TaskSetting & EventSetting>(
         {
-            due: new Date(),
             at: new Date(),
             estimatedRequiredTime: {value: 1, unit: "hour"},
             deadlineMod: {value: 0, unit: "minute"},
@@ -63,10 +62,10 @@ function AddActivityModal({onSubmit}: {
 
             {activitySetting.activityType === 'task' ?
                 <TaskSettingConfig setting={unionSetting} onChange={(newSetting: TaskSetting) => setUnionSetting((setting) => {
-                    return {...setting, ...newSetting, at: newSetting.due}
+                    return {...setting, ...newSetting}
                 })}/> :
                 <EventSettingConfig setting={unionSetting} onChange={(newSetting: EventSetting) => setUnionSetting((setting) => {
-                    return {...setting, ...newSetting, due: newSetting.at}
+                    return {...setting, ...newSetting}
                 })}/>}
             <Button>Save</Button>
         </div>

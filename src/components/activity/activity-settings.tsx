@@ -16,7 +16,7 @@ export interface ActivitySetting {
 }
 
 export interface TaskSetting {
-    due: Date,
+    at: Date,
     estimatedRequiredTime: TimeConfig,
     deadlineMod: TimeConfig,
     reminderMod: TimeConfig,
@@ -68,10 +68,10 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
                 <span>Due Date</span>
                 <input
                     type="date"
-                    value={props.setting.due.toISOString().slice(0, 10)}
+                    value={props.setting.at.toISOString().slice(0, 10)}
                     className="p-2 mr-2 border border-gray-300 rounded"
                     onChange={(e) => {
-                        props.onChange && props.onChange({...props.setting, due: new Date(e.target.value)})
+                        props.onChange && props.onChange({...props.setting, at: new Date(e.target.value)})
                     }}
                 />
             </div>

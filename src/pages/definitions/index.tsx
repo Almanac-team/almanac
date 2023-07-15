@@ -136,10 +136,11 @@ export default function Home() {
                         {categoryList.isLoading ? null : <div className="flex gap-4 h-full">
                             {categoryList.data?.map((category, i) => {
                                 return <ActivityColumn key={i} categoryInfo={{
+                                    id: category.id,
                                     categoryName: category.name,
                                     backgroundColor: category.color,
                                     textColor: "text-white"
-                                }} activities={activities}/>
+                                }}/>
                             })}
                         </div>}
                     </div>

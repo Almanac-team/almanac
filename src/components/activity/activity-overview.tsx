@@ -4,8 +4,8 @@ import {CategoryInfo} from "~/components/activity/activity-column";
 import {ActivitySetting} from "~/components/activity/activity-settings";
 
 interface TaskSettingProps {
+    activityId: string;
     taskName: string;
-    activitySetting: ActivitySetting;
     categoryInfo: CategoryInfo;
 }
 
@@ -117,14 +117,14 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     );
 }
 
-export function ActivityOverview({taskName, activitySetting, categoryInfo}: TaskSettingProps) {
+export function ActivityOverview({taskName, activityId, categoryInfo}: TaskSettingProps) {
     return (
         <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">
                 <ActivityTag categoryInfo={categoryInfo}/>
                 <div className="flex flex-col space-y-2 w-full">
                     <div className="flex space-x-3">
-                        <TimeBubble remainingTime={activitySetting.at.getTime() - new Date().getTime()}/>
+                        {/*<TimeBubble remainingTime={activitySetting.at.getTime() - new Date().getTime()}/>*/}
                         <span
                             className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{taskName}</span>
                     </div>

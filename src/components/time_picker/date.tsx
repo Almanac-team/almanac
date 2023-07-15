@@ -39,6 +39,23 @@ export interface TimeConfig {
     unit: TimeConfigUnit
 }
 
+export function timeConfigToMilliseconds(timeConfig: TimeConfig): number {
+    switch (timeConfig.unit) {
+        case "minute":
+            return timeConfig.value * 60 * 1000;
+        case "hour":
+            return timeConfig.value * 60 * 60 * 1000;
+        case "day":
+            return timeConfig.value * 24 * 60 * 60 * 1000;
+        case "week":
+            return timeConfig.value * 7 * 24 * 60 * 60 * 1000;
+        case "month":
+            return timeConfig.value * 30 * 24 * 60 * 60 * 1000;
+        case "year":
+            return timeConfig.value * 365 * 24 * 60 * 60 * 1000;
+    }
+}
+
 export function TimeConfigInput(props: {
     timeConfig: TimeConfig,
     onChange?: (value?: number, unit?: TimeConfigUnit) => void

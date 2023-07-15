@@ -32,20 +32,28 @@ export interface EventSetting {
 
 export type ActivityType = 'task' | 'event';
 
-export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (taskSetting: TaskSetting) => void }) {
+export function TaskSettingConfig(props: {
+    setting: TaskSetting,
+    onChange?: (taskSetting: TaskSetting) => void,
+    disabled?: boolean
+}) {
     return (
         <div className="flex flex-col space-y-2">
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Due Date</span>
-                <LocalDateInput value={props.setting.at} onChange={(newDate: Date) => props.onChange && props.onChange({
-                    ...props.setting,
-                    at: newDate
-                })}/>
+                <LocalDateInput value={props.setting.at}
+                                onChange={(newDate: Date) => props.onChange && props.onChange({
+                                    ...props.setting,
+                                    at: newDate
+                                })}
+                                disabled={props.disabled}/>
 
-                <LocalTimeInput value={props.setting.at} onChange={(newDate: Date) => props.onChange && props.onChange({
-                    ...props.setting,
-                    at: newDate
-                })}/>
+                <LocalTimeInput value={props.setting.at}
+                                onChange={(newDate: Date) => props.onChange && props.onChange({
+                                    ...props.setting,
+                                    at: newDate
+                                })}
+                                disabled={props.disabled}/>
             </div>
 
             <div className="flex items-center whitespace-nowrap space-x-2">
@@ -59,7 +67,8 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
                                              unit: unit ?? props.setting.estimatedRequiredTime.unit
                                          }
                                      })
-                                 }}/>
+                                 }}
+                                 disabled={props.disabled}/>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Try and finish</span>
@@ -72,7 +81,8 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
                                              unit: unit ?? props.setting.deadlineMod.unit
                                          }
                                      })
-                                 }}/>
+                                 }}
+                                 disabled={props.disabled}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
@@ -86,7 +96,8 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
                                              unit: unit ?? props.setting.reminderMod.unit
                                          }
                                      })
-                                 }}/>
+                                 }}
+                                 disabled={props.disabled}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
@@ -100,7 +111,8 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
                                              unit: unit ?? props.setting.startMod.unit
                                          }
                                      })
-                                 }}/>
+                                 }}
+                                 disabled={props.disabled}/>
                 <span>before</span>
             </div>
         </div>
@@ -109,7 +121,8 @@ export function TaskSettingConfig(props: { setting: TaskSetting, onChange?: (tas
 
 export function EventSettingConfig(props: {
     setting: EventSetting,
-    onChange?: (eventSetting: EventSetting) => void
+    onChange?: (eventSetting: EventSetting) => void,
+    disabled?: boolean
 }) {
     const localTime = new Date(props.setting.at);
     localTime.setHours(localTime.getHours() - new Date().getTimezoneOffset() / 60);
@@ -118,10 +131,12 @@ export function EventSettingConfig(props: {
         <div className="flex flex-col space-y-2">
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>At</span>
-                <LocalDateInput value={props.setting.at} onChange={(newDate: Date) => props.onChange && props.onChange({
-                    ...props.setting,
-                    at: newDate
-                })}/>
+                <LocalDateInput value={props.setting.at}
+                                onChange={(newDate: Date) => props.onChange && props.onChange({
+                                    ...props.setting,
+                                    at: newDate
+                                })}
+                                disabled={props.disabled}/>
             </div>
 
             <div className="flex items-center whitespace-nowrap space-x-2">
@@ -135,7 +150,8 @@ export function EventSettingConfig(props: {
                                              unit: unit ?? props.setting.estimatedRequiredTime.unit
                                          }
                                      })
-                                 }}/>
+                                 }}
+                                 disabled={props.disabled}/>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Remind me</span>
@@ -148,7 +164,8 @@ export function EventSettingConfig(props: {
                                              unit: unit ?? props.setting.reminderMod.unit
                                          }
                                      })
-                                 }}/>
+                                 }}
+                                 disabled={props.disabled}/>
                 <span>before</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
@@ -162,7 +179,8 @@ export function EventSettingConfig(props: {
                                              unit: unit ?? props.setting.startMod.unit
                                          }
                                      })
-                                 }}/>
+                                 }}
+                                 disabled={props.disabled}/>
                 <span>before</span>
             </div>
         </div>

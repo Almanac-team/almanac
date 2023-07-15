@@ -1,4 +1,4 @@
-export function LocalDateInput({value, onChange}: { value: Date, onChange?: (date: Date) => void }) {
+export function LocalDateInput({value, onChange, disabled}: { value: Date, onChange?: (date: Date) => void, disabled?: boolean }) {
     return <input
         type="date"
         value={value.getFullYear().toString() + '-' + (value.getMonth() + 1).toString().padStart(2, '0') + '-' + value.getDate().toString().padStart(2, '0')}
@@ -14,10 +14,11 @@ export function LocalDateInput({value, onChange}: { value: Date, onChange?: (dat
 
             onChange && onChange(newDate)
         }}
+        disabled={disabled}
     />
 }
 
-export function LocalTimeInput({value, onChange}: { value: Date, onChange?: (date: Date) => void }) {
+export function LocalTimeInput({value, onChange, disabled}: { value: Date, onChange?: (date: Date) => void, disabled?: boolean }) {
     return <input
         type="time"
         value={value.getHours().toString().padStart(2, '0') + ':' + value.getMinutes().toString().padStart(2, '0')}
@@ -29,6 +30,7 @@ export function LocalTimeInput({value, onChange}: { value: Date, onChange?: (dat
 
             onChange && onChange(newDate)
         }}
+        disabled={disabled}
     />
 }
 
@@ -59,6 +61,7 @@ export function timeConfigToMilliseconds(timeConfig: TimeConfig): number {
 export function TimeConfigInput(props: {
     timeConfig: TimeConfig,
     onChange?: (value?: number, unit?: TimeConfigUnit) => void
+    disabled?: boolean
 }) {
     return (
         <div className="flex items-center">
@@ -69,11 +72,14 @@ export function TimeConfigInput(props: {
                     if (props.onChange) props.onChange(parseInt(e.target.value), undefined)
                 }}
                 className="p-2 mr-2 border border-gray-300 rounded w-16 h-full"
+                disabled={props.disabled}
             />
             <select className="p-2 border border-gray-300 rounded h-full" value={props.timeConfig.unit}
                     onChange={(e) => {
                         if (props.onChange) props.onChange(undefined, e.target.value as TimeConfigUnit)
-                    }}>
+                    }}
+                    disabled={props.disabled}
+            >
                 <option value="minute">Minutes</option>
                 <option value="hour">Hours</option>
                 <option value="day">Days</option>

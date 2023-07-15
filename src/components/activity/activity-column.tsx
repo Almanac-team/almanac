@@ -7,9 +7,9 @@ import {
     ActivitySetting,
     ActivityType,
     EventSetting,
+    EventSettingConfig,
     TaskSetting,
-    TaskSettingConfig,
-    EventSettingConfig
+    TaskSettingConfig
 } from "~/components/activity/activity-settings";
 import {Tab, Tabs} from "~/components/activity/tab";
 
@@ -82,9 +82,7 @@ const hexToGray = (hex: string): number => {
     const g = (bigint >> 8) & 255;
     const b = bigint & 255;
 
-    const a = (r + g + b) / 255 / 3;
-    console.log(a);
-    return a;
+    return (r + g + b) / 255 / 3;
 }
 
 export function ActivityColumn({categoryInfo}: {

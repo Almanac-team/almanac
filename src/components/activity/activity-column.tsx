@@ -138,7 +138,7 @@ export function ActivityColumn({categoryInfo}: {
             <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 py-2">
                 {activities ?
                     activities.map((activity) => (
-                        <ActivityOverview key={activity.id} taskName={activity.name} activity={activity}
+                        <ActivityOverview key={activity.id} activity={activity}
                                           categoryInfo={{...categoryInfo, textColor}}/>
                     )) : null
                 }

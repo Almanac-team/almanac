@@ -113,12 +113,7 @@ export default function Home() {
                     <div className="overflow-x-auto h-full">
                         {categoryList.isLoading ? null : <div className="flex gap-4 h-full">
                             {categoryList.data?.map((category, i) => {
-                                return <ActivityColumn key={i} categoryInfo={{
-                                    id: category.id,
-                                    categoryName: category.name,
-                                    backgroundColor: category.color,
-                                    textColor: "text-white"
-                                }}/>
+                                return <ActivityColumn key={i} categoryInfo={category}/>
                             })}
                         </div>}
                     </div>

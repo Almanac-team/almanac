@@ -2,11 +2,9 @@ import {useRef, useState} from "react";
 import clsx from "clsx";
 import {CategoryInfo} from "~/components/activity/activity-column";
 import {ActivitySetting} from "~/components/activity/activity-settings";
-import {api} from "~/utils/api";
 
 interface TaskSettingProps {
     activity: ActivitySetting;
-    taskName: string;
     categoryInfo: CategoryInfo;
 }
 
@@ -118,7 +116,7 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     );
 }
 
-export function ActivityOverview({taskName, activity, categoryInfo}: TaskSettingProps) {
+export function ActivityOverview({activity, categoryInfo}: TaskSettingProps) {
     return (
         <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">
@@ -127,7 +125,7 @@ export function ActivityOverview({taskName, activity, categoryInfo}: TaskSetting
                     <div className="flex space-x-3">
                         {/*<TimeBubble remainingTime={activitySetting.at.getTime() - new Date().getTime()}/>*/}
                         <span
-                            className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{taskName}</span>
+                            className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
                     </div>
                     <div className="flex">
                         <SelectMenu preview={<span className="justify-self-center text-zinc-700 font-bold text-[12px]">17:00 - 18:00</span>}>

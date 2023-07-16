@@ -1,12 +1,7 @@
-import {useRef, useState} from "react";
+import {useContext, useRef, useState} from "react";
 import clsx from "clsx";
-import {CategoryInfo} from "~/components/activity/activity-column";
+import {CategoryContext, CategoryInfo} from "~/components/activity/activity-column";
 import {ActivitySetting} from "~/components/activity/activity-settings";
-
-interface TaskSettingProps {
-    activity: ActivitySetting;
-    categoryInfo: CategoryInfo;
-}
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -116,7 +111,8 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     );
 }
 
-export function ActivityOverview({activity, categoryInfo}: TaskSettingProps) {
+export function ActivityOverview({activity}: {activity: ActivitySetting}) {
+    const categoryInfo = useContext(CategoryContext);
     return (
         <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">

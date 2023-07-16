@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
+import {CategoryInfo} from "~/components/activity/activity-column";
 
 const categoriesRouter = createTRPCRouter({
     createCategory: protectedProcedure.input(z.object({
@@ -68,11 +69,17 @@ const categoriesRouter = createTRPCRouter({
         });
     }),
 
-    getCategories: protectedProcedure.query(({ctx}) => {
+    getCategories: protectedProcedure.query(async ({ctx}): Promise<CategoryInfo[]> => {
         const userId = ctx?.session?.user?.id
-        return ctx.prisma.category.findMany({
+        return (await ctx.prisma.category.findMany({
             where: {
                 userId: userId
+            }
+        })).map((category) => {
+            return {
+                id: category.id,
+                categoryName: category.name,
+                backgroundColor: category.color
             }
         })
     }),

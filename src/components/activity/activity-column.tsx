@@ -17,7 +17,7 @@ export interface CategoryInfo {
     id: string;
     categoryName: string;
     backgroundColor: string;
-    textColor: string;
+    textColor?: string;
 }
 
 function AddActivityModal({onSubmit, updating}: {

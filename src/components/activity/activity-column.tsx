@@ -118,7 +118,7 @@ const hexToGray = (hex: string): number => {
 export function ActivityColumn({categoryInfo}: {
     categoryInfo: CategoryInfo
 }) {
-    const {data: activities, refetch} = api.activities.getActivities.useQuery({categoryId: categoryInfo.id});
+    const {data: activities, refetch} = api.activities.getDetailedActivities.useQuery({categoryId: categoryInfo.id});
     const {mutateAsync: createTask} = api.activities.createTask.useMutation();
     const {mutateAsync: createEvent} = api.activities.createEvent.useMutation();
     const [isOpen, setIsOpen] = useState(false);
@@ -138,14 +138,7 @@ export function ActivityColumn({categoryInfo}: {
             <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 py-2">
                 {activities ?
                     activities.map((activity) => (
-                        <ActivityOverview key={activity.id} taskName={activity.name} activity={
-                            {
-                                id: activity.id,
-                                name: activity.name,
-                                activityType: activity.activityType,
-                                setting: undefined
-                            }
-                        }
+                        <ActivityOverview key={activity.id} taskName={activity.name} activity={activity}
                                           categoryInfo={{...categoryInfo, textColor}}/>
                     )) : null
                 }

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import {ActivityOverview} from "~/components/activity/activity-overview";
 import {api} from "~/utils/api";
-import {useState} from "react";
+import React, {createContext, useContext, useState} from "react";
 import {Button, Menu, MenuHandler, MenuList} from "@material-tailwind/react";
 import {
     type ActivitySetting,
@@ -115,6 +115,14 @@ const hexToGray = (hex: string): number => {
     return (r + g + b) / 255 / 3;
 }
 
+export const CategoryContext = React.createContext<CategoryInfo>({
+    id: "-1",
+    categoryName: "Loading...",
+    backgroundColor: "#000000",
+    textColor: "text-white"
+});
+
+
 export function ActivityColumn({categoryInfo}: {
     categoryInfo: CategoryInfo
 }) {
@@ -136,12 +144,13 @@ export function ActivityColumn({categoryInfo}: {
                 <span className={clsx("font-bold", textColor)}>{categoryInfo.categoryName}</span>
             </div>
             <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 py-2">
-                {activities ?
-                    activities.map((activity) => (
-                        <ActivityOverview key={activity.id} activity={activity}
-                                          categoryInfo={{...categoryInfo, textColor}}/>
-                    )) : null
-                }
+                <CategoryContext.Provider value={{...categoryInfo, textColor}}>
+                    {activities ?
+                        activities.map((activity) => (
+                            <ActivityOverview key={activity.id} activity={activity}/>
+                        )) : null
+                    }
+                </CategoryContext.Provider>
             </div>
 
             <Menu open={isOpen} handler={setIsOpen}>

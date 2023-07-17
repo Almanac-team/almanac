@@ -6,7 +6,7 @@ import {
     type EventSetting,
     type TaskSetting,
     isEventSetting,
-    isTaskSetting, type ActivitySettingUnion, ActivitySettingModal,
+    isTaskSetting, ActivitySettingModal,
 } from "~/components/activity/activity-settings";
 
 import {
@@ -121,62 +121,7 @@ function Pill({children, className}: { children: ReactNode, className: string })
     </div>
 }
 
-function TaskOverview({activity}: { activity: ActivitySetting<TaskSetting> }) {
-    const category = useContext(CategoryContext);
-    const queryClient = api.useContext();
-
-    const [isOpen, setIsOpen] = useState(false);
-    const [updating, isUpdating] = useState(false);
-    const {mutate} = api.activities.updateTask.useMutation();
-
-    return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative cursor-pointer">
-        <div className="flex flex-row items-center">
-            <ActivityTag/>
-            <div className="flex flex-col space-y-2 w-full">
-                <div className="flex space-x-3">
-                    <TimeBubble deadline={activity.setting.at}/>
-                    <span
-                        className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
-                </div>
-                <div className="flex space-x-2">
-                    <Pill className="bg-green-300"><FlagIcon className="h-8 w-6"/></Pill>
-                    <Pill className="bg-gray-400">17:00 - 18:00</Pill>
-                </div>
-            </div>
-            <div className="absolute right-1 top-1">
-                <Menu open={isOpen} handler={setIsOpen}>
-                    <MenuHandler>
-                        <IconButton className="bg-gray-600 rounded hover:bg-gray-500 h-8 w-8">
-                            <AdjustmentsHorizontalIcon className="h-8 w-6"/>
-                        </IconButton>
-                    </MenuHandler>
-                    <MenuList>
-                        <ActivitySettingModal<TaskSetting>
-                            originalActivitySetting={activity} updating={updating}
-                            onSubmit={
-                                (activitySetting) => {
-                                    isUpdating(true);
-                                    mutate(activitySetting, {
-                                        onSuccess: () => {
-                                            void queryClient.activities.getDetailedActivities.invalidate({categoryId: category.id}).then(() => {
-                                                    setIsOpen(false);
-                                                    isUpdating(false);
-                                                }
-                                            );
-                                        }
-                                    });
-                                }
-                            }/>
-                    </MenuList>
-                </Menu>
-            </div>
-        </div>
-    </div>
-
-
-}
-
-function EventOverview({activity}: { activity: ActivitySetting<EventSetting> }) {
+export function ActivityOverview({activity}: { activity: ActivitySetting<TaskSetting | EventSetting> }) {
     const category = useContext(CategoryContext);
     const queryClient = api.useContext();
 
@@ -184,18 +129,53 @@ function EventOverview({activity}: { activity: ActivitySetting<EventSetting> }) 
     const [updating, isUpdating] = useState(false);
     const {mutate} = api.activities.updateEvent.useMutation();
 
+    const submitFunction = <T extends TaskSetting | EventSetting,>(activitySetting: ActivitySetting<T>) => {
+        isUpdating(true);
+        mutate(activitySetting, {
+            onSuccess: () => {
+                void queryClient.activities.getDetailedActivities.invalidate({categoryId: category.id}).then(() => {
+                        setIsOpen(false);
+                        isUpdating(false);
+                    }
+                );
+            }
+        });
+    }
+
+    let deadline;
+    let icon;
+    let settingModal;
+    if (isTaskSetting(activity.setting)) {
+        deadline = activity.setting.at;
+        icon = <FlagIcon className="h-8 w-6"/>
+
+
+        settingModal = <ActivitySettingModal<TaskSetting>
+            originalActivitySetting={activity as ActivitySetting<TaskSetting>} updating={updating}
+            onSubmit={submitFunction}/>
+    } else if (isEventSetting(activity.setting)) {
+        deadline = activity.setting.at;
+        icon = <ClockIcon className="h-8 w-6"/>
+
+
+        settingModal = <ActivitySettingModal<EventSetting>
+            originalActivitySetting={activity as ActivitySetting<EventSetting>} updating={updating}
+            onSubmit={submitFunction}/>
+    } else {
+        return <></>;
+    }
 
     return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
         <div className="flex flex-row items-center">
             <ActivityTag/>
             <div className="flex flex-col space-y-2 w-full">
                 <div className="flex space-x-3">
-                    <TimeBubble deadline={activity.setting.at}/>
+                    <TimeBubble deadline={deadline}/>
                     <span
                         className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
                 </div>
                 <div className="flex space-x-2">
-                    <Pill className="bg-gray-400"><ClockIcon className="h-8 w-6"/></Pill>
+                    <Pill className="bg-gray-400">{icon}</Pill>
                     <Pill className="bg-gray-400">17:00 - 18:00</Pill>
                 </div>
             </div>
@@ -207,38 +187,10 @@ function EventOverview({activity}: { activity: ActivitySetting<EventSetting> }) 
                         </IconButton>
                     </MenuHandler>
                     <MenuList>
-                        <ActivitySettingModal<EventSetting>
-                            originalActivitySetting={activity} updating={updating}
-                            onSubmit={
-                                (activitySetting) => {
-                                    isUpdating(true);
-                                    mutate(activitySetting, {
-                                        onSuccess: () => {
-                                            void queryClient.activities.getDetailedActivities.invalidate({categoryId: category.id}).then(() => {
-                                                    setIsOpen(false);
-                                                    isUpdating(false);
-                                                }
-                                            );
-                                        }
-                                    });
-                                }
-                            }/>
+                        {settingModal}
                     </MenuList>
                 </Menu>
             </div>
         </div>
-    </div>
-
-
-}
-
-export function ActivityOverview({activity}: { activity: ActivitySettingUnion }) {
-    if (isTaskSetting(activity.setting)) {
-        return <TaskOverview activity={activity as ActivitySetting<TaskSetting>}/>
-    } else if (isEventSetting(activity.setting)) {
-        return <EventOverview activity={activity as ActivitySetting<EventSetting>}/>
-    }
-    return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
-        Error
     </div>
 }

@@ -58,20 +58,21 @@ function TimeBubble({remainingTime}: { remainingTime: number }) {
     }
 
 }
+
 function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     const ref = useRef<HTMLDivElement>(null);
-    const [spanWidth, setSpanWidth] = useState(32);
+    const [sW, setSW] = useState(32);
     const [hover, setHover] = useState(false);
 
     return (
-        <div className={clsx("h-24 ml-0 mr-2 flex transition-all")} style={{minWidth: spanWidth}}
+        <div className={clsx("h-24 ml-0 mr-2 flex transition-all")} style={{minWidth: sW}}
              onMouseEnter={() => {
                  setHover(true);
-                 setSpanWidth(Math.min(Math.max(32, ref.current?.clientHeight ?? 0), 128));
+                 setSW(Math.min(Math.max(32, ref.current?.clientHeight ?? 0), 128));
              }}
              onMouseLeave={() => {
                  setHover(false)
-                 setSpanWidth(32);
+                 setSW(32);
              }}
         >
             <div className="absolute max-h-0 overflow-hidden">
@@ -86,7 +87,7 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
                 <div className="absolute inset-0">
                     <div
                         className="w-24 origin-top-left -rotate-90 px-2 rounded-tl-lg rounded-tr-lg transition-all overflow-hidden"
-                        style={{minHeight: spanWidth, maxHeight: spanWidth, backgroundColor: categoryInfo.backgroundColor}}>
+                        style={{minHeight: sW, maxHeight: sW, backgroundColor: categoryInfo.backgroundColor}}>
                         <span
                             className={clsx("block font-bold text-center overflow-x-hidden", categoryInfo.textColor, hover ? "whitespace-break-spaces break-words" : "whitespace-nowrap overflow-ellipsis")}>
                           {categoryInfo.categoryName}
@@ -115,6 +116,7 @@ function TaskOverview({activity, setting}: { activity: ActivitySetting, setting:
         </div>
     </div>
 }
+
 function EventOverview({activity, setting}: { activity: ActivitySetting, setting: EventSetting }) {
     return <div className="flex flex-col space-y-2 w-full">
         <div className="flex space-x-3">
@@ -133,14 +135,13 @@ function EventOverview({activity, setting}: { activity: ActivitySetting, setting
     </div>
 }
 
-export function ActivityOverview({activity}: {activity: ActivitySetting}) {
+export function ActivityOverview({activity}: { activity: ActivitySetting }) {
     const categoryInfo = useContext(CategoryContext);
 
     let setting;
     if (isTaskSetting(activity.setting)) {
         setting = <TaskOverview activity={activity} setting={activity.setting}/>
-    }
-    else if (isEventSetting(activity.setting)) {
+    } else if (isEventSetting(activity.setting)) {
         setting = <EventOverview activity={activity} setting={activity.setting}/>
     }
 

@@ -178,25 +178,14 @@ export function ActivityColumn({categoryInfo}: {
                                 res = createTask({
                                     categoryId: categoryInfo.id,
                                     name: activitySetting.name,
-                                    setting: {
-                                        at: setting.at,
-                                        estimatedRequiredTime: setting.estimatedRequiredTime,
-                                        deadlineMod: setting.deadlineMod,
-                                        reminderMod: setting.reminderMod,
-                                        startMod: setting.startMod,
-                                    }
+                                    setting
                                 });
                             } else if (activitySetting.activityType === 'event') {
                                 const setting = activitySetting.setting as EventSetting;
                                 res = createEvent({
                                     categoryId: categoryInfo.id,
                                     name: activitySetting.name,
-                                    setting: {
-                                        at: setting.at,
-                                        estimatedRequiredTime: setting.estimatedRequiredTime,
-                                        reminderMod: setting.reminderMod,
-                                        startMod: setting.startMod,
-                                    }
+                                    setting
                                 });
                             }
 

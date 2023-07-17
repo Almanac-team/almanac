@@ -6,7 +6,7 @@ import {
     type EventSetting,
     type TaskSetting,
     isEventSetting,
-    isTaskSetting, type ActivitySettingUnion,
+    isTaskSetting, type ActivitySettingUnion, ActivitySettingModal,
 } from "~/components/activity/activity-settings";
 
 import {
@@ -15,7 +15,8 @@ import {
     AdjustmentsHorizontalIcon
 } from "@heroicons/react/24/outline";
 import {TimeContext} from "~/pages/_app";
-import {Menu, MenuHandler, MenuList} from "@material-tailwind/react";
+import {IconButton, Menu, MenuHandler, MenuList} from "@material-tailwind/react";
+import {api} from "~/utils/api";
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -114,72 +115,130 @@ function ActivityTag() {
 }
 
 function Pill({children, className}: { children: ReactNode, className: string }) {
-    return <div className={clsx('h-8 rounded-lg flex flex-row justify-between items-center px-2 text-zinc-700 font-bold text-[12px]', className)}>
+    return <div
+        className={clsx('h-8 rounded-lg flex flex-row justify-between items-center px-2 text-zinc-700 font-bold text-[12px]', className)}>
         <span className="justify-self-center">{children}</span>
     </div>
 }
+
 function TaskOverview({activity}: { activity: ActivitySetting<TaskSetting> }) {
+    const category = useContext(CategoryContext);
+    const queryClient = api.useContext();
+
     const [isOpen, setIsOpen] = useState(false);
+    const [updating, isUpdating] = useState(false);
+    const {mutate} = api.activities.updateTask.useMutation();
 
-
-    return <div className="flex flex-col space-y-2 w-full cursor-pointer relative">
-        <div className="flex space-x-3">
-            <TimeBubble deadline={activity.setting.at}/>
-            <span
-                className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
-        </div>
-        <div className="flex space-x-2">
-            <Pill className="bg-green-300"><FlagIcon className="h-8 w-6"/></Pill>
-            <Pill className="bg-gray-400">17:00 - 18:00</Pill>
-        </div>
-        <div className="absolute right-0 top-0">
-            <Menu open={isOpen} handler={setIsOpen}>
-                <MenuHandler>
-                    <AdjustmentsHorizontalIcon className="h-8 w-6"/>
-                </MenuHandler>
-                <MenuList>
-                    <p>hi</p>
-                </MenuList>
-            </Menu>
+    return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative cursor-pointer">
+        <div className="flex flex-row items-center">
+            <ActivityTag/>
+            <div className="flex flex-col space-y-2 w-full">
+                <div className="flex space-x-3">
+                    <TimeBubble deadline={activity.setting.at}/>
+                    <span
+                        className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
+                </div>
+                <div className="flex space-x-2">
+                    <Pill className="bg-green-300"><FlagIcon className="h-8 w-6"/></Pill>
+                    <Pill className="bg-gray-400">17:00 - 18:00</Pill>
+                </div>
+            </div>
+            <div className="absolute right-1 top-1">
+                <Menu open={isOpen} handler={setIsOpen}>
+                    <MenuHandler>
+                        <IconButton className="bg-gray-600 rounded hover:bg-gray-500 h-8 w-8">
+                            <AdjustmentsHorizontalIcon className="h-8 w-6"/>
+                        </IconButton>
+                    </MenuHandler>
+                    <MenuList>
+                        <ActivitySettingModal<TaskSetting>
+                            originalActivitySetting={activity} updating={updating}
+                            onSubmit={
+                                (activitySetting) => {
+                                    isUpdating(true);
+                                    mutate(activitySetting, {
+                                        onSuccess: () => {
+                                            void queryClient.activities.getDetailedActivities.invalidate({categoryId: category.id}).then(() => {
+                                                    setIsOpen(false);
+                                                    isUpdating(false);
+                                                }
+                                            );
+                                        }
+                                    });
+                                }
+                            }/>
+                    </MenuList>
+                </Menu>
+            </div>
         </div>
     </div>
+
+
 }
 
 function EventOverview({activity}: { activity: ActivitySetting<EventSetting> }) {
-    return <div className="flex flex-col space-y-2 w-full">
-        <div className="flex space-x-3">
-            <TimeBubble deadline={activity.setting.at}/>
-            <span
-                className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
-        </div>
-        <div className="flex space-x-2">
-            <Pill className="bg-gray-400"><ClockIcon className="h-8 w-6"/></Pill>
-            <Pill className="bg-gray-400">17:00 - 18:00</Pill>
+    const category = useContext(CategoryContext);
+    const queryClient = api.useContext();
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [updating, isUpdating] = useState(false);
+    const {mutate} = api.activities.updateEvent.useMutation();
+
+
+    return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
+        <div className="flex flex-row items-center">
+            <ActivityTag/>
+            <div className="flex flex-col space-y-2 w-full">
+                <div className="flex space-x-3">
+                    <TimeBubble deadline={activity.setting.at}/>
+                    <span
+                        className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
+                </div>
+                <div className="flex space-x-2">
+                    <Pill className="bg-gray-400"><ClockIcon className="h-8 w-6"/></Pill>
+                    <Pill className="bg-gray-400">17:00 - 18:00</Pill>
+                </div>
+            </div>
+            <div className="absolute right-1 top-1">
+                <Menu open={isOpen} handler={setIsOpen}>
+                    <MenuHandler>
+                        <IconButton className="bg-gray-600 rounded hover:bg-gray-500 h-8 w-8">
+                            <AdjustmentsHorizontalIcon className="h-8 w-6"/>
+                        </IconButton>
+                    </MenuHandler>
+                    <MenuList>
+                        <ActivitySettingModal<EventSetting>
+                            originalActivitySetting={activity} updating={updating}
+                            onSubmit={
+                                (activitySetting) => {
+                                    isUpdating(true);
+                                    mutate(activitySetting, {
+                                        onSuccess: () => {
+                                            void queryClient.activities.getDetailedActivities.invalidate({categoryId: category.id}).then(() => {
+                                                    setIsOpen(false);
+                                                    isUpdating(false);
+                                                }
+                                            );
+                                        }
+                                    });
+                                }
+                            }/>
+                    </MenuList>
+                </Menu>
+            </div>
         </div>
     </div>
+
+
 }
 
 export function ActivityOverview({activity}: { activity: ActivitySettingUnion }) {
-
-    let setting;
     if (isTaskSetting(activity.setting)) {
-        setting = <TaskOverview activity={activity as ActivitySetting<TaskSetting>}/>
+        return <TaskOverview activity={activity as ActivitySetting<TaskSetting>}/>
     } else if (isEventSetting(activity.setting)) {
-        setting = <EventOverview activity={activity as ActivitySetting<EventSetting>}/>
+        return <EventOverview activity={activity as ActivitySetting<EventSetting>}/>
     }
-
-    if (setting === undefined) {
-        return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
-            Error
-        </div>
-    }
-
-    return (
-        <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
-            <div className="flex flex-row items-center">
-                <ActivityTag/>
-                {setting}
-            </div>
-        </div>
-    );
+    return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
+        Error
+    </div>
 }

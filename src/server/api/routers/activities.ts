@@ -143,7 +143,7 @@ const activitiesRouter = createTRPCRouter({
             } else if (activity.type === PrismaActivityType.event) {
                 setting = ConvertEvent(activity.event);
             }
-            if (setting === null){
+            if (setting === null) {
                 setting = undefined
             }
 
@@ -314,6 +314,75 @@ const activitiesRouter = createTRPCRouter({
                 },
                 event: {
                     create: {
+                        startDate: input.setting.at,
+                        estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
+                        reminderMod: convertTimeConfigToInt(input.setting.reminderMod),
+                        startMod: convertTimeConfigToInt(input.setting.startMod)
+                    }
+                }
+            }
+        })
+    }),
+
+    updateTask: protectedProcedure.input(z.object({
+        id: z.string(),
+        name: z.string(),
+        setting:
+            z.object({
+                at: z.date(),
+                estimatedRequiredTime: TimeConfig,
+                deadlineMod: TimeConfig,
+                reminderMod: TimeConfig,
+                startMod: TimeConfig,
+            })
+    })).mutation(async ({ctx, input}) => {
+        const userId = ctx?.session?.user?.id
+        return ctx.prisma.activity.update({
+            where: {
+                id: input.id,
+                category: {
+                    userId: userId
+                }
+            },
+            data: {
+                name: input.name,
+                task: {
+                    update: {
+                        dueDate: input.setting.at,
+                        estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
+                        deadlineMod: convertTimeConfigToInt(input.setting.deadlineMod),
+                        reminderMod: convertTimeConfigToInt(input.setting.reminderMod),
+                        startMod: convertTimeConfigToInt(input.setting.startMod)
+
+                    }
+                }
+            }
+        })
+    }),
+
+    updateEvent: protectedProcedure.input(z.object({
+        id: z.string(),
+        name: z.string(),
+        setting:
+            z.object({
+                at: z.date(),
+                estimatedRequiredTime: TimeConfig,
+                reminderMod: TimeConfig,
+                startMod: TimeConfig,
+            })
+    })).mutation(async ({ctx, input}) => {
+        const userId = ctx?.session?.user?.id
+        return ctx.prisma.activity.update({
+            where: {
+                id: input.id,
+                category: {
+                    userId: userId
+                }
+            },
+            data: {
+                name: input.name,
+                event: {
+                    update: {
                         startDate: input.setting.at,
                         estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
                         reminderMod: convertTimeConfigToInt(input.setting.reminderMod),

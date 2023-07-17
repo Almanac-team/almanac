@@ -1,7 +1,18 @@
 import {useContext, useRef, useState} from "react";
 import clsx from "clsx";
-import {CategoryContext, CategoryInfo} from "~/components/activity/activity-column";
-import {ActivitySetting} from "~/components/activity/activity-settings";
+import {CategoryContext, type CategoryInfo} from "~/components/activity/activity-column";
+import {
+    type ActivitySetting,
+    type EventSetting,
+    type TaskSetting,
+    isEventSetting,
+    isTaskSetting,
+} from "~/components/activity/activity-settings";
+
+import {
+    FlagIcon,
+    ClockIcon,
+} from "@heroicons/react/24/outline";
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -47,30 +58,6 @@ function TimeBubble({remainingTime}: { remainingTime: number }) {
     }
 
 }
-
-function SelectMenu(props: { children?: React.ReactNode, preview: React.ReactNode }) {
-    const [open, setOpen] = useState(false);
-
-    return (
-        <div className="relative"
-             onMouseLeave={() => setOpen(false)}
-        >
-            <div
-                className="h-8 bg-gray-300 rounded-lg flex flex-row justify-between items-center px-2 cursor-pointer hover:bg-gray-400 transition-colors"
-                onClick={() => setOpen(!open)}
-            >
-                {props.preview}
-            </div>
-
-            {open && (
-                <div className="absolute left-0 bg-gray-300 rounded-lg p-3">
-                    {props.children}
-                </div>
-            )}
-        </div>
-    );
-}
-
 function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     const ref = useRef<HTMLDivElement>(null);
     const [spanWidth, setSpanWidth] = useState(32);
@@ -111,24 +98,63 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     );
 }
 
+function TaskOverview({activity, setting}: { activity: ActivitySetting, setting: TaskSetting }) {
+    return <div className="flex flex-col space-y-2 w-full">
+        <div className="flex space-x-3">
+            <TimeBubble remainingTime={setting.at.getTime() - new Date().getTime()}/>
+            <FlagIcon className="h-8 w-6"/>
+            <span
+                className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
+        </div>
+        <div className="flex">
+            <div
+                className="h-8 bg-gray-300 rounded-lg flex flex-row justify-between items-center px-2 cursor-pointer hover:bg-gray-400 transition-colors"
+            >
+                <span className="justify-self-center text-zinc-700 font-bold text-[12px]">17:00 - 18:00</span>
+            </div>
+        </div>
+    </div>
+}
+function EventOverview({activity, setting}: { activity: ActivitySetting, setting: EventSetting }) {
+    return <div className="flex flex-col space-y-2 w-full">
+        <div className="flex space-x-3">
+            <TimeBubble remainingTime={setting.at.getTime() - new Date().getTime()}/>
+            <ClockIcon className="h-8 w-6"/>
+            <span
+                className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
+        </div>
+        <div className="flex">
+            <div
+                className="h-8 bg-gray-300 rounded-lg flex flex-row justify-between items-center px-2 cursor-pointer hover:bg-gray-400 transition-colors"
+            >
+                <span className="justify-self-center text-zinc-700 font-bold text-[12px]">17:00 - 18:00</span>
+            </div>
+        </div>
+    </div>
+}
+
 export function ActivityOverview({activity}: {activity: ActivitySetting}) {
     const categoryInfo = useContext(CategoryContext);
+
+    let setting;
+    if (isTaskSetting(activity.setting)) {
+        setting = <TaskOverview activity={activity} setting={activity.setting}/>
+    }
+    else if (isEventSetting(activity.setting)) {
+        setting = <EventOverview activity={activity} setting={activity.setting}/>
+    }
+
+    if (setting === undefined) {
+        return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
+            Error
+        </div>
+    }
+
     return (
         <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">
                 <ActivityTag categoryInfo={categoryInfo}/>
-                <div className="flex flex-col space-y-2 w-full">
-                    <div className="flex space-x-3">
-                        {/*<TimeBubble remainingTime={activitySetting.at.getTime() - new Date().getTime()}/>*/}
-                        <span
-                            className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
-                    </div>
-                    <div className="flex">
-                        <SelectMenu preview={<span className="justify-self-center text-zinc-700 font-bold text-[12px]">17:00 - 18:00</span>}>
-                            <p>hello</p>
-                        </SelectMenu>
-                    </div>
-                </div>
+                {setting}
             </div>
         </div>
     );

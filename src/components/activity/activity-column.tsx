@@ -143,7 +143,7 @@ export function ActivityColumn({categoryInfo}: {
                 style={{backgroundColor: categoryInfo.backgroundColor}}>
                 <span className={clsx("font-bold", textColor)}>{categoryInfo.categoryName}</span>
             </div>
-            <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 py-2">
+            <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 p-2">
                 <CategoryContext.Provider value={{...categoryInfo, textColor}}>
                     {activities ?
                         activities.map((activity) => (

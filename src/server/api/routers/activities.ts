@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 import {
-    type ActivitySetting, type ActivitySettingUnion,
+    type ActivitySetting,
     type ActivityType,
     type EventSetting,
     type TaskSetting
@@ -123,7 +123,7 @@ const activitiesRouter = createTRPCRouter({
 
     getDetailedActivities: protectedProcedure.input(z.object({
         categoryId: z.string()
-    })).query(async ({ctx, input}): Promise<ActivitySettingUnion[]> => {
+    })).query(async ({ctx, input}): Promise<ActivitySetting<TaskSetting | EventSetting>[]> => {
         const userId = ctx?.session?.user?.id
         return (await ctx.prisma.activity.findMany({
             where: {
@@ -136,15 +136,16 @@ const activitiesRouter = createTRPCRouter({
                 task: true,
                 event: true
             }
-        })).map((activity): ActivitySettingUnion => {
+        })).map((activity): ActivitySetting<TaskSetting | EventSetting> | undefined => {
             let setting;
             if (activity.type === PrismaActivityType.task) {
                 setting = ConvertTask(activity.task);
             } else if (activity.type === PrismaActivityType.event) {
                 setting = ConvertEvent(activity.event);
             }
-            if (setting === null) {
-                setting = undefined
+
+            if (setting === null || setting === undefined) {
+                return undefined
             }
 
             return {
@@ -153,6 +154,8 @@ const activitiesRouter = createTRPCRouter({
                 activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
                 setting
             }
+        }).filter((activity): activity is ActivitySetting<TaskSetting | EventSetting> => {
+            return activity !== undefined
         })
     }),
 

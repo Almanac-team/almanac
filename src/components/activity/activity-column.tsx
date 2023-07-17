@@ -172,27 +172,30 @@ export function ActivityColumn({categoryInfo}: {
                         (activitySetting: ActivitySetting) => {
                             let res;
                             setUpdating(true);
-                            if (isTaskSetting(activitySetting.setting)) {
+
+                            if (activitySetting.activityType === 'task') {
+                                const setting = activitySetting.setting as TaskSetting;
                                 res = createTask({
                                     categoryId: categoryInfo.id,
                                     name: activitySetting.name,
                                     setting: {
-                                        at: activitySetting.setting.at,
-                                        estimatedRequiredTime: activitySetting.setting.estimatedRequiredTime,
-                                        deadlineMod: activitySetting.setting.deadlineMod,
-                                        reminderMod: activitySetting.setting.reminderMod,
-                                        startMod: activitySetting.setting.startMod,
+                                        at: setting.at,
+                                        estimatedRequiredTime: setting.estimatedRequiredTime,
+                                        deadlineMod: setting.deadlineMod,
+                                        reminderMod: setting.reminderMod,
+                                        startMod: setting.startMod,
                                     }
                                 });
-                            } else if (isEventSetting(activitySetting.setting)) {
+                            } else if (activitySetting.activityType === 'event') {
+                                const setting = activitySetting.setting as EventSetting;
                                 res = createEvent({
                                     categoryId: categoryInfo.id,
                                     name: activitySetting.name,
                                     setting: {
-                                        at: activitySetting.setting.at,
-                                        estimatedRequiredTime: activitySetting.setting.estimatedRequiredTime,
-                                        reminderMod: activitySetting.setting.reminderMod,
-                                        startMod: activitySetting.setting.startMod,
+                                        at: setting.at,
+                                        estimatedRequiredTime: setting.estimatedRequiredTime,
+                                        reminderMod: setting.reminderMod,
+                                        startMod: setting.startMod,
                                     }
                                 });
                             }

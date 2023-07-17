@@ -1,4 +1,4 @@
-import {useContext, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import clsx from "clsx";
 import {CategoryContext, type CategoryInfo} from "~/components/activity/activity-column";
 import {
@@ -13,11 +13,15 @@ import {
     FlagIcon,
     ClockIcon,
 } from "@heroicons/react/24/outline";
+import {TimeContext} from "~/pages/_app";
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
 
-function TimeBubble({remainingTime}: { remainingTime: number }) {
+function TimeBubble({deadline}: { deadline: Date }) {
+    const currentTime = useContext(TimeContext);
+
+    const remainingTime = deadline.getTime() - currentTime.getTime();
     const remainingDays = remainingTime / MILLISECONDS_IN_DAY;
 
     if (remainingDays >= 14) {
@@ -41,10 +45,14 @@ function TimeBubble({remainingTime}: { remainingTime: number }) {
         return <span className="bg-red-400 text-white font-bold rounded-lg px-3 h-8 flex items-center justify-center">
                 {Math.floor(remainingDays)}
             </span>
-    } else if (remainingDays >= 0) {
+    } else if (remainingTime >= 60000) {
         return <span className="bg-red-500 text-white font-bold rounded-lg px-3 h-8 flex items-center justify-center">
                 {`${Math.floor(remainingTime / MILLISECONDS_IN_HOUR).toString().padStart(2, '0')}:
                 ${Math.floor(remainingTime % MILLISECONDS_IN_HOUR / 1000 / 60).toString().padStart(2, '0')}`}
+            </span>;
+    } else if (remainingDays >= 0) {
+        return <span className="bg-red-500 text-white font-bold rounded-lg px-3 h-8 flex items-center justify-center">
+                {`${Math.floor(remainingTime / 1000).toString()}s`}
             </span>;
     } else if (remainingDays > -1) {
         return <span className="bg-red-500 text-white font-bold rounded-lg px-3 h-8 flex items-center justify-center">
@@ -102,7 +110,7 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
 function TaskOverview({activity, setting}: { activity: ActivitySetting, setting: TaskSetting }) {
     return <div className="flex flex-col space-y-2 w-full">
         <div className="flex space-x-3">
-            <TimeBubble remainingTime={setting.at.getTime() - new Date().getTime()}/>
+            <TimeBubble deadline={setting.at}/>
             <FlagIcon className="h-8 w-6"/>
             <span
                 className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
@@ -120,7 +128,7 @@ function TaskOverview({activity, setting}: { activity: ActivitySetting, setting:
 function EventOverview({activity, setting}: { activity: ActivitySetting, setting: EventSetting }) {
     return <div className="flex flex-col space-y-2 w-full">
         <div className="flex space-x-3">
-            <TimeBubble remainingTime={setting.at.getTime() - new Date().getTime()}/>
+            <TimeBubble deadline={setting.at}/>
             <ClockIcon className="h-8 w-6"/>
             <span
                 className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>

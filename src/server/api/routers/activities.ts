@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 import {
-    type ActivitySetting,
+    type ActivitySetting, type ActivitySettingUnion,
     type ActivityType,
     type EventSetting,
     type TaskSetting
@@ -102,7 +102,7 @@ function ConvertEvent(event: {
 const activitiesRouter = createTRPCRouter({
     getActivities: protectedProcedure.input(z.object({
         categoryId: z.string()
-    })).query(async ({ctx, input}): Promise<ActivitySetting[]> => {
+    })).query(async ({ctx, input}): Promise<ActivitySetting<undefined>[]> => {
         const userId = ctx?.session?.user?.id
         return (await ctx.prisma.activity.findMany({
             where: {
@@ -111,7 +111,7 @@ const activitiesRouter = createTRPCRouter({
                     userId: userId
                 }
             }
-        })).map((activity): ActivitySetting => {
+        })).map((activity): ActivitySetting<undefined> => {
             return {
                 id: activity.id,
                 name: activity.name,
@@ -123,7 +123,7 @@ const activitiesRouter = createTRPCRouter({
 
     getDetailedActivities: protectedProcedure.input(z.object({
         categoryId: z.string()
-    })).query(async ({ctx, input}): Promise<ActivitySetting[]> => {
+    })).query(async ({ctx, input}): Promise<ActivitySettingUnion[]> => {
         const userId = ctx?.session?.user?.id
         return (await ctx.prisma.activity.findMany({
             where: {
@@ -136,7 +136,7 @@ const activitiesRouter = createTRPCRouter({
                 task: true,
                 event: true
             }
-        })).map((activity): ActivitySetting => {
+        })).map((activity): ActivitySettingUnion => {
             let setting;
             if (activity.type === PrismaActivityType.task) {
                 setting = ConvertTask(activity.task);

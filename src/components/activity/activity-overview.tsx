@@ -1,12 +1,12 @@
-import React, {ReactDOM, ReactNode, useContext, useEffect, useRef, useState} from "react";
+import React, {type ReactNode, useContext, useRef, useState} from "react";
 import clsx from "clsx";
-import {CategoryContext, type CategoryInfo} from "~/components/activity/activity-column";
+import {CategoryContext} from "~/components/activity/activity-column";
 import {
     type ActivitySetting,
     type EventSetting,
     type TaskSetting,
     isEventSetting,
-    isTaskSetting,
+    isTaskSetting, type ActivitySettingUnion,
 } from "~/components/activity/activity-settings";
 
 import {
@@ -118,13 +118,13 @@ function Pill({children, className}: { children: ReactNode, className: string })
         <span className="justify-self-center">{children}</span>
     </div>
 }
-function TaskOverview({activity, setting}: { activity: ActivitySetting, setting: TaskSetting }) {
+function TaskOverview({activity}: { activity: ActivitySetting<TaskSetting> }) {
     const [isOpen, setIsOpen] = useState(false);
 
 
     return <div className="flex flex-col space-y-2 w-full cursor-pointer relative">
         <div className="flex space-x-3">
-            <TimeBubble deadline={setting.at}/>
+            <TimeBubble deadline={activity.setting.at}/>
             <span
                 className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
         </div>
@@ -145,10 +145,10 @@ function TaskOverview({activity, setting}: { activity: ActivitySetting, setting:
     </div>
 }
 
-function EventOverview({activity, setting}: { activity: ActivitySetting, setting: EventSetting }) {
+function EventOverview({activity}: { activity: ActivitySetting<EventSetting> }) {
     return <div className="flex flex-col space-y-2 w-full">
         <div className="flex space-x-3">
-            <TimeBubble deadline={setting.at}/>
+            <TimeBubble deadline={activity.setting.at}/>
             <span
                 className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
         </div>
@@ -159,13 +159,13 @@ function EventOverview({activity, setting}: { activity: ActivitySetting, setting
     </div>
 }
 
-export function ActivityOverview({activity}: { activity: ActivitySetting }) {
+export function ActivityOverview({activity}: { activity: ActivitySettingUnion }) {
 
     let setting;
     if (isTaskSetting(activity.setting)) {
-        setting = <TaskOverview activity={activity} setting={activity.setting}/>
+        setting = <TaskOverview activity={activity as ActivitySetting<TaskSetting>}/>
     } else if (isEventSetting(activity.setting)) {
-        setting = <EventOverview activity={activity} setting={activity.setting}/>
+        setting = <EventOverview activity={activity as ActivitySetting<EventSetting>}/>
     }
 
     if (setting === undefined) {

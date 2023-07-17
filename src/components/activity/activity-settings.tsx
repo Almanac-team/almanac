@@ -1,10 +1,11 @@
 import {LocalDateInput, LocalTimeInput, type TimeConfig, TimeConfigInput} from "~/components/time_picker/date";
 
-export interface ActivitySetting {
+export type ActivitySettingUnion = ActivitySetting<TaskSetting | EventSetting | undefined>;
+export interface ActivitySetting<T extends TaskSetting | EventSetting | undefined> {
     id: string,
     name: string,
     activityType: ActivityType,
-    setting: TaskSetting | EventSetting | undefined
+    setting: T
 }
 
 export function isTaskSetting(setting: TaskSetting | EventSetting | undefined): setting is TaskSetting {

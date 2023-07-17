@@ -1,15 +1,15 @@
 import clsx from "clsx";
 import {ActivityOverview} from "~/components/activity/activity-overview";
 import {api} from "~/utils/api";
-import React, {createContext, useContext, useState} from "react";
+import React, {useState} from "react";
 import {Button, Menu, MenuHandler, MenuList} from "@material-tailwind/react";
 import {
     type ActivitySetting,
     type ActivityType,
     type EventSetting,
     type TaskSetting,
-    EventSettingConfig, isEventSetting, isTaskSetting,
-    TaskSettingConfig
+    EventSettingConfig,
+    TaskSettingConfig, type ActivitySettingUnion
 } from "~/components/activity/activity-settings";
 import {Tab, Tabs} from "~/components/generic/tab";
 
@@ -21,10 +21,10 @@ export interface CategoryInfo {
 }
 
 function AddActivityModal({onSubmit, updating}: {
-    onSubmit?: (activitySetting: ActivitySetting) => void,
+    onSubmit?: (activitySetting: ActivitySetting<TaskSetting | EventSetting>) => void,
     updating?: boolean
 }) {
-    const [activitySetting, setActivitySetting] = useState<ActivitySetting>({
+    const [activitySetting, setActivitySetting] = useState<ActivitySetting<undefined>>({
         id: "-1",
         name: "",
         activityType: 'task',
@@ -169,7 +169,7 @@ export function ActivityColumn({categoryInfo}: {
                 </MenuHandler>
                 <MenuList>
                     <AddActivityModal onSubmit={
-                        (activitySetting: ActivitySetting) => {
+                        (activitySetting: ActivitySettingUnion) => {
                             let res;
                             setUpdating(true);
 

@@ -126,7 +126,8 @@ export const CategoryContext = React.createContext<CategoryInfo>({
 export function ActivityColumn({categoryInfo}: {
     categoryInfo: CategoryInfo
 }) {
-    const {data: activities, refetch} = api.activities.getDetailedActivities.useQuery({categoryId: categoryInfo.id});
+    const queryClient = api.useContext();
+    const {data: activities} = api.activities.getDetailedActivities.useQuery({categoryId: categoryInfo.id});
     const {mutateAsync: createTask} = api.activities.createTask.useMutation();
     const {mutateAsync: createEvent} = api.activities.createEvent.useMutation();
     const [isOpen, setIsOpen] = useState(false);
@@ -170,32 +171,43 @@ export function ActivityColumn({categoryInfo}: {
                 <MenuList>
                     <AddActivityModal onSubmit={
                         (activitySetting: ActivitySettingUnion) => {
-                            let res;
                             setUpdating(true);
 
                             if (activitySetting.activityType === 'task') {
                                 const setting = activitySetting.setting as TaskSetting;
-                                res = createTask({
-                                    categoryId: categoryInfo.id,
-                                    name: activitySetting.name,
-                                    setting
-                                });
+                                void createTask({
+                                        categoryId: categoryInfo.id,
+                                        name: activitySetting.name,
+                                        setting
+                                    },
+                                    {
+                                        onSuccess: () => {
+                                            void queryClient.activities.getDetailedActivities.invalidate({categoryId: categoryInfo.id}).then(() => {
+                                                    setIsOpen(false);
+                                                    setUpdating(false);
+                                                }
+                                            )
+                                        }
+                                    }
+                                );
                             } else if (activitySetting.activityType === 'event') {
                                 const setting = activitySetting.setting as EventSetting;
-                                res = createEvent({
-                                    categoryId: categoryInfo.id,
-                                    name: activitySetting.name,
-                                    setting
-                                });
+                                void createEvent({
+                                        categoryId: categoryInfo.id,
+                                        name: activitySetting.name,
+                                        setting
+                                    },
+                                    {
+                                        onSuccess: () => {
+                                            void queryClient.activities.getDetailedActivities.invalidate({categoryId: categoryInfo.id}).then(() => {
+                                                    setIsOpen(false);
+                                                    setUpdating(false);
+                                                }
+                                            )
+                                        }
+                                    }
+                                );
                             }
-
-                            void res?.then(() => {
-                                setIsOpen(false);
-                                setUpdating(false);
-                                void refetch();
-                            }).catch(() => {
-                                setUpdating(false);
-                            });
                         }
                     }
                                       updating={updating}

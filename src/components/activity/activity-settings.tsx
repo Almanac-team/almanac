@@ -138,6 +138,13 @@ export function EventSettingConfig(props: {
                                     at: newDate
                                 })}
                                 disabled={props.disabled}/>
+
+                <LocalTimeInput value={props.setting.at}
+                                onChange={(newDate: Date) => props.onChange && props.onChange({
+                                    ...props.setting,
+                                    at: newDate
+                                })}
+                                disabled={props.disabled}/>
             </div>
 
             <div className="flex items-center whitespace-nowrap space-x-2">

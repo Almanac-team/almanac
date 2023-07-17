@@ -4,12 +4,10 @@ import {ActivityColumn} from "~/components/activity/activity-column";
 
 import {
     Button,
-    Card,
     Input, Menu, MenuHandler, MenuList,
     Typography
 } from "@material-tailwind/react";
 import React, {useState} from "react";
-import clsx from "clsx";
 
 interface CategorySetting {
     id: string | undefined,

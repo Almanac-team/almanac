@@ -1,4 +1,4 @@
-import {useContext, useEffect, useRef, useState} from "react";
+import React, {ReactDOM, ReactNode, useContext, useEffect, useRef, useState} from "react";
 import clsx from "clsx";
 import {CategoryContext, type CategoryInfo} from "~/components/activity/activity-column";
 import {
@@ -12,8 +12,10 @@ import {
 import {
     FlagIcon,
     ClockIcon,
+    AdjustmentsHorizontalIcon
 } from "@heroicons/react/24/outline";
 import {TimeContext} from "~/pages/_app";
+import {Menu, MenuHandler, MenuList} from "@material-tailwind/react";
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -70,7 +72,8 @@ function TimeBubble({deadline}: { deadline: Date }) {
     }
 }
 
-function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
+function ActivityTag() {
+    const categoryInfo = useContext(CategoryContext);
     const ref = useRef<HTMLDivElement>(null);
     const [sW, setSW] = useState(32);
     const [hover, setHover] = useState(false);
@@ -110,20 +113,34 @@ function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {
     );
 }
 
+function Pill({children, className}: { children: ReactNode, className: string }) {
+    return <div className={clsx('h-8 rounded-lg flex flex-row justify-between items-center px-2 text-zinc-700 font-bold text-[12px]', className)}>
+        <span className="justify-self-center">{children}</span>
+    </div>
+}
 function TaskOverview({activity, setting}: { activity: ActivitySetting, setting: TaskSetting }) {
-    return <div className="flex flex-col space-y-2 w-full">
+    const [isOpen, setIsOpen] = useState(false);
+
+
+    return <div className="flex flex-col space-y-2 w-full cursor-pointer relative">
         <div className="flex space-x-3">
             <TimeBubble deadline={setting.at}/>
-            <FlagIcon className="h-8 w-6"/>
             <span
                 className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
         </div>
-        <div className="flex">
-            <div
-                className="h-8 bg-gray-300 rounded-lg flex flex-row justify-between items-center px-2 cursor-pointer hover:bg-gray-400 transition-colors"
-            >
-                <span className="justify-self-center text-zinc-700 font-bold text-[12px]">17:00 - 18:00</span>
-            </div>
+        <div className="flex space-x-2">
+            <Pill className="bg-green-300"><FlagIcon className="h-8 w-6"/></Pill>
+            <Pill className="bg-gray-400">17:00 - 18:00</Pill>
+        </div>
+        <div className="absolute right-0 top-0">
+            <Menu open={isOpen} handler={setIsOpen}>
+                <MenuHandler>
+                    <AdjustmentsHorizontalIcon className="h-8 w-6"/>
+                </MenuHandler>
+                <MenuList>
+                    <p>hi</p>
+                </MenuList>
+            </Menu>
         </div>
     </div>
 }
@@ -132,22 +149,17 @@ function EventOverview({activity, setting}: { activity: ActivitySetting, setting
     return <div className="flex flex-col space-y-2 w-full">
         <div className="flex space-x-3">
             <TimeBubble deadline={setting.at}/>
-            <ClockIcon className="h-8 w-6"/>
             <span
                 className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{activity.name}</span>
         </div>
-        <div className="flex">
-            <div
-                className="h-8 bg-gray-300 rounded-lg flex flex-row justify-between items-center px-2 cursor-pointer hover:bg-gray-400 transition-colors"
-            >
-                <span className="justify-self-center text-zinc-700 font-bold text-[12px]">17:00 - 18:00</span>
-            </div>
+        <div className="flex space-x-2">
+            <Pill className="bg-gray-400"><ClockIcon className="h-8 w-6"/></Pill>
+            <Pill className="bg-gray-400">17:00 - 18:00</Pill>
         </div>
     </div>
 }
 
 export function ActivityOverview({activity}: { activity: ActivitySetting }) {
-    const categoryInfo = useContext(CategoryContext);
 
     let setting;
     if (isTaskSetting(activity.setting)) {
@@ -165,7 +177,7 @@ export function ActivityOverview({activity}: { activity: ActivitySetting }) {
     return (
         <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
             <div className="flex flex-row items-center">
-                <ActivityTag categoryInfo={categoryInfo}/>
+                <ActivityTag/>
                 {setting}
             </div>
         </div>

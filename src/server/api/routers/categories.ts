@@ -6,11 +6,11 @@ const categoriesRouter = createTRPCRouter({
     createCategory: protectedProcedure.input(z.object({
         name: z.string(),
         color: z.string(),
-    })).mutation(({ctx, input}) => {
+    })).mutation(async ({ctx, input}) => {
         const userId = ctx?.session?.user.id
         const {name, color} = input
 
-        ctx.prisma.category.create({
+        return ctx.prisma.category.create({
             data: {
                 name,
                 color,
@@ -40,11 +40,11 @@ const categoriesRouter = createTRPCRouter({
         id: z.string(),
         name: z.string(),
         color: z.string(),
-    })).mutation(({ctx, input}) => {
+    })).mutation(async ({ctx, input}) => {
         const userId = ctx?.session?.user.id
         const {id, name, color} = input
 
-        ctx.prisma.category.update({
+        return ctx.prisma.category.update({
             where: {
                 id: id,
                 userId: userId
@@ -86,11 +86,11 @@ const categoriesRouter = createTRPCRouter({
 
     deleteCategory: protectedProcedure.input(z.object({
         id: z.string()
-    })).mutation(({ctx, input}) => {
+    })).mutation(async ({ctx, input}) => {
         const userId = ctx?.session?.user.id
         const {id} = input
 
-        ctx.prisma.category.delete({
+        return ctx.prisma.category.delete({
             where: {
                 id: id,
                 userId: userId

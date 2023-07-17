@@ -50,13 +50,17 @@ function TimeBubble({deadline}: { deadline: Date }) {
                 {`${Math.floor(remainingTime / MILLISECONDS_IN_HOUR).toString().padStart(2, '0')}:
                 ${Math.floor(remainingTime % MILLISECONDS_IN_HOUR / 1000 / 60).toString().padStart(2, '0')}`}
             </span>;
-    } else if (remainingDays >= 0) {
+    } else if (remainingTime >= 0) {
+        return <span className="bg-red-500 text-white font-bold rounded-lg px-3 h-8 flex items-center justify-center">
+                {`${Math.floor(remainingTime / 1000).toString()}s`}
+            </span>;
+    } else if (remainingTime > -60000) {
         return <span className="bg-red-500 text-white font-bold rounded-lg px-3 h-8 flex items-center justify-center">
                 {`${Math.floor(remainingTime / 1000).toString()}s`}
             </span>;
     } else if (remainingDays > -1) {
         return <span className="bg-red-500 text-white font-bold rounded-lg px-3 h-8 flex items-center justify-center">
-                {`${Math.floor(remainingTime / MILLISECONDS_IN_HOUR).toString().padStart(2, '0')}:
+                {`-${Math.floor(Math.abs(remainingTime) / MILLISECONDS_IN_HOUR).toString().padStart(2, '0')}:
                 ${Math.floor(-remainingTime % MILLISECONDS_IN_HOUR / 1000 / 60).toString().padStart(2, '0')}`}
             </span>;
     } else {
@@ -64,7 +68,6 @@ function TimeBubble({deadline}: { deadline: Date }) {
                 {Math.floor(remainingDays)}
             </span>
     }
-
 }
 
 function ActivityTag({categoryInfo}: { categoryInfo: CategoryInfo }) {

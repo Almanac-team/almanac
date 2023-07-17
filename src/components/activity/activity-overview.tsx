@@ -1,4 +1,4 @@
-import React, {type ReactNode, useContext, useRef, useState} from "react";
+import React, {type ReactNode, useCallback, useContext, useRef, useState} from "react";
 import clsx from "clsx";
 import {CategoryContext} from "~/components/activity/activity-column";
 import {
@@ -129,7 +129,7 @@ export function ActivityOverview({activity}: { activity: ActivitySetting<TaskSet
     const [updating, isUpdating] = useState(false);
     const {mutate} = api.activities.updateEvent.useMutation();
 
-    const submitFunction = <T extends TaskSetting | EventSetting,>(activitySetting: ActivitySetting<T>) => {
+    const submitFunction = useCallback(<T extends TaskSetting | EventSetting, >(activitySetting: ActivitySetting<T>) => {
         isUpdating(true);
         mutate(activitySetting, {
             onSuccess: () => {
@@ -140,7 +140,7 @@ export function ActivityOverview({activity}: { activity: ActivitySetting<TaskSet
                 );
             }
         });
-    }
+    }, [category.id, mutate, queryClient.activities]);
 
     let deadline;
     let icon;

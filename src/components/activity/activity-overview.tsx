@@ -128,20 +128,34 @@ export function ActivityOverview({activity}: { activity: ActivitySetting<TaskSet
 
     const [isOpen, setIsOpen] = useState(false);
     const [updating, isUpdating] = useState(false);
-    const {mutate} = api.activities.updateEvent.useMutation();
+    const {mutate: mutateTask} = api.activities.updateTask.useMutation();
+    const {mutate: mutateEvent} = api.activities.updateEvent.useMutation();
 
     const submitFunction = useCallback(<T extends TaskSetting | EventSetting, >(activitySetting: ActivitySetting<T>) => {
         isUpdating(true);
-        mutate(activitySetting, {
-            onSuccess: () => {
-                void queryClient.activities.getDetailedActivities.invalidate({categoryId: category.id}).then(() => {
-                        setIsOpen(false);
-                        isUpdating(false);
-                    }
-                );
-            }
-        });
-    }, [category.id, mutate, queryClient.activities]);
+        if (isTaskSetting(activitySetting.setting)) {
+            mutateTask(activitySetting as ActivitySetting<TaskSetting>, {
+                onSuccess: () => {
+                    void queryClient.activities.getDetailedActivities.invalidate({categoryId: category.id}).then(() => {
+                            setIsOpen(false);
+                            isUpdating(false);
+                        }
+                    );
+                }
+            });
+        } else if (isEventSetting(activitySetting.setting)) {
+            mutateEvent(activitySetting as ActivitySetting<EventSetting>, {
+                onSuccess: () => {
+                    void queryClient.activities.getDetailedActivities.invalidate({categoryId: category.id}).then(() => {
+                            setIsOpen(false);
+                            isUpdating(false);
+                        }
+                    );
+                }
+            });
+
+        }
+    }, [category.id, mutateTask, mutateEvent, queryClient.activities]);
 
     let deadline;
     let icon;

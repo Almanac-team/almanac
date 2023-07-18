@@ -15,8 +15,9 @@ import {
     AdjustmentsHorizontalIcon
 } from "@heroicons/react/24/outline";
 import {TimeContext} from "~/pages/_app";
-import {IconButton, Menu, MenuHandler, MenuList} from "@material-tailwind/react";
+import {IconButton} from "@material-tailwind/react";
 import {api} from "~/utils/api";
+import {Menu, MenuBody, MenuHandler} from "~/components/generic/menu";
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -186,9 +187,9 @@ export function ActivityOverview({activity}: { activity: ActivitySetting<TaskSet
                             <AdjustmentsHorizontalIcon className="h-8 w-6"/>
                         </IconButton>
                     </MenuHandler>
-                    <MenuList>
+                    <MenuBody>
                         {settingModal}
-                    </MenuList>
+                    </MenuBody>
                 </Menu>
             </div>
         </div>

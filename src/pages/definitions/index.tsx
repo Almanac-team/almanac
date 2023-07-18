@@ -4,10 +4,12 @@ import {ActivityColumn} from "~/components/activity/activity-column";
 
 import {
     Button,
-    Input, Menu, MenuHandler, MenuList,
+    Input,
     Typography
 } from "@material-tailwind/react";
 import React, {useState} from "react";
+
+import {Menu, MenuBody, MenuHandler} from "~/components/generic/menu";
 
 interface CategorySetting {
     id: string | undefined,
@@ -112,9 +114,9 @@ export default function Home() {
                                 <Button onClick={() => setShowCategorySettings((value) => !value)}>Create
                                     Category</Button>
                             </MenuHandler>
-                            <MenuList>
+                            <MenuBody>
                                 <CategorySettings buttonName="Add Category" onSubmit={addCategory}/>
-                            </MenuList>
+                            </MenuBody>
                         </Menu>
                         <Button onClick={() => deleteAllCategories()}>Delete all Categories</Button>
                     </div>

@@ -2,7 +2,8 @@ import clsx from "clsx";
 import {ActivityOverview} from "~/components/activity/activity-overview";
 import {api} from "~/utils/api";
 import React, {useState} from "react";
-import {Button, Menu, MenuHandler, MenuList} from "@material-tailwind/react";
+import {Button} from "@material-tailwind/react";
+import {Menu, MenuBody, MenuHandler} from "~/components/generic/menu";
 import {
     type ActivitySetting,
     type ActivityType,
@@ -48,7 +49,7 @@ function AddActivityModal({onSubmit, updating}: {
     const [error, setError] = useState(false);
 
     return (
-        <div className={clsx("flex flex-col space-y-2 w-96 h-96 justify-start", updating && "")}>
+        <div className={clsx("flex flex-col space-y-2 w-96 h-96 justify-start mb-6", updating && "")}>
             <input
                 type="text"
                 value={activitySetting.name}
@@ -168,7 +169,7 @@ export function ActivityColumn({categoryInfo}: {
                         <span className="font-bold">Add Item</span>
                     </div>
                 </MenuHandler>
-                <MenuList>
+                <MenuBody>
                     <AddActivityModal onSubmit={
                         (activitySetting: ActivitySettingUnion) => {
                             setUpdating(true);
@@ -212,7 +213,7 @@ export function ActivityColumn({categoryInfo}: {
                     }
                                       updating={updating}
                     />
-                </MenuList>
+                </MenuBody>
             </Menu>
         </div>
     )

@@ -13,7 +13,7 @@ const MenuContext = createContext<MenuContextValue>({open: false, handler: undef
 
 export function MenuHandler({children}: { children: ReactNode }) {
     const {open, handler, handlerRef} = useContext(MenuContext);
-    return <div className="h-fit w-fit" ref={handlerRef} onClick={() => handler ? handler(!open) : null}>
+    return <div ref={handlerRef} onClick={() => handler ? handler(!open) : null}>
             {children}
         </div>
 
@@ -23,8 +23,9 @@ export function MenuBody({children}: { children: ReactNode }) {
     const {open, handler, handlerRef} = useContext(MenuContext);
     const ref = useRef<HTMLDivElement>(null);
     const [visible, setVisible] = useState(false);
+    const [rect, setRect] = useState<{top: number, left: number, width: number, height: number} | undefined>(undefined);
 
-    const close = useCallback((e: MouseEvent) => {
+    const close = useCallback((e: Event) => {
         if (e.target === null) return;
 
         if (!ref?.current?.contains(e.target as Node) && !handlerRef?.current?.contains(e.target as Node)) {
@@ -35,8 +36,10 @@ export function MenuBody({children}: { children: ReactNode }) {
     useEffect(() => {
         if (open) {
             addEventListener("click", close);
+            addEventListener("wheel", close);
             return () => {
                 removeEventListener("click", close)
+                addEventListener("wheel", close);
             }
         }
     }, [open, close]);
@@ -65,14 +68,29 @@ export function MenuBody({children}: { children: ReactNode }) {
 
 
     if (!visible && !open) {
+        if (rect !== undefined) {
+            setRect(undefined);
+        }
         return null;
     }
 
-    const {top, left, width, height} = handlerRef?.current?.getBoundingClientRect() ?? {top: 0, left: 0, width: 0, height: 0};
-    const leftPos = left - ((ref?.current?.clientWidth ?? 0) - width) / 2;
-    let topPos = top + height + 10;
-    if (topPos + (ref?.current?.clientHeight ?? 0) > window.innerHeight) {
-        topPos = top - (ref?.current?.clientHeight ?? 0) - 10;
+    if (rect === undefined) {
+        if (handlerRef !== undefined && handlerRef.current !== null) {
+            setRect(handlerRef.current.getBoundingClientRect() ?? {
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0
+            });
+        }
+        return null;
+    }
+
+
+    const leftPos = rect.left - ((ref.current?.clientWidth ?? 0) - rect.width) / 2;
+    let topPos = rect.top + rect.height + 10;
+    if (topPos + (ref.current?.clientHeight ?? 0) > window.innerHeight) {
+        topPos = rect.top - (ref.current?.clientHeight ?? 0) - 10;
     }
 
     return createPortal(

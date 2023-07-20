@@ -1,4 +1,4 @@
-import {ScheduledEvent} from "~/utils/types";
+import {type ScheduledEvent} from "~/utils/types";
 import clsx from "clsx";
 
 function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], startDay: Date }) {
@@ -10,17 +10,21 @@ function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], s
                 ))
             }
             {activityList.map(activity => {
-                const timeDelta = activity.at.getTime() - startDay.getTime();
-                if (timeDelta < 0) return null;
-                if (timeDelta > 24 * 60 * 60 * 1000) return null;
+                const startTimeRelative = (activity.at.getTime() - startDay.getTime()) / 1000 / 60 / 60
+                const endHourRelative = startTimeRelative + activity.length;
+                if (endHourRelative < 0) return null;
+                if (startTimeRelative >= 24) return null;
 
-
-
-                return <div
-                    className='absolute bg-blue-400 text-white w-full px-2 flex text-sm rounded-md'
-                    style={{height: activity.length * 19, top: timeDelta / 1000 / 60 / 60 * 40 + 1}}
-                    key={activity.id}>
-                    {activity.name}
+                return <div className={clsx('absolute bg-blue-400 text-white w-full px-2 flex text-sm',
+                    !(startTimeRelative < 0) && `rounded-t-md`,
+                    !(endHourRelative >= 24) && `rounded-b-md`)
+                }
+                            style={{
+                                top: Math.max(startTimeRelative, 0) * 40,
+                                height: (Math.min(endHourRelative, 24) - Math.max(startTimeRelative, 0)) * 40
+                            }}
+                            key={activity.id}>
+                    {`${activity.name}${startTimeRelative < 0 ? " (continued)" : ""}`}
                 </div>
             })}
         </div>
@@ -50,7 +54,8 @@ export function TimelineView({className, dayViewList}: { className: string, dayV
                             dayViewList.map((dayView, i) => (
                                 <div key={dayView.dayLabel} className="-mr-0.5">
                                     <div className='sticky top-0 w-full z-10 bg-white'>
-                                        <div className={clsx('w-full z-10 py-2 bg-gray-300', i == 0 && `rounded-tl-md`, i == dayViewList.length - 1 && `rounded-tr-md`)}>
+                                        <div
+                                            className={clsx('w-full z-10 py-2 bg-gray-300', i == 0 && `rounded-tl-md`, i == dayViewList.length - 1 && `rounded-tr-md`)}>
                                             <div className="mx-auto text-center">
                                                 {dayView.dayLabel}
                                             </div>

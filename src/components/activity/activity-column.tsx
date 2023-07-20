@@ -49,7 +49,7 @@ function AddActivityModal({onSubmit, updating}: {
     const [error, setError] = useState(false);
 
     return (
-        <div className={clsx("flex flex-col space-y-2 w-96 h-96 justify-start mb-6", updating && "")}>
+        <div className={clsx("flex flex-col space-y-2 w-96 h-[26rem] justify-start", updating && "")}>
             <input
                 type="text"
                 value={activitySetting.name}

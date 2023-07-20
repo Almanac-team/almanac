@@ -39,7 +39,7 @@ function AddActivityModal({onSubmit, updating}: {
                 date.setHours(23, 59, 0, 0);
                 return date;
             })(),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
+            estimatedRequiredTime: 60,
             deadlineMod: {value: 0, unit: "minute"},
             reminderMod: {value: 0, unit: "minute"},
             startMod: {value: 0, unit: "minute"},

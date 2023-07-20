@@ -1,4 +1,10 @@
-export function LocalDateInput({value, onChange, disabled}: { value: Date, onChange?: (date: Date) => void, disabled?: boolean }) {
+import {useCallback, useState} from "react";
+
+export function LocalDateInput({value, onChange, disabled}: {
+    value: Date,
+    onChange?: (date: Date) => void,
+    disabled?: boolean
+}) {
     return <input
         type="date"
         value={value.getFullYear().toString() + '-' + (value.getMonth() + 1).toString().padStart(2, '0') + '-' + value.getDate().toString().padStart(2, '0')}
@@ -18,7 +24,11 @@ export function LocalDateInput({value, onChange, disabled}: { value: Date, onCha
     />
 }
 
-export function LocalTimeInput({value, onChange, disabled}: { value: Date, onChange?: (date: Date) => void, disabled?: boolean }) {
+export function LocalTimeInput({value, onChange, disabled}: {
+    value: Date,
+    onChange?: (date: Date) => void,
+    disabled?: boolean
+}) {
     return <input
         type="time"
         value={value.getHours().toString().padStart(2, '0') + ':' + value.getMinutes().toString().padStart(2, '0')}
@@ -70,6 +80,64 @@ export function TimeConfigInput(props: {
                 <option value="month">Months</option>
                 <option value="year">Years</option>
             </select>
+        </div>
+    )
+}
+
+function minutesToText(minutes: number) {
+    return `${Math.floor(minutes / 60)}:${(minutes % 60).toString().padStart(2, '0')}`
+}
+
+export function HourMinuteInput({minutes, onChange, disabled}: {
+    minutes: number,
+    onChange?: (value: number) => void
+    disabled?: boolean
+}) {
+    const [value, setValue] = useState(minutesToText(minutes));
+
+    const updateValue = useCallback((newValue: number) => {
+        setValue(minutesToText(newValue));
+        if (onChange && minutes !== newValue) { onChange(newValue) }
+    }, [minutes, onChange])
+
+    return (
+        <div className="flex items-center">
+            <input
+                type="text"
+                value={value}
+                onChange={(e) => {
+                    setValue(e.target.value)
+                }}
+                onBlur={() => {
+                    const colonCount = value.length - value.replace(':', '').length;
+                    if (colonCount > 1) {
+                        // reset
+                        updateValue(minutes * 60);
+                        return;
+                    } else if (colonCount === 1) {
+                        const [hour, minute] = value.split(':');
+                        if (hour === undefined || minute === undefined) return;
+
+                        const hourNumber = parseInt(hour);
+                        const minuteNumber = parseInt(minute);
+                        if (isNaN(hourNumber) || isNaN(minuteNumber)) {
+                            updateValue(minutes)
+                        } else {
+                            updateValue(hourNumber * 60 + minuteNumber)
+                        }
+                    } else {
+                        const number = parseInt(value);
+                        if (isNaN(number)) {
+                            updateValue(minutes)
+                        } else {
+                            updateValue(number * 60)
+                        }
+                    }
+                }
+                }
+                className="p-2 mr-2 border border-gray-300 rounded w-16 h-full"
+                disabled={disabled}
+            />
         </div>
     )
 }

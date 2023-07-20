@@ -1,7 +1,7 @@
 import {ScheduledEvent} from "~/utils/types";
 import clsx from "clsx";
 
-function ViewInner({activityList}: { activityList: ScheduledEvent[] }) {
+function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], startDay: Date }) {
     return (
         <div className="relative w-52 h-fit border-2 border-blue-gray-400">
             {
@@ -9,19 +9,26 @@ function ViewInner({activityList}: { activityList: ScheduledEvent[] }) {
                     <div key={hour} className={`w-full h-10 bg-gray-${hour % 2 ? 200 : 100}`}></div>
                 ))
             }
-            {activityList.map(activity => (
-                <div
+            {activityList.map(activity => {
+                const timeDelta = activity.at.getTime() - startDay.getTime();
+                if (timeDelta < 0) return null;
+                if (timeDelta > 24 * 60 * 60 * 1000) return null;
+
+
+
+                return <div
                     className='absolute bg-blue-400 text-white w-full px-2 flex text-sm rounded-md'
-                    style={{height: activity.length * 19 / 60 / 1000, top: activity.at.getHours() * 40 + 1}}
+                    style={{height: activity.length * 19, top: timeDelta / 1000 / 60 / 60 * 40 + 1}}
                     key={activity.id}>
                     {activity.name}
                 </div>
-            ))}
+            })}
         </div>
     );
 }
 
 interface IDayViewProps {
+    startDay: Date,
     dayLabel: string,
     activityList: ScheduledEvent[]
 }
@@ -49,7 +56,7 @@ export function TimelineView({className, dayViewList}: { className: string, dayV
                                             </div>
                                         </div>
                                     </div>
-                                    <ViewInner activityList={dayView.activityList}/>
+                                    <ViewInner activityList={dayView.activityList} startDay={dayView.startDay}/>
                                 </div>
                             ))
                         }

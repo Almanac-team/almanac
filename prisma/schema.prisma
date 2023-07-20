@@ -110,13 +110,14 @@ enum ActivityType {
 }
 
 model Activity {
-  id         String       @id @default(cuid())
-  categoryId String
-  name       String
-  category   Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  type       ActivityType @default(task)
-  task       Task?
-  event      Event?
+  id             String           @id @default(cuid())
+  categoryId     String
+  name           String
+  category       Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  type           ActivityType     @default(task)
+  task           Task?
+  event          Event?
+  GeneratedEvent GeneratedEvent[]
 
   @@index([categoryId])
 }
@@ -142,6 +143,16 @@ model Event {
   reminderMod   Int
   startMod      Int
   activity      Activity @relation(fields: [activityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([activityId])
+}
+
+model GeneratedEvent {
+  id         String   @id @default(cuid())
+  activityId String
+  date       DateTime
+  hours      Int
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([activityId])
 }

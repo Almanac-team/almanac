@@ -76,7 +76,7 @@ function ConvertTask(task: {
     if (task === null || task === undefined) return null
     return {
         at: task.dueDate,
-        estimatedRequiredTime: convertIntToTimeConfig(task.estimatedTime),
+        estimatedRequiredTime: task.estimatedTime,
         deadlineMod: convertIntToTimeConfig(task.deadlineMod),
         reminderMod: convertIntToTimeConfig(task.reminderMod),
         startMod: convertIntToTimeConfig(task.startMod)
@@ -93,7 +93,7 @@ function ConvertEvent(event: {
     if (event === null || event === undefined) return null
     return {
         at: event.startDate,
-        estimatedRequiredTime: convertIntToTimeConfig(event.estimatedTime),
+        estimatedRequiredTime: event.estimatedTime,
         reminderMod: convertIntToTimeConfig(event.reminderMod),
         startMod: convertIntToTimeConfig(event.startMod)
     }
@@ -262,7 +262,7 @@ const activitiesRouter = createTRPCRouter({
         setting:
             z.object({
                 at: z.date(),
-                estimatedRequiredTime: TimeConfig,
+                estimatedRequiredTime: z.number(),
                 deadlineMod: TimeConfig,
                 reminderMod: TimeConfig,
                 startMod: TimeConfig,
@@ -282,7 +282,7 @@ const activitiesRouter = createTRPCRouter({
                 task: {
                     create: {
                         dueDate: input.setting.at,
-                        estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
+                        estimatedTime: input.setting.estimatedRequiredTime,
                         deadlineMod: convertTimeConfigToInt(input.setting.deadlineMod),
                         reminderMod: convertTimeConfigToInt(input.setting.reminderMod),
                         startMod: convertTimeConfigToInt(input.setting.startMod)
@@ -298,7 +298,7 @@ const activitiesRouter = createTRPCRouter({
         setting:
             z.object({
                 at: z.date(),
-                estimatedRequiredTime: TimeConfig,
+                estimatedRequiredTime: z.number(),
                 reminderMod: TimeConfig,
                 startMod: TimeConfig,
             })
@@ -318,7 +318,7 @@ const activitiesRouter = createTRPCRouter({
                 event: {
                     create: {
                         startDate: input.setting.at,
-                        estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
+                        estimatedTime: input.setting.estimatedRequiredTime,
                         reminderMod: convertTimeConfigToInt(input.setting.reminderMod),
                         startMod: convertTimeConfigToInt(input.setting.startMod)
                     }
@@ -333,7 +333,7 @@ const activitiesRouter = createTRPCRouter({
         setting:
             z.object({
                 at: z.date(),
-                estimatedRequiredTime: TimeConfig,
+                estimatedRequiredTime: z.number(),
                 deadlineMod: TimeConfig,
                 reminderMod: TimeConfig,
                 startMod: TimeConfig,
@@ -352,7 +352,7 @@ const activitiesRouter = createTRPCRouter({
                 task: {
                     update: {
                         dueDate: input.setting.at,
-                        estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
+                        estimatedTime: input.setting.estimatedRequiredTime,
                         deadlineMod: convertTimeConfigToInt(input.setting.deadlineMod),
                         reminderMod: convertTimeConfigToInt(input.setting.reminderMod),
                         startMod: convertTimeConfigToInt(input.setting.startMod)
@@ -369,7 +369,7 @@ const activitiesRouter = createTRPCRouter({
         setting:
             z.object({
                 at: z.date(),
-                estimatedRequiredTime: TimeConfig,
+                estimatedRequiredTime: z.number(),
                 reminderMod: TimeConfig,
                 startMod: TimeConfig,
             })
@@ -387,7 +387,7 @@ const activitiesRouter = createTRPCRouter({
                 event: {
                     update: {
                         startDate: input.setting.at,
-                        estimatedTime: convertTimeConfigToInt(input.setting.estimatedRequiredTime),
+                        estimatedTime: input.setting.estimatedRequiredTime,
                         reminderMod: convertTimeConfigToInt(input.setting.reminderMod),
                         startMod: convertTimeConfigToInt(input.setting.startMod)
                     }

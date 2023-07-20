@@ -1,4 +1,10 @@
-import {LocalDateInput, LocalTimeInput, type TimeConfig, TimeConfigInput} from "~/components/time_picker/date";
+import {
+    HourMinuteInput,
+    LocalDateInput,
+    LocalTimeInput,
+    type TimeConfig,
+    TimeConfigInput
+} from "~/components/time_picker/date";
 import clsx from "clsx";
 import React, {useState} from "react";
 import {Button} from "@material-tailwind/react";
@@ -22,7 +28,7 @@ export function isEventSetting(setting: TaskSetting | EventSetting | undefined):
 
 export interface TaskSetting {
     at: Date,
-    estimatedRequiredTime: TimeConfig,
+    estimatedRequiredTime: number,
     deadlineMod: TimeConfig,
     reminderMod: TimeConfig,
     startMod: TimeConfig,
@@ -30,7 +36,7 @@ export interface TaskSetting {
 
 export interface EventSetting {
     at: Date,
-    estimatedRequiredTime: TimeConfig,
+    estimatedRequiredTime: number,
     reminderMod: TimeConfig,
     startMod: TimeConfig,
 }
@@ -122,17 +128,15 @@ export function TaskSettingConfig(props: {
 
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Estimated Time Required</span>
-                <TimeConfigInput timeConfig={props.setting.estimatedRequiredTime}
-                                 onChange={(value, unit) => {
+                <HourMinuteInput minutes={props.setting.estimatedRequiredTime}
+                                 onChange={(value) => {
                                      props.onChange && props.onChange({
                                          ...props.setting,
-                                         estimatedRequiredTime: {
-                                             value: Math.max(value ?? props.setting.estimatedRequiredTime.value, 0),
-                                             unit: unit ?? props.setting.estimatedRequiredTime.unit
-                                         }
+                                         estimatedRequiredTime: Math.max(value, 0),
                                      })
                                  }}
                                  disabled={props.disabled}/>
+                <span>Hours</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Try and finish</span>
@@ -212,17 +216,15 @@ export function EventSettingConfig(props: {
 
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Estimated Time Required</span>
-                <TimeConfigInput timeConfig={props.setting.estimatedRequiredTime}
-                                 onChange={(value, unit) => {
+                <HourMinuteInput minutes={props.setting.estimatedRequiredTime}
+                                 onChange={(value) => {
                                      props.onChange && props.onChange({
                                          ...props.setting,
-                                         estimatedRequiredTime: {
-                                             value: Math.max(value ?? props.setting.estimatedRequiredTime.value, 0),
-                                             unit: unit ?? props.setting.estimatedRequiredTime.unit
-                                         }
+                                         estimatedRequiredTime: Math.max(value, 0),
                                      })
                                  }}
                                  disabled={props.disabled}/>
+                <span>Hours</span>
             </div>
             <div className="flex items-center whitespace-nowrap space-x-2">
                 <span>Remind me</span>

@@ -21,7 +21,14 @@ interface ExclusionZone {
     end: HourDelta,
 }
 
-type SchedulableEvents = GeneratedEvent;
+export interface SchedulableEvents {
+    id: string,
+    activityId: string,
+
+    softDeadline: Date,
+    hardDeadline: Date,
+    hours: number
+}
 type ScheduledEvents = GeneratedEvent;
 
 function scheduleEvent(existingEvents: ScheduledEvents[], newEvents: SchedulableEvents[], exclusionZones: ExclusionZone[]): ScheduledEvents[] {
@@ -29,6 +36,17 @@ function scheduleEvent(existingEvents: ScheduledEvents[], newEvents: Schedulable
 }
 
 function splitTasks(tasks: ActivitySetting<TaskSetting>[]): SchedulableEvents[] {
+    const SchedulableEvents: SchedulableEvents[] = [];
+    for (const task of tasks) {
+        if (task.setting.estimatedRequiredTime > 1) {
+            // split task into multiple events
+
+
+
+        }
+    }
+
+
     return [];
 }
 

@@ -40,9 +40,9 @@ function AddActivityModal({onSubmit, updating}: {
                 return date;
             })(),
             estimatedRequiredTime: 60,
-            deadlineMod: {value: 0, unit: "minute"},
-            reminderMod: {value: 0, unit: "minute"},
-            startMod: {value: 0, unit: "minute"},
+            deadlineMod: {value: 1, unit: "day"},
+            reminderMod: {value: 30, unit: "minute"},
+            startMod: {value: 1, unit: "week"},
         }
     );
 

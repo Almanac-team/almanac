@@ -10,8 +10,8 @@ function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], s
                 ))
             }
             {activityList.map(activity => {
-                const startTimeRelative = (activity.at.getTime() - startDay.getTime()) / 1000 / 60 / 60
-                const endHourRelative = startTimeRelative + activity.length;
+                const startTimeRelative = (activity.date.getTime() - startDay.getTime()) / 1000 / 60 / 60
+                const endHourRelative = startTimeRelative + activity.hours;
                 if (endHourRelative < 0) return null;
                 if (startTimeRelative >= 24) return null;
 

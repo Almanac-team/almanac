@@ -2,7 +2,8 @@ import Head from "next/head";
 import {TimelineView} from "~/components/timeline/timeline-view";
 
 export default function Home() {
-
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     return (
         <>
@@ -16,11 +17,13 @@ export default function Home() {
                     <TimelineView dayViewList={[
                         {
                             dayLabel: 'Planned',
-                            activityList: []
+                            activityList: [],
+                            startDay: today
                         },
                         {
                             dayLabel: 'Reality',
-                            activityList: []
+                            activityList: [],
+                            startDay: today
                         }
                     ]}/>
                 </div>

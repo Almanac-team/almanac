@@ -26,6 +26,14 @@ export function isEventSetting(setting: TaskSetting | EventSetting | undefined):
     return setting !== undefined && !isTaskSetting(setting);
 }
 
+export function isTask(activity: ActivitySetting<TaskSetting | EventSetting | undefined>): activity is ActivitySetting<TaskSetting> {
+    return isTaskSetting(activity.setting);
+}
+
+export function isEvent(activity: ActivitySetting<TaskSetting | EventSetting | undefined>): activity is ActivitySetting<EventSetting> {
+    return isEventSetting(activity.setting);
+}
+
 export interface TaskSetting {
     at: Date,
     estimatedRequiredTime: number,

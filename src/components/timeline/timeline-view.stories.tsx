@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import {TimelineView} from './timeline-view';
-import { ScheduledEvent } from '~/utils/types';
+import type {Meta, StoryObj} from '@storybook/react';
+import {TimelineView, WeekView} from './timeline-view';
+import {ScheduledEvent} from '~/utils/types';
+import {getWeekStart} from "~/pages/sprint";
+
 const meta: Meta<typeof TimelineView> = {
     title: 'Day View',
     component: TimelineView,
@@ -10,23 +12,30 @@ const meta: Meta<typeof TimelineView> = {
 export default meta;
 
 type Story = StoryObj<typeof TimelineView>;
+type WeekStory = StoryObj<typeof WeekView>;
 
-const activityOne: ScheduledEvent ={
+const startDay = getWeekStart(new Date());
+
+const activityOne: ScheduledEvent = {
     id: "1",
     name: "Task One",
-    at: new Date(2023, 7, 9, 12, 0, 0),
-    length: 2 * 60 * 1000
+    date: new Date(2023, 7, 9, 12, 0, 0),
+    hours: 2 * 60 * 1000
 }
 
-const activityTwo: ScheduledEvent ={
+const activityTwo: ScheduledEvent = {
     id: "1",
     name: "Task two",
-    at: new Date(2023, 7, 9, 9, 0, 0),
-    length: 1 * 60 * 1000
+    date: new Date(2023, 7, 9, 9, 0, 0),
+    hours: 1 * 60 * 1000
 }
 
 const render = (args: any) => <div className="h-96">
     <TimelineView {...args}/>
+</div>
+
+const renderWeek = (args: any) => <div className="h-96">
+    <WeekView {...args}/>
 </div>
 
 export const NoDayTasks: Story = {
@@ -34,26 +43,28 @@ export const NoDayTasks: Story = {
         dayViewList: [
             {
                 dayLabel: "2023-08-09",
-                activityList: []
+                activityList: [],
+                startDay
             }
         ]
     },
     render
 };
 
-export const OneDayTask: Story ={
+export const OneDayTask: Story = {
     args: {
         dayViewList: [
             {
                 dayLabel: "2023-08-09",
-                activityList: [ activityOne ]
+                activityList: [activityOne],
+                startDay
             }
         ]
     },
     render
 }
 
-export const TwoDayTask: Story ={
+export const TwoDayTask: Story = {
     args: {
         dayViewList: [
             {
@@ -61,142 +72,32 @@ export const TwoDayTask: Story ={
                 activityList: [
                     activityOne,
                     activityTwo
-                ]
+                ],
+                startDay
             }
         ]
     },
     render
 }
 
-export const NoWeekTasks: Story = {
-    args: {
-        dayViewList: [
-            {
-                dayLabel: "Sunday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Monday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Tuesday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Wednesday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Thursday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Friday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Saturday",
-                activityList: [
-                ]
-            }
-        ]
-    },
-    render
+export const NoWeekTasks: WeekStory = {
+    args: {},
+    render: renderWeek
 };
 
-export const OneWeekTask: Story ={
+export const OneWeekTask: WeekStory = {
     args: {
-        dayViewList: [
-            {
-                dayLabel: "Sunday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Monday",
-                activityList: [
-                    activityOne
-                ]
-            },
-            {
-                dayLabel: "Tuesday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Wednesday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Thursday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Friday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Saturday",
-                activityList: [
-                ]
-            }
-        ]
+        activityList: [],
+        firstDayMidnight: startDay,
     },
-    render
+    render: renderWeek
 }
 
-export const TwoWeekTask: Story ={
+export const TwoWeekTask: WeekStory = {
     args: {
-        dayViewList: [
-            {
-                dayLabel: "Sunday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Monday",
-                activityList: [
-                    activityOne
-                ]
-            },
-            {
-                dayLabel: "Tuesday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Wednesday",
-                activityList: [
-                    activityTwo
-                ]
-            },
-            {
-                dayLabel: "Thursday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Friday",
-                activityList: [
-                ]
-            },
-            {
-                dayLabel: "Saturday",
-                activityList: [
-                ]
-            }
-        ]
+        activityList: [activityOne, activityTwo],
+        firstDayMidnight: startDay,
     },
-    render
+    render: renderWeek
 }
 

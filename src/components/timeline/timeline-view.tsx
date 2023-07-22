@@ -71,3 +71,44 @@ export function TimelineView({className, dayViewList}: { className: string, dayV
         </div>
     );
 }
+
+export function WeekView({className, activityList, firstDayMidnight}: { className?: string, activityList: ScheduledEvent[], firstDayMidnight: Date }) {
+    return <TimelineView className={className ?? ""} dayViewList={[
+        {
+            dayLabel: "Monday",
+            activityList: activityList,
+            startDay: firstDayMidnight
+        },
+        {
+            dayLabel: "Tuesday",
+            activityList: activityList,
+            startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000)
+        },
+        {
+            dayLabel: "Wednesday",
+            activityList: activityList,
+            startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 2)
+        },
+        {
+            dayLabel: "Thursday",
+            activityList: activityList,
+            startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 3)
+        },
+        {
+            dayLabel: "Friday",
+            activityList: activityList,
+            startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 4)
+        },
+        {
+            dayLabel: "Saturday",
+            activityList: activityList,
+            startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 5)
+        },
+        {
+            dayLabel: "Sunday",
+            activityList: activityList,
+            startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 6)
+        }
+    ]
+    }/>
+}

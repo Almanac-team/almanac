@@ -1,5 +1,5 @@
 import Head from "next/head";
-import {TimelineView} from "~/components/timeline/timeline-view";
+import {TimelineView, WeekView} from "~/components/timeline/timeline-view";
 import {ScheduledEvent} from "~/utils/types";
 import {useEffect, useState} from "react";
 import {Button} from "@material-tailwind/react";
@@ -51,44 +51,7 @@ export default function Home() {
                         }])
                     }}>Generate Greedy</Button>
                 </div>
-                <TimelineView className="w-full h-full min-h-0 mt-2" dayViewList={[
-                    {
-                        dayLabel: "Monday",
-                        activityList: activityList,
-                        startDay: firstDayMidnight
-                    },
-                    {
-                        dayLabel: "Tuesday",
-                        activityList: activityList,
-                        startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000)
-                    },
-                    {
-                        dayLabel: "Wednesday",
-                        activityList: activityList,
-                        startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 2)
-                    },
-                    {
-                        dayLabel: "Thursday",
-                        activityList: activityList,
-                        startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 3)
-                    },
-                    {
-                        dayLabel: "Friday",
-                        activityList: activityList,
-                        startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 4)
-                    },
-                    {
-                        dayLabel: "Saturday",
-                        activityList: activityList,
-                        startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 5)
-                    },
-                    {
-                        dayLabel: "Sunday",
-                        activityList: activityList,
-                        startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 6)
-                    }
-                    ]
-                }/>
+                <WeekView className="w-full h-full min-h-0 mt-2" activityList={activityList} firstDayMidnight={firstDayMidnight}/>
             </main>
         </>
     );

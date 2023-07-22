@@ -6,7 +6,7 @@ import {
     type EventSetting,
     type TaskSetting
 } from "~/components/activity/activity-settings";
-import {ActivityType as PrismaActivityType} from ".prisma/client";
+import {ActivityType as PrismaActivityType, type PrismaClient} from ".prisma/client";
 import {type TimeConfig as InternalTimeConfig} from "~/components/time_picker/date";
 
 const TimeConfig = z.object({
@@ -99,6 +99,41 @@ function ConvertEvent(event: {
     }
 }
 
+export async function getDetailedActivities(prisma: PrismaClient, userId: string, categoryId?: string | undefined): Promise<ActivitySetting<TaskSetting | EventSetting>[]> {
+    return (await prisma.activity.findMany({
+        where: {
+            category: {
+                id: categoryId,
+                userId: userId
+            }
+        },
+        include: {
+            task: true,
+            event: true
+        }
+    })).map((activity): ActivitySetting<TaskSetting | EventSetting> | undefined => {
+        let setting;
+        if (activity.type === PrismaActivityType.task) {
+            setting = ConvertTask(activity.task);
+        } else if (activity.type === PrismaActivityType.event) {
+            setting = ConvertEvent(activity.event);
+        }
+
+        if (setting === null || setting === undefined) {
+            return undefined
+        }
+
+        return {
+            id: activity.id,
+            name: activity.name,
+            activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
+            setting
+        }
+    }).filter((activity): activity is ActivitySetting<TaskSetting | EventSetting> => {
+        return activity !== undefined
+    })
+}
+
 const activitiesRouter = createTRPCRouter({
     getActivities: protectedProcedure.input(z.object({
         categoryId: z.string()
@@ -125,38 +160,7 @@ const activitiesRouter = createTRPCRouter({
         categoryId: z.string()
     })).query(async ({ctx, input}): Promise<ActivitySetting<TaskSetting | EventSetting>[]> => {
         const userId = ctx?.session?.user?.id
-        return (await ctx.prisma.activity.findMany({
-            where: {
-                category: {
-                    id: input.categoryId,
-                    userId: userId
-                }
-            },
-            include: {
-                task: true,
-                event: true
-            }
-        })).map((activity): ActivitySetting<TaskSetting | EventSetting> | undefined => {
-            let setting;
-            if (activity.type === PrismaActivityType.task) {
-                setting = ConvertTask(activity.task);
-            } else if (activity.type === PrismaActivityType.event) {
-                setting = ConvertEvent(activity.event);
-            }
-
-            if (setting === null || setting === undefined) {
-                return undefined
-            }
-
-            return {
-                id: activity.id,
-                name: activity.name,
-                activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
-                setting
-            }
-        }).filter((activity): activity is ActivitySetting<TaskSetting | EventSetting> => {
-            return activity !== undefined
-        })
+        return getDetailedActivities(ctx.prisma, userId, input.categoryId);
     }),
 
     getActivitySpecifics: protectedProcedure.input(z.object({

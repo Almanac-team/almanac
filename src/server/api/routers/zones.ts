@@ -33,22 +33,46 @@ const zonesRouter = createTRPCRouter({
             color: z.string()
         })
     ).mutation(async ({ctx, input}): Promise<ZoneInfo> => {
-            const userId = ctx.session.user.id
-            const zone = await ctx.prisma.zoneInfo.create({
-                data: {
-                    name: input.name,
-                    color: input.color,
-                    userId: userId
-                }
-            })
-            return {
-                id: zone.id,
-                name: zone.name,
-                color: zone.color,
-                regions: []
+        const userId = ctx.session.user.id
+        const zone = await ctx.prisma.zoneInfo.create({
+            data: {
+                name: input.name,
+                color: input.color,
+                userId: userId
             }
+        })
+        return {
+            id: zone.id,
+            name: zone.name,
+            color: zone.color,
+            regions: []
         }
-    )
+    }),
+
+    updateZone: protectedProcedure.input(z.object({
+            id: z.string(),
+            name: z.string(),
+            color: z.string()
+        })
+    ).mutation(async ({ctx, input}): Promise<ZoneInfo> => {
+        const userId = ctx.session.user.id
+        const zone = await ctx.prisma.zoneInfo.update({
+            where: {
+                id: input.id
+            },
+            data: {
+                name: input.name,
+                color: input.color,
+                userId: userId
+            }
+        })
+        return {
+            id: zone.id,
+            name: zone.name,
+            color: zone.color,
+            regions: []
+        }
+    })
 })
 
 export default zonesRouter

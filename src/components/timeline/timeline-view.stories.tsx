@@ -4,7 +4,7 @@ import {ScheduledEvent} from '~/utils/types';
 import {getWeekStart} from "~/pages/sprint";
 
 const meta: Meta<typeof TimelineView> = {
-    title: 'Day View',
+    title: 'Timeline View',
     component: TimelineView,
     tags: ['autodocs'],
 };
@@ -14,29 +14,24 @@ export default meta;
 type Story = StoryObj<typeof TimelineView>;
 type WeekStory = StoryObj<typeof WeekView>;
 
-const startDay = getWeekStart(new Date());
+const startDay = getWeekStart(new Date(2023, 7, 9, 12, 0, 0));
 
 const activityOne: ScheduledEvent = {
     id: "1",
     name: "Task One",
     date: new Date(2023, 7, 9, 12, 0, 0),
-    hours: 2 * 60 * 1000
+    hours: 2
 }
 
 const activityTwo: ScheduledEvent = {
     id: "1",
-    name: "Task two",
+    name: "Task Two",
     date: new Date(2023, 7, 9, 9, 0, 0),
-    hours: 1 * 60 * 1000
+    hours: 1
 }
 
-const render = (args: any) => <div className="h-96">
-    <TimelineView {...args}/>
-</div>
-
-const renderWeek = (args: any) => <div className="h-96">
-    <WeekView {...args}/>
-</div>
+const render = (args: any) => <TimelineView className="h-[500px]" {...args}/>
+const renderWeek = (args: any) => <WeekView className="h-[500px]" {...args}/>
 
 export const NoDayTasks: Story = {
     args: {
@@ -44,7 +39,7 @@ export const NoDayTasks: Story = {
             {
                 dayLabel: "2023-08-09",
                 activityList: [],
-                startDay
+                startDay: new Date(2023, 7, 9, 0, 0, 0),
             }
         ]
     },
@@ -57,7 +52,7 @@ export const OneDayTask: Story = {
             {
                 dayLabel: "2023-08-09",
                 activityList: [activityOne],
-                startDay
+                startDay: new Date(2023, 7, 9, 0, 0, 0),
             }
         ]
     },
@@ -73,7 +68,7 @@ export const TwoDayTask: Story = {
                     activityOne,
                     activityTwo
                 ],
-                startDay
+                startDay: new Date(2023, 7, 9, 0, 0, 0),
             }
         ]
     },
@@ -87,7 +82,7 @@ export const NoWeekTasks: WeekStory = {
 
 export const OneWeekTask: WeekStory = {
     args: {
-        activityList: [],
+        activityList: [activityOne],
         firstDayMidnight: startDay,
     },
     render: renderWeek
@@ -96,6 +91,22 @@ export const OneWeekTask: WeekStory = {
 export const TwoWeekTask: WeekStory = {
     args: {
         activityList: [activityOne, activityTwo],
+        firstDayMidnight: startDay,
+    },
+    render: renderWeek
+}
+
+
+
+export const ComplexWeekTask: WeekStory = {
+    args: {
+        activityList: [activityOne, activityTwo,
+            {
+                id: "1",
+                name: "Task three",
+                date: new Date(2023, 7, 9, 22, 0, 0),
+                hours: 10
+            }],
         firstDayMidnight: startDay,
     },
     render: renderWeek

@@ -3,6 +3,7 @@ import {TimelineView} from "~/components/timeline/timeline-view";
 import {ScheduledEvent} from "~/utils/types";
 import {useEffect, useState} from "react";
 import {Button} from "@material-tailwind/react";
+import {api} from "~/utils/api";
 
 function getLastMonday(date: Date) {
     const today = date;
@@ -11,9 +12,25 @@ function getLastMonday(date: Date) {
     return today;
 }
 
+export interface GeneratedEvent {
+    id: string,
+    activityId: string,
+    name: string,
+    date: Date,
+    hours: number
+}
+
 export default function Home() {
     const [activityList, setActivityList] = useState<ScheduledEvent[]>([]);
     const [firstDayMidnight] = useState<Date>(getLastMonday(new Date()));
+
+    const {data} = api.generatedEvents.getGeneratedEvents.useQuery();
+
+    useEffect(() => {
+        if (data) {
+            setActivityList(data);
+        }
+    }, [data]);
 
 
     return (
@@ -29,8 +46,8 @@ export default function Home() {
                         setActivityList([...activityList, {
                             id: Math.random().toString(36).substring(7),
                             name: "Test",
-                            at: new Date(),
-                            length: 2
+                            date: new Date('7/19/2023'),
+                            hours: 60
                         }])
                     }}>Generate Greedy</Button>
                 </div>

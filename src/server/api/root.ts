@@ -3,6 +3,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
 import userSettingsRouter from "./routers/userSettings";
 import categoriesRouter from "~/server/api/routers/categories";
 import activitiesRouter from "~/server/api/routers/activities";
+import generatedEventsRouter from "~/server/api/routers/generateEvents";
 
 /**
  * This is the primary router for your server.
@@ -14,7 +15,7 @@ export const appRouter = createTRPCRouter({
   settings: userSettingsRouter,
   categories: categoriesRouter,
   activities: activitiesRouter,
-
+  generatedEvents: generatedEventsRouter,
 });
 
 // export type definition of API

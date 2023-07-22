@@ -13,6 +13,7 @@ import {
     CalendarIcon,
     FlagIcon,
     BookOpenIcon,
+    TableCellsIcon,
 
 } from "@heroicons/react/24/solid";
 import {useRouter} from "next/router";
@@ -53,6 +54,12 @@ function Sidebar() {
                         <BookOpenIcon className="h-5 w-5" />
                     </ListItemPrefix>
                     Definitions
+                </ListItem>
+                <ListItem onClick={() => void router.push('/zones')}>
+                    <ListItemPrefix>
+                        <TableCellsIcon className="h-5 w-5" />
+                    </ListItemPrefix>
+                    Zones
                 </ListItem>
                 <hr className="my-2 border-blue-gray-50" />
                 <ListItem onClick={() => void router.push('/settings')}>

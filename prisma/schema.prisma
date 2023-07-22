@@ -162,6 +162,7 @@ model ZoneInfo {
   id      String   @id @default(cuid())
   userId  String
   name    String
+  color   String
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   regions Region[]
 

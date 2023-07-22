@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 import {Button} from "@material-tailwind/react";
 import {api} from "~/utils/api";
 
-function getLastMonday(date: Date) {
+export function getWeekStart(date: Date) {
     const today = date;
     today.setHours(0, 0, 0, 0);
     today.setDate(today.getDate() - today.getDay() + 1);
@@ -22,7 +22,7 @@ export interface GeneratedEvent {
 
 export default function Home() {
     const [activityList, setActivityList] = useState<ScheduledEvent[]>([]);
-    const [firstDayMidnight] = useState<Date>(getLastMonday(new Date()));
+    const [firstDayMidnight] = useState<Date>(getWeekStart(new Date()));
 
     const {data} = api.generatedEvents.getGeneratedEvents.useQuery();
 

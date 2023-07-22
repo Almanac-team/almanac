@@ -4,6 +4,7 @@ import {ScheduledEvent} from "~/utils/types";
 import {useEffect, useState} from "react";
 import {Button} from "@material-tailwind/react";
 import {api} from "~/utils/api";
+import {ZoneColumn} from "~/components/zone/zone-column";
 
 export function getWeekStart(date: Date) {
     const today = date;
@@ -28,10 +29,10 @@ export default function Home() {
                 <meta name="description" content="Sprint"/>
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
-            <main className="max-h-screen flex flex-col">
+            <main className="max-h-screen h-screen flex flex-col">
                 <div className="flex flex-col">
                 </div>
-                {/*<WeekView className="w-full h-full min-h-0 mt-2" activityList={activityList} firstDayMidnight={firstDayMidnight}/>*/}
+                <ZoneColumn/>
             </main>
         </>
     );

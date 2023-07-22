@@ -1,8 +1,17 @@
 import {api} from "~/utils/api";
-import React, {useState} from "react";
+import React, {ReactNode, useCallback, useState} from "react";
 import clsx from "clsx";
 import {Menu, MenuBody, MenuHandler} from "~/components/generic/menu";
-import {Button} from "@material-tailwind/react";
+import {Button, IconButton} from "@material-tailwind/react";
+import {
+    ActivitySetting,
+    EventSetting,
+    TaskSetting
+} from "~/components/activity/activity-settings";
+
+import {
+    AdjustmentsHorizontalIcon
+} from "@heroicons/react/24/outline";
 
 
 export interface Region {
@@ -17,6 +26,7 @@ export interface ZoneInfo {
     color: string;
     regions: Region[];
 }
+
 
 function AddZoneModal({onSubmit, updating}: {
     onSubmit?: (zoneInfo: ZoneInfo) => Promise<boolean>,
@@ -65,13 +75,53 @@ function AddZoneModal({onSubmit, updating}: {
     );
 }
 
-export function ZoneOverview({zone}: { zone: ZoneInfo }) {
-    return <p>{zone.name}</p>
+function Pill({children, className}: { children: ReactNode, className: string }) {
+    return <div
+        className={clsx('h-8 rounded-lg flex flex-row justify-between items-center px-2 text-zinc-700 font-bold text-[12px]', className)}>
+        <span className="justify-self-center">{children}</span>
+    </div>
 }
 
-export function ZoneColumn() {
+export function ZoneOverview({zone, openSetting}: { zone: ZoneInfo, openSetting?: () => void }) {
     const queryClient = api.useContext();
-    const {data: zones} = api.zones.getZones.useQuery();
+
+    const [updating, isUpdating] = useState(false);
+    const {mutate: mutateZone} = api.zones.updateZone.useMutation();
+
+    const submitFunction = useCallback((zone: ZoneInfo) => {
+        isUpdating(true);
+        mutateZone(zone, {
+            onSuccess: () => {
+                void queryClient.zones.getZones.invalidate().then(() => {
+                        isUpdating(false);
+                    }
+                );
+            }
+        });
+    }, [mutateZone, queryClient.zones.getZones]);
+
+    return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
+        <div className="flex flex-row items-center">
+            <div className="flex flex-col space-y-2 w-full p-2 pl-5">
+                <div className="flex space-x-3">
+                    <span
+                        className="text-xl font-bold text-gray-900 overflow-x-hidden whitespace-nowrap overflow-ellipsis max-w-[calc(100%-100px)]">{zone.name}</span>
+                </div>
+                <div className="flex space-x-2">
+                    <Pill className="bg-gray-400">17:00 - 18:00</Pill>
+                </div>
+            </div>
+            <div className="absolute right-2 top-2">
+                <IconButton className="bg-gray-600 rounded hover:bg-gray-500 h-8 w-8" onClick={openSetting}>
+                    <AdjustmentsHorizontalIcon className="h-8 w-6"/>
+                </IconButton>
+            </div>
+        </div>
+    </div>
+}
+
+export function ZoneColumn({zones, onSelect}: { zones?: ZoneInfo[], onSelect?: (index: number) => void }) {
+    const queryClient = api.useContext();
     const {mutateAsync: createZone} = api.zones.createZone.useMutation();
     const [isOpen, setIsOpen] = useState(false);
     const [updating, setUpdating] = useState(false);
@@ -84,8 +134,12 @@ export function ZoneColumn() {
             </div>
             <div className="flex flex-col w-full flex-grow overflow-y-scroll space-y-2 p-2">
                 {zones ?
-                    zones.map((zone) => (
-                        <ZoneOverview key={zone.id} zone={zone}/>
+                    zones.map((zone, index) => (
+                        <ZoneOverview key={zone.id} zone={zone} openSetting={() => {
+                            if (onSelect) {
+                                onSelect(index)
+                            }
+                        }}/>
                     )) : null
                 }
             </div>

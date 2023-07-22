@@ -37,9 +37,9 @@ interface IDayViewProps {
     activityList: ScheduledEvent[]
 }
 
-export function TimelineView({className, dayViewList}: { className: string, dayViewList: IDayViewProps[] }) {
+export function TimelineView({className, dayViewList}: { className?: string, dayViewList: IDayViewProps[] }) {
     return (
-        <div className={clsx("overflow-y-scroll pr-1 relative", className)}>
+        <div className={clsx("overflow-y-scroll pr-1 relative", className ?? "")}>
             <div className='flex flex-row mt-4'>
                 <div className="mt-10">
                     {

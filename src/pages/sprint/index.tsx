@@ -3,7 +3,7 @@ import {TimelineView, WeekView} from "~/components/timeline/timeline-view";
 import {useEffect, useState} from "react";
 import {Button} from "@material-tailwind/react";
 import {api} from "~/utils/api";
-import {ScheduledEvent} from "~/components/timeline/models";
+import {ScheduledBlock} from "~/components/timeline/models";
 
 export function getWeekStart(date: Date) {
     const today = date;
@@ -21,7 +21,7 @@ export interface GeneratedEvent {
 }
 
 export default function Home() {
-    const [activityList, setActivityList] = useState<ScheduledEvent[]>([]);
+    const [activityList, setActivityList] = useState<ScheduledBlock[]>([]);
     const [firstDayMidnight] = useState<Date>(getWeekStart(new Date()));
 
     const {data} = api.generatedEvents.getGeneratedEvents.useQuery();
@@ -51,7 +51,7 @@ export default function Home() {
                         }])
                     }}>Generate Greedy</Button>
                 </div>
-                <WeekView className="w-full h-full min-h-0 mt-2" activityList={activityList} firstDayMidnight={firstDayMidnight}/>
+                <WeekView className="w-full h-full min-h-0 mt-2" blockList={activityList} firstDayMidnight={firstDayMidnight}/>
             </main>
         </>
     );

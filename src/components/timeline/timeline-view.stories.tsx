@@ -1,7 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import {TimelineView, WeekView} from './timeline-view';
 import {getWeekStart} from "~/pages/sprint";
-import {ScheduledEvent} from "~/components/timeline/models";
+import {ScheduledBlock} from "~/components/timeline/models";
 
 const meta: Meta<typeof TimelineView> = {
     title: 'Timeline View',
@@ -16,14 +16,14 @@ type WeekStory = StoryObj<typeof WeekView>;
 
 const startDay = getWeekStart(new Date(2023, 7, 9, 12, 0, 0));
 
-const activityOne: ScheduledEvent = {
+const activityOne: ScheduledBlock = {
     id: "1",
     name: "Task One",
     date: new Date(2023, 7, 9, 12, 0, 0),
     hours: 2
 }
 
-const activityTwo: ScheduledEvent = {
+const activityTwo: ScheduledBlock = {
     id: "1",
     name: "Task Two",
     date: new Date(2023, 7, 9, 9, 0, 0),
@@ -38,7 +38,7 @@ export const NoDayTasks: Story = {
         dayViewList: [
             {
                 dayLabel: "2023-08-09",
-                activityList: [],
+                blockList: [],
                 startDay: new Date(2023, 7, 9, 0, 0, 0),
             }
         ]
@@ -51,7 +51,7 @@ export const OneDayTask: Story = {
         dayViewList: [
             {
                 dayLabel: "2023-08-09",
-                activityList: [activityOne],
+                blockList: [activityOne],
                 startDay: new Date(2023, 7, 9, 0, 0, 0),
             }
         ]
@@ -64,7 +64,7 @@ export const TwoDayTask: Story = {
         dayViewList: [
             {
                 dayLabel: "2023-08-09",
-                activityList: [
+                blockList: [
                     activityOne,
                     activityTwo
                 ],
@@ -82,7 +82,7 @@ export const NoWeekTasks: WeekStory = {
 
 export const OneWeekTask: WeekStory = {
     args: {
-        activityList: [activityOne],
+        blockList: [activityOne],
         firstDayMidnight: startDay,
     },
     render: renderWeek
@@ -90,7 +90,7 @@ export const OneWeekTask: WeekStory = {
 
 export const TwoWeekTask: WeekStory = {
     args: {
-        activityList: [activityOne, activityTwo],
+        blockList: [activityOne, activityTwo],
         firstDayMidnight: startDay,
     },
     render: renderWeek
@@ -100,7 +100,7 @@ export const TwoWeekTask: WeekStory = {
 
 export const ComplexWeekTask: WeekStory = {
     args: {
-        activityList: [activityOne, activityTwo,
+        blockList: [activityOne, activityTwo,
             {
                 id: "1",
                 name: "Task three",

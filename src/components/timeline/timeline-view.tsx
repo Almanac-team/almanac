@@ -1,7 +1,7 @@
 import clsx from "clsx";
-import {DayViewProps, ScheduledEvent} from "~/components/timeline/models";
+import {type DayViewProps, type ScheduledBlock} from "~/components/timeline/models";
 
-function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], startDay: Date }) {
+function ViewInner({blockList, startDay}: { blockList: ScheduledBlock[], startDay: Date }) {
     return (
         <div className="relative w-52 h-fit border-2 border-blue-gray-400">
             {
@@ -9,9 +9,9 @@ function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], s
                     <div key={hour} className={`w-full h-10 bg-gray-${hour % 2 ? 200 : 100}`}></div>
                 ))
             }
-            {activityList.map(activity => {
-                const startTimeRelative = (activity.date.getTime() - startDay.getTime()) / 1000 / 60 / 60
-                const endHourRelative = startTimeRelative + activity.hours;
+            {blockList.map(block => {
+                const startTimeRelative = (block.date.getTime() - startDay.getTime()) / 1000 / 60 / 60
+                const endHourRelative = startTimeRelative + block.hours;
                 if (endHourRelative < 0) return null;
                 if (startTimeRelative >= 24) return null;
 
@@ -23,8 +23,8 @@ function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], s
                                 top: Math.max(startTimeRelative, 0) * 40,
                                 height: (Math.min(endHourRelative, 24) - Math.max(startTimeRelative, 0)) * 40
                             }}
-                            key={activity.id}>
-                    {`${activity.name}${startTimeRelative < 0 ? " (continued)" : ""}`}
+                            key={block.id}>
+                    {`${block.name}${startTimeRelative < 0 ? " (continued)" : ""}`}
                 </div>
             })}
         </div>
@@ -55,7 +55,7 @@ export function TimelineView({className, dayViewList}: { className?: string, day
                                             </div>
                                         </div>
                                     </div>
-                                    <ViewInner activityList={dayView.activityList} startDay={dayView.startDay}/>
+                                    <ViewInner blockList={dayView.blockList} startDay={dayView.startDay}/>
                                 </div>
                             ))
                         }
@@ -66,41 +66,41 @@ export function TimelineView({className, dayViewList}: { className?: string, day
     );
 }
 
-export function WeekView({className, activityList, firstDayMidnight}: { className?: string, activityList: ScheduledEvent[], firstDayMidnight: Date }) {
+export function WeekView({className, blockList, firstDayMidnight}: { className?: string, blockList: ScheduledBlock[], firstDayMidnight: Date }) {
     return <TimelineView className={className ?? ""} dayViewList={[
         {
             dayLabel: "Monday",
-            activityList: activityList,
+            blockList,
             startDay: firstDayMidnight
         },
         {
             dayLabel: "Tuesday",
-            activityList: activityList,
+            blockList,
             startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000)
         },
         {
             dayLabel: "Wednesday",
-            activityList: activityList,
+            blockList,
             startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 2)
         },
         {
             dayLabel: "Thursday",
-            activityList: activityList,
+            blockList,
             startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 3)
         },
         {
             dayLabel: "Friday",
-            activityList: activityList,
+            blockList,
             startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 4)
         },
         {
             dayLabel: "Saturday",
-            activityList: activityList,
+            blockList,
             startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 5)
         },
         {
             dayLabel: "Sunday",
-            activityList: activityList,
+            blockList,
             startDay: new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 6)
         }
     ]

@@ -3,7 +3,7 @@ import clsx from "clsx";
 import {CategoryContext} from "~/components/activity/activity-column";
 import {
     isEventSetting,
-    isTaskSetting, ActivitySettingModal,
+    isTaskSetting, ActivityUpdateModal,
 } from "~/components/activity/activity-settings";
 
 import {
@@ -163,7 +163,7 @@ export function ActivityOverview({activity}: { activity: ActivitySetting<TaskSet
         icon = <FlagIcon className="h-8 w-6"/>
 
 
-        settingModal = <ActivitySettingModal<TaskSetting>
+        settingModal = <ActivityUpdateModal<TaskSetting>
             originalActivitySetting={activity as ActivitySetting<TaskSetting>} updating={updating}
             onSubmit={submitFunction}/>
     } else if (isEventSetting(activity.setting)) {
@@ -171,7 +171,7 @@ export function ActivityOverview({activity}: { activity: ActivitySetting<TaskSet
         icon = <ClockIcon className="h-8 w-6"/>
 
 
-        settingModal = <ActivitySettingModal<EventSetting>
+        settingModal = <ActivityUpdateModal<EventSetting>
             originalActivitySetting={activity as ActivitySetting<EventSetting>} updating={updating}
             onSubmit={submitFunction}/>
     } else {

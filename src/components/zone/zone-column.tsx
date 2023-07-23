@@ -127,7 +127,7 @@ export function ZoneColumn({zones, onSelect}: { zones?: ZoneInfo[], onSelect?: (
     const [updating, setUpdating] = useState(false);
 
     return (
-        <div className="flex flex-col w-96 min-w-[20em] h-full border-2 rounded-tl-md rounded-tr-md border-blue-800">
+        <div className="flex flex-col w-36 min-w-[20em] h-full border-2 rounded-tl-md rounded-tr-md border-blue-800">
             <div
                 className="flex flex-row items-center p-2 w-full justify-center select-none bg-blue-800">
                 <span className="font-bold text-white">Zones</span>

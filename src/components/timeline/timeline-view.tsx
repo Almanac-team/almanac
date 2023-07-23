@@ -32,7 +32,7 @@ function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], 
                     <div key={hour} className={`w-full h-10 bg-gray-${hour % 2 ? 200 : 100}`} draggable={false}></div>
                 ))
             }
-            {blockList.map(block => {
+            {blockList.map((block, i) => {
                 const startTimeRelative = (block.date.getTime() - startDay.getTime()) / 1000 / 60 / 60
                 const endHourRelative = startTimeRelative + block.hours;
                 if (endHourRelative <= 0.01) return null;
@@ -55,7 +55,7 @@ function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], 
                                 height: (Math.min(endHourRelative, 24) - Math.max(startTimeRelative, 0)) * 40,
                                 backgroundColor: block.color ?? "#41a4f3"
                             }}
-                            key={block.id}>
+                            key={i}>
                     {`${block.name}${startTimeRelative < 0 ? " (continued)" : ""}`}
                 </div>
             })}

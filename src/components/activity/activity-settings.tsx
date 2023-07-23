@@ -20,7 +20,7 @@ export function isEvent(activity: ActivitySetting<TaskSetting | EventSetting | u
     return isEventSetting(activity.setting);
 }
 
-export function ActivitySettingModal<T extends TaskSetting | EventSetting>
+export function ActivityUpdateModal<T extends TaskSetting | EventSetting>
 ({
      originalActivitySetting,
      onSubmit,

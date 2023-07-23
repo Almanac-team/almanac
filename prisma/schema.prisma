@@ -72,7 +72,7 @@ model User {
   sessions      Session[]
   categories    Category[]
   settings      UserSettings? // in the case this is null, just give defaults
-  ZoneInfo      ZoneInfo[]
+  ZoneInfo      Zone[]
 }
 
 enum DateFormat {
@@ -158,7 +158,7 @@ model GeneratedEvent {
   @@index([activityId])
 }
 
-model ZoneInfo {
+model Zone {
   id      String   @id @default(cuid())
   userId  String
   name    String
@@ -170,11 +170,11 @@ model ZoneInfo {
 }
 
 model Region {
-  id       String   @id @default(cuid())
-  zoneId   String
-  from     Int
-  to       Int
-  ZoneInfo ZoneInfo @relation(fields: [zoneId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id     String @id @default(cuid())
+  zoneId String
+  from   Int
+  to     Int
+  zone   Zone   @relation(fields: [zoneId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([zoneId])
 }

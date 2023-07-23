@@ -6,7 +6,7 @@ import {ZoneInfo} from "~/components/zone/models";
 const zonesRouter = createTRPCRouter({
     getZones: protectedProcedure.query(async ({ctx}): Promise<ZoneInfo[]> => {
         const userId = ctx.session.user.id
-        return (await ctx.prisma.zoneInfo.findMany({
+        return (await ctx.prisma.zone.findMany({
             where: {
                 userId: userId
             },
@@ -35,7 +35,7 @@ const zonesRouter = createTRPCRouter({
         })
     ).mutation(async ({ctx, input}): Promise<ZoneInfo> => {
         const userId = ctx.session.user.id
-        const zone = await ctx.prisma.zoneInfo.create({
+        const zone = await ctx.prisma.zone.create({
             data: {
                 name: input.name,
                 color: input.color,
@@ -57,7 +57,7 @@ const zonesRouter = createTRPCRouter({
         })
     ).mutation(async ({ctx, input}): Promise<ZoneInfo> => {
         const userId = ctx.session.user.id
-        const zone = await ctx.prisma.zoneInfo.update({
+        const zone = await ctx.prisma.zone.update({
             where: {
                 id: input.id
             },

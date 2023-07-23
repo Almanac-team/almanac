@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type {Meta, StoryObj} from '@storybook/react';
 import {ActivityOverview} from "~/components/activity/activity-overview";
 
-import {CategoryInfo} from "~/components/activity/models";
+import {type CategoryInfo} from "~/components/activity/models";
+import {CategoryContext} from "~/components/activity/activity-column";
 
 const meta: Meta<typeof ActivityOverview> = {
     title: 'Activity Overview',
@@ -12,152 +13,193 @@ const meta: Meta<typeof ActivityOverview> = {
 export default meta;
 type Story = StoryObj<typeof ActivityOverview>;
 const category1: CategoryInfo = {
+    id: "1",
     categoryName: 'Task!',
-    backgroundColor: 'bg-amber-300',
+    backgroundColor: '#942626',
     textColor: 'text-white',
+}
+
+const render = (args: any) => (<div>
+    <CategoryContext.Provider value={category1}>
+        <ActivityOverview {...args} />;
+    </CategoryContext.Provider>
+</div>);
+
+
+const customRender = (categoryInfo: CategoryInfo) => {
+    const render = (args: any) => <div>
+        <CategoryContext.Provider value={categoryInfo}>
+            <ActivityOverview {...args} />;
+        </CategoryContext.Provider>
+    </div>
+    return render;
 }
 
 
 export const OneTimeTaskFar: Story = {
     args: {
-        taskName: 'Task Name',
-        activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + 24 * 60 * 60 * 1000 * 15),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: category1,
-    }
+            name: 'Task Name',
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + 24 * 60 * 60 * 1000 * 15),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render
 };
 export const OneTimeTaskTwo: Story = {
     args: {
-        taskName: 'Task Name',
-        activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + 24 * 60 * 60 * 1000 * 10),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: category1,
-    }
+            name: "Task Name",
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + 24 * 60 * 60 * 1000 * 10),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render
 };
 
 export const OneTimeTaskOne: Story = {
     args: {
-        taskName: 'Task Name',
-        activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + 24 * 60 * 60 * 1000 * 5),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: category1,
-    }
+            name: "Task Name",
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + 24 * 60 * 60 * 1000 * 5),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render
 };
 
 export const OneTimeTaskWarning: Story = {
     args: {
-        taskName: 'Task Name',
-        activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + 25 * 60 * 60 * 1000),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: category1,
-    }
+            name: "Task Name",
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + 25 * 60 * 60 * 1000),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render
 };
 
 export const OneTimeTaskToday: Story = {
     args: {
-        taskName: 'Task Name',
-        activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + 24 * 60 * 57 * 1000),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: category1,
-    }
+            name: "Task Name",
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + 24 * 60 * 57 * 1000),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render
 };
 
 export const OneTimeTaskOver: Story = {
     args: {
-        taskName: 'Task Name',
-    activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + -24 * 60 * 57 * 1000),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: category1,
-    }
+            name: "Task Name",
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + -24 * 60 * 57 * 1000),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render
 };
 
 export const OneTimeTaskVeryOver: Story = {
     args: {
-        taskName: 'Task Name',
-    activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + -24 * 60 * 60 * 1000),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: category1,
-    }
+            name: "Task Name",
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + -24 * 60 * 60 * 1000),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render
 };
 
 export const TaskWithLongCategoryName: Story = {
     args: {
-        taskName: 'Task Name',
-    activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + -24 * 60 * 60 * 1000),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: {...category1, categoryName: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt tincidunt felis a pellentesque. Duis elementum nulla eget elementum efficitur. Sed eget suscipit ante. Maecenas malesuada non mi rhoncus venenatis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut vulputate erat purus, ut iaculis lorem tincidunt et. Etiam vitae velit nec enim vulputate convallis ut eu sapien. Aliquam sodales lobortis orci, porttitor pellentesque nunc. Donec eu nunc ipsum. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus porta enim commodo, congue orci at, congue nulla. '},
-    }
+            name: "Task Name",
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + -24 * 60 * 60 * 1000),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render: customRender({
+        ...category1,
+        categoryName: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt tincidunt felis a pellentesque. Duis elementum nulla eget elementum efficitur. Sed eget suscipit ante. Maecenas malesuada non mi rhoncus venenatis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut vulputate erat purus, ut iaculis lorem tincidunt et. Etiam vitae velit nec enim vulputate convallis ut eu sapien. Aliquam sodales lobortis orci, porttitor pellentesque nunc. Donec eu nunc ipsum. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus porta enim commodo, congue orci at, congue nulla. '
+    })
 };
 
 
 export const TaskWithLongNameAndLongCategory: Story = {
     args: {
-        taskName: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt tincidunt felis a pellentesque. Duis elementum nulla eget elementum efficitur. Sed eget suscipit ante. Maecenas malesuada non mi rhoncus venenatis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut vulputate erat purus, ut iaculis lorem tincidunt et. Etiam vitae velit nec enim vulputate convallis ut eu sapien. Aliquam sodales lobortis orci, porttitor pellentesque nunc. Donec eu nunc ipsum. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus porta enim commodo, congue orci at, congue nulla.',
-    activitySetting: {
+        activity: {
             id: "1",
-            name: "Activity",
-            at: new Date(new Date().getTime() + -24 * 60 * 60 * 1000),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
-            deadlineMod: {value: 1, unit: "hour"},
-            reminderMod: {value: 1, unit: "hour"},
-            startMod: {value: 1, unit: "hour"}
-        },
-        categoryInfo: {...category1, categoryName: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt tincidunt felis a pellentesque. Duis elementum nulla eget elementum efficitur. Sed eget suscipit ante. Maecenas malesuada non mi rhoncus venenatis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut vulputate erat purus, ut iaculis lorem tincidunt et. Etiam vitae velit nec enim vulputate convallis ut eu sapien. Aliquam sodales lobortis orci, porttitor pellentesque nunc. Donec eu nunc ipsum. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus porta enim commodo, congue orci at, congue nulla. '},
-    }
+            name: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt tincidunt felis a pellentesque. Duis elementum nulla eget elementum efficitur. Sed eget suscipit ante. Maecenas malesuada non mi rhoncus venenatis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut vulputate erat purus, ut iaculis lorem tincidunt et. Etiam vitae velit nec enim vulputate convallis ut eu sapien. Aliquam sodales lobortis orci, porttitor pellentesque nunc. Donec eu nunc ipsum. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus porta enim commodo, congue orci at, congue nulla.",
+            activityType: 'task',
+            setting: {
+                at: new Date(new Date().getTime() + -24 * 60 * 60 * 1000),
+                estimatedRequiredTime: 60,
+                deadlineMod: {value: 1, unit: "hour"},
+                reminderMod: {value: 1, unit: "hour"},
+                startMod: {value: 1, unit: "hour"}
+            }
+        }
+    },
+    render: customRender({
+        ...category1,
+        categoryName: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt tincidunt felis a pellentesque. Duis elementum nulla eget elementum efficitur. Sed eget suscipit ante. Maecenas malesuada non mi rhoncus venenatis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut vulputate erat purus, ut iaculis lorem tincidunt et. Etiam vitae velit nec enim vulputate convallis ut eu sapien. Aliquam sodales lobortis orci, porttitor pellentesque nunc. Donec eu nunc ipsum. Aliquam erat volutpat. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus porta enim commodo, congue orci at, congue nulla. '
+    })
 };

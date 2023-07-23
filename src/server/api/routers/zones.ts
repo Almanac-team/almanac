@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
-import {type ZoneInfo} from "~/components/zone/zone-column";
+
+import {ZoneInfo} from "~/components/zone/models";
 
 const zonesRouter = createTRPCRouter({
     getZones: protectedProcedure.query(async ({ctx}): Promise<ZoneInfo[]> => {

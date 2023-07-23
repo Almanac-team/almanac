@@ -29,6 +29,8 @@ export default function Home() {
         }
     }, [zoneIndex, zones]);
 
+    const zone = zones[zoneIndex];
+
     return (
         <>
             <Head>
@@ -38,7 +40,7 @@ export default function Home() {
             </Head>
             <main className="max-h-screen h-screen flex flex-row">
                 <ZoneColumn zones={zones} onSelect={(index: number) => setZoneIndex(index)}/>
-                <ZoneView className="overflow-x-auto" zone={zones[zoneIndex]}/>
+                {zone ? <ZoneView className="overflow-x-auto" zone={zone}/> : null}
             </main>
         </>
     );

@@ -1,5 +1,5 @@
-import {type ActivitySetting, type EventSetting, type TaskSetting} from "~/components/activity/activity-settings";
 import {type GeneratedEvent} from "~/pages/sprint";
+import {ActivitySetting, EventSetting, TaskSetting} from "~/components/activity/models";
 
 function getNextWeekStart(weekStart: Date): Date {
     const weekEnd = new Date(weekStart);

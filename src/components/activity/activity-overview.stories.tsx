@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import {ActivityOverview} from "~/components/activity/activity-overview";
-import {CategoryInfo} from "~/components/activity/activity-column";
+
+import {CategoryInfo} from "~/components/activity/models";
 
 const meta: Meta<typeof ActivityOverview> = {
     title: 'Activity Overview',

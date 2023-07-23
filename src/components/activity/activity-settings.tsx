@@ -1,22 +1,8 @@
-import {
-    HourMinuteInput,
-    LocalDateInput,
-    LocalTimeInput,
-    type TimeConfig,
-    TimeConfigInput
-} from "~/components/time_picker/date";
+import {HourMinuteInput, LocalDateInput, LocalTimeInput, TimeConfigInput} from "~/components/time_picker/date";
 import clsx from "clsx";
 import React, {useState} from "react";
 import {Button} from "@material-tailwind/react";
-
-export type ActivitySettingUnion = ActivitySetting<TaskSetting | EventSetting | undefined>;
-
-export interface ActivitySetting<T extends TaskSetting | EventSetting | undefined> {
-    id: string,
-    name: string,
-    activityType: ActivityType,
-    setting: T
-}
+import {type ActivitySetting, type EventSetting, type TaskSetting} from "~/components/activity/models";
 
 export function isTaskSetting(setting: TaskSetting | EventSetting | undefined): setting is TaskSetting {
     return (setting as TaskSetting).deadlineMod !== undefined;
@@ -33,23 +19,6 @@ export function isTask(activity: ActivitySetting<TaskSetting | EventSetting | un
 export function isEvent(activity: ActivitySetting<TaskSetting | EventSetting | undefined>): activity is ActivitySetting<EventSetting> {
     return isEventSetting(activity.setting);
 }
-
-export interface TaskSetting {
-    at: Date,
-    estimatedRequiredTime: number,
-    deadlineMod: TimeConfig,
-    reminderMod: TimeConfig,
-    startMod: TimeConfig,
-}
-
-export interface EventSetting {
-    at: Date,
-    estimatedRequiredTime: number,
-    reminderMod: TimeConfig,
-    startMod: TimeConfig,
-}
-
-export type ActivityType = 'task' | 'event';
 
 export function ActivitySettingModal<T extends TaskSetting | EventSetting>
 ({

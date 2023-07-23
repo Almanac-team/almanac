@@ -2,9 +2,6 @@ import React, {type ReactNode, useCallback, useContext, useRef, useState} from "
 import clsx from "clsx";
 import {CategoryContext} from "~/components/activity/activity-column";
 import {
-    type ActivitySetting,
-    type EventSetting,
-    type TaskSetting,
     isEventSetting,
     isTaskSetting, ActivitySettingModal,
 } from "~/components/activity/activity-settings";
@@ -18,6 +15,7 @@ import {TimeContext} from "~/pages/_app";
 import {IconButton} from "@material-tailwind/react";
 import {api} from "~/utils/api";
 import {Menu, MenuBody, MenuHandler} from "~/components/generic/menu";
+import {ActivitySetting, EventSetting, TaskSetting} from "~/components/activity/models";
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;

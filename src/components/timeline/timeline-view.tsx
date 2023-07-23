@@ -1,5 +1,6 @@
 import {type ScheduledEvent} from "~/utils/types";
 import clsx from "clsx";
+import {DayViewProps} from "~/components/timeline/models";
 
 function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], startDay: Date }) {
     return (
@@ -31,13 +32,7 @@ function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], s
     );
 }
 
-interface IDayViewProps {
-    startDay: Date,
-    dayLabel: string,
-    activityList: ScheduledEvent[]
-}
-
-export function TimelineView({className, dayViewList}: { className?: string, dayViewList: IDayViewProps[] }) {
+export function TimelineView({className, dayViewList}: { className?: string, dayViewList: DayViewProps[] }) {
     return (
         <div className={clsx("overflow-y-scroll pr-1 relative", className ?? "")}>
             <div className='flex flex-row pt-4'>

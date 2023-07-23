@@ -58,7 +58,22 @@ const regionsRouter = createTRPCRouter({
                 }
             }
         })
-    })
+    }),
+    deleteRegions: protectedProcedure.input(z.object({
+        regionIds: z.array(z.string())
+    })).mutation(({ctx, input}) => {
+        const userId: string = ctx.session.user.id
+        return ctx.prisma.region.deleteMany({
+            where: {
+                id: {
+                    in: input.regionIds
+                },
+                ZoneInfo: {
+                    userId: userId
+                }
+            }
+        })
+    }),
 })
 
 export default regionsRouter

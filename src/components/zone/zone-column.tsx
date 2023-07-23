@@ -1,31 +1,11 @@
 import {api} from "~/utils/api";
-import React, {ReactNode, useCallback, useState} from "react";
+import React, {type ReactNode, useCallback, useState} from "react";
 import clsx from "clsx";
 import {Menu, MenuBody, MenuHandler} from "~/components/generic/menu";
 import {Button, IconButton} from "@material-tailwind/react";
-import {
-    ActivitySetting,
-    EventSetting,
-    TaskSetting
-} from "~/components/activity/activity-settings";
 
-import {
-    AdjustmentsHorizontalIcon
-} from "@heroicons/react/24/outline";
-
-
-export interface Region {
-    id: string;
-    from: number;
-    to: number;
-}
-
-export interface ZoneInfo {
-    id: string;
-    name: string;
-    color: string;
-    regions: Region[];
-}
+import {AdjustmentsHorizontalIcon} from "@heroicons/react/24/outline";
+import {type ZoneInfo} from "~/components/zone/models";
 
 
 function AddZoneModal({onSubmit, updating}: {

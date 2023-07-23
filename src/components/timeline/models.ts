@@ -10,11 +10,11 @@ export interface TimelineInteraction {
     onBlockDrag?: (blockId: string, dragPercentDelta: number) => void,
     onBlockDragEnd?: (blockId: string, dragPercentDelta: number) => void,
 
-    onBackgroundClick?: (verticalPercent: number) => void,
+    onBackgroundClick?: (index: number, verticalPercent: number) => void,
 
-    onBackgroundDragStart?: (verticalPercent: number, dragPercentDelta: number) => void,
-    onBackgroundDrag?: (verticalPercent: number, dragPercentDelta: number) => void,
-    onBackgroundDragEnd?: (verticalPercent: number, dragPercentDelta: number) => void,
+    onBackgroundDragStart?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,
+    onBackgroundDrag?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,
+    onBackgroundDragEnd?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,
 }
 
 export interface ScheduledBlock {

@@ -8,5 +8,5 @@ export interface ZoneInfo {
     id: string;
     name: string;
     color: string;
-    regions: Region[];
+    regions?: Region[];
 }

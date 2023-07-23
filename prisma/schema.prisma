@@ -111,15 +111,15 @@ enum ActivityType {
 }
 
 model Activity {
-  id             String           @id @default(cuid())
-  categoryId     String
-  name           String
-  category       Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  type           ActivityType     @default(task)
-  task           Task?
-  event          Event?
-  GeneratedEvent GeneratedEvent[]
-  Zones          Zone[]
+  id               String             @id @default(cuid())
+  categoryId       String
+  name             String
+  category         Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  type             ActivityType       @default(task)
+  task             Task?
+  event            Event?
+  GeneratedEvent   GeneratedEvent[]
+  ActivityZonePair ActivityZonePair[]
 
   @@index([categoryId])
 }
@@ -159,14 +159,25 @@ model GeneratedEvent {
   @@index([activityId])
 }
 
+model ActivityZonePair {
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  zoneId     String
+  zone       Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([activityId, zoneId])
+  @@index([activityId])
+  @@index([zoneId])
+}
+
 model Zone {
-  id       String     @id @default(cuid())
-  userId   String
-  name     String
-  color    String
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  regions  Region[]
-  Activity Activity[]
+  id               String             @id @default(cuid())
+  userId           String
+  name             String
+  color            String
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  regions          Region[]
+  ActivityZonePair ActivityZonePair[]
 
   @@index([userId])
   @@index([id])

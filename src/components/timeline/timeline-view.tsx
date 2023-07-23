@@ -1,13 +1,32 @@
 import clsx from "clsx";
 import {type DayViewProps, type ScheduledBlock, TimelineInteractionContext} from "~/components/timeline/models";
-import {useContext} from "react";
+import {useContext, useRef, useState} from "react";
 
 function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], startDay: Date, index?: number }) {
+    const {
+        selectedEventId,
+
+        onBlockClick,
+        onBlockDragStart,
+
+        onBackgroundClick,
+        onBackgroundMouseDown,
+    } = useContext(TimelineInteractionContext);
+
+    const ref = useRef<HTMLDivElement>(null);
+
     return (
-        <div className="relative w-52 h-fit border-2 border-blue-gray-400">
+        <div className="relative w-52 h-fit border-2 border-blue-gray-400"
+             draggable={false}
+             ref={ref}
+             onClick={e => {
+                 onBackgroundClick?.(index ?? 0, e.clientY, e.currentTarget.clientHeight)
+             }}
+            onMouseDown={e => onBackgroundMouseDown?.(index ?? 0, {x: e.clientX, y: e.clientY}, e.currentTarget.clientHeight)}
+        >
             {
                 Array.from({length: 24}, (_, i) => i + 1).map(hour => (
-                    <div key={hour} className={`w-full h-10 bg-gray-${hour % 2 ? 200 : 100}`}></div>
+                    <div key={hour} className={`w-full h-10 bg-gray-${hour % 2 ? 200 : 100}`} draggable={false}></div>
                 ))
             }
             {blockList.map(block => {
@@ -50,7 +69,9 @@ export function TimelineView({className, dayViewList}: { className?: string, day
                                 <div key={dayView.dayLabel} className="-mr-0.5">
                                     <div className='sticky top-0 w-full z-10 bg-white'>
                                         <div
-                                            className={clsx('w-full z-10 py-2 bg-gray-300', i == 0 && `rounded-tl-md`, i == dayViewList.length - 1 && `rounded-tr-md`)}>
+                                            className={clsx('w-full z-10 py-2 bg-gray-300', i == 0 && `rounded-tl-md`, i == dayViewList.length - 1 && `rounded-tr-md`)}
+                                            draggable={false}
+                                        >
                                             <div className="mx-auto text-center">
                                                 {dayView.dayLabel}
                                             </div>
@@ -67,7 +88,11 @@ export function TimelineView({className, dayViewList}: { className?: string, day
     );
 }
 
-export function WeekView({className, blockList, firstDayMidnight}: { className?: string, blockList: ScheduledBlock[], firstDayMidnight: Date }) {
+export function WeekView({className, blockList, firstDayMidnight}: {
+    className?: string,
+    blockList: ScheduledBlock[],
+    firstDayMidnight: Date
+}) {
     return <TimelineView className={className ?? ""} dayViewList={[
         {
             dayLabel: "Monday",

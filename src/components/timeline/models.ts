@@ -7,14 +7,14 @@ export interface TimelineInteraction {
     onBlockClick?: (blockId: string) => void,
 
     onBlockDragStart?: (blockId: string) => void,
-    onBlockDrag?: (blockId: string, dragPercentDelta: number) => void,
-    onBlockDragEnd?: (blockId: string, dragPercentDelta: number) => void,
+    // onBlockDrag?: (blockId: string, dragPercentDelta: number) => void,
+    // onBlockDragEnd?: (blockId: string, dragPercentDelta: number) => void,
 
-    onBackgroundClick?: (index: number, verticalPercent: number) => void,
+    onBackgroundClick?: (index: number, clientY: number, elementHeight: number) => void,
 
-    onBackgroundDragStart?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,
-    onBackgroundDrag?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,
-    onBackgroundDragEnd?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,
+    onBackgroundMouseDown?: (index: number, pos: {x: number, y: number}, elementHeight: number) => void,
+    // onBackgroundDrag?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,
+    // onBackgroundDragEnd?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,
 }
 
 export interface ScheduledBlock {

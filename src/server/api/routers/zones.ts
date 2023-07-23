@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 
-import {ZoneInfo} from "~/components/zone/models";
+import {Region, ZoneInfo} from "~/components/zone/models";
 
 const zonesRouter = createTRPCRouter({
     getZones: protectedProcedure.query(async ({ctx}): Promise<ZoneInfo[]> => {
@@ -73,6 +73,47 @@ const zonesRouter = createTRPCRouter({
             color: zone.color,
             regions: []
         }
+    }),
+    getZonesByActivityId: protectedProcedure.input(z.object({
+            activityId: z.string()
+        })
+    ).query(async ({ctx, input}): Promise<ZoneInfo[] | undefined> => {
+        const userId = ctx.session.user.id
+        const activity = (await ctx.prisma.activity.findUnique({
+            where: {
+                id: input.activityId,
+                category: {
+                    userId: userId
+                }
+            },
+            include: {
+                ActivityZonePair: {
+                    include: {
+                        zone: {
+                            include: {
+                                regions: true
+                            }
+                        }
+                    }
+
+                }
+            }
+        }))
+
+        return activity?.ActivityZonePair.map((pair) => {
+            return {
+                id: pair.zone.id,
+                name: pair.zone.name,
+                color: pair.zone.color,
+                regions: pair.zone.regions.map((region): Region => {
+                    return {
+                        id: region.id,
+                        from: region.from,
+                        to: region.to
+                    }
+                })
+            }
+        })
     })
 })
 

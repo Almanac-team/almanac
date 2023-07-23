@@ -5,21 +5,18 @@ import React, {useState} from "react";
 import {Button} from "@material-tailwind/react";
 import {Menu, MenuBody, MenuHandler} from "~/components/generic/menu";
 import {
-    type ActivitySetting,
-    type ActivityType,
-    type EventSetting,
-    type TaskSetting,
     EventSettingConfig,
-    TaskSettingConfig, type ActivitySettingUnion
+    TaskSettingConfig
 } from "~/components/activity/activity-settings";
 import {Tab, Tabs} from "~/components/generic/tab";
-
-export interface CategoryInfo {
-    id: string;
-    categoryName: string;
-    backgroundColor: string;
-    textColor?: string;
-}
+import {
+    ActivitySetting,
+    ActivitySettingUnion,
+    ActivityType,
+    CategoryInfo,
+    EventSetting,
+    TaskSetting
+} from "~/components/activity/models";
 
 function AddActivityModal({onSubmit, updating}: {
     onSubmit?: (activitySetting: ActivitySetting<TaskSetting | EventSetting>) => void,

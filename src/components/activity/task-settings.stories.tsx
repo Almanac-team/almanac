@@ -1,9 +1,9 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import {
-    type TaskSetting,
     TaskSettingConfig
 } from "~/components/activity/activity-settings";
 import {useState} from "react";
+import {TaskSetting} from "~/components/activity/models";
 
 const meta: Meta<typeof TaskSettingConfig> = {
     title: 'Task Settings',
@@ -23,7 +23,7 @@ function TaskSettingWrapper() {
                 date.setHours(23, 59, 0, 0);
                 return date;
             })(),
-            estimatedRequiredTime: {value: 1, unit: "hour"},
+            estimatedRequiredTime: 1,
             deadlineMod: {value: 0, unit: "minute"},
             reminderMod: {value: 0, unit: "minute"},
             startMod: {value: 0, unit: "minute"},

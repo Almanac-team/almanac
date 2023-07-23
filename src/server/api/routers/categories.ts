@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
-import {type CategoryInfo} from "~/components/activity/activity-column";
+
+import {CategoryInfo} from "~/components/activity/models";
 
 const categoriesRouter = createTRPCRouter({
     createCategory: protectedProcedure.input(z.object({

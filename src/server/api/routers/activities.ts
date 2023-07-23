@@ -1,13 +1,8 @@
 import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
-import {
-    type ActivitySetting,
-    type ActivityType,
-    type EventSetting,
-    type TaskSetting
-} from "~/components/activity/activity-settings";
 import {ActivityType as PrismaActivityType, type PrismaClient} from ".prisma/client";
 import {type TimeConfig as InternalTimeConfig} from "~/components/time_picker/date";
+import {ActivitySetting, ActivityType, EventSetting, TaskSetting} from "~/components/activity/models";
 
 const TimeConfig = z.object({
     unit: z.enum(['year', 'month', 'week', 'day', 'hour', 'minute']),

@@ -3,13 +3,11 @@ import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 import {type GeneratedEvent} from "~/pages/sprint";
 import {getDetailedActivities} from "~/server/api/routers/activities";
 import {
-    ActivitySetting,
-    EventSetting,
     isEvent,
-    isTask,
-    TaskSetting
+    isTask
 } from "~/components/activity/activity-settings";
 import {generateEvents} from "~/server/eventGeneration";
+import {ActivitySetting, EventSetting, TaskSetting} from "~/components/activity/models";
 
 const generatedEventsRouter = createTRPCRouter({
     createGeneratedEvents: protectedProcedure.input(z.object({

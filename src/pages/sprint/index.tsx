@@ -1,9 +1,9 @@
 import Head from "next/head";
 import {TimelineView, WeekView} from "~/components/timeline/timeline-view";
-import {ScheduledEvent} from "~/utils/types";
 import {useEffect, useState} from "react";
 import {Button} from "@material-tailwind/react";
 import {api} from "~/utils/api";
+import {ScheduledEvent} from "~/components/timeline/models";
 
 export function getWeekStart(date: Date) {
     const today = date;

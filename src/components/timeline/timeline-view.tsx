@@ -1,6 +1,5 @@
-import {type ScheduledEvent} from "~/utils/types";
 import clsx from "clsx";
-import {DayViewProps} from "~/components/timeline/models";
+import {DayViewProps, ScheduledEvent} from "~/components/timeline/models";
 
 function ViewInner({activityList, startDay}: { activityList: ScheduledEvent[], startDay: Date }) {
     return (

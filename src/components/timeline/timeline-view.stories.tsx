@@ -1,7 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
 import {TimelineView, WeekView} from './timeline-view';
-import {ScheduledEvent} from '~/utils/types';
 import {getWeekStart} from "~/pages/sprint";
+import {ScheduledEvent} from "~/components/timeline/models";
 
 const meta: Meta<typeof TimelineView> = {
     title: 'Timeline View',

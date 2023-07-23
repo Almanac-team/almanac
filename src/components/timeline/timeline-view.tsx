@@ -52,7 +52,8 @@ function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], 
                             }}
                             style={{
                                 top: Math.max(startTimeRelative, 0) * 40,
-                                height: (Math.min(endHourRelative, 24) - Math.max(startTimeRelative, 0)) * 40
+                                height: (Math.min(endHourRelative, 24) - Math.max(startTimeRelative, 0)) * 40,
+                                backgroundColor: block.color ?? "#41a4f3"
                             }}
                             key={block.id}>
                     {`${block.name}${startTimeRelative < 0 ? " (continued)" : ""}`}

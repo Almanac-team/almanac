@@ -20,7 +20,7 @@ function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], 
              draggable={false}
              ref={ref}
              onClick={e => {
-                 onBackgroundClick?.(index ?? 0, e.clientY, e.currentTarget.clientHeight)
+                 onBackgroundClick?.(index ?? 0, (e.clientY - (ref?.current?.getBoundingClientRect().y ?? 0)) / e.currentTarget.clientHeight)
              }}
             onMouseDown={e => onBackgroundMouseDown?.(index ?? 0, {x: e.clientX, y: e.clientY}, e.currentTarget.clientHeight)}
         >
@@ -32,7 +32,7 @@ function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], 
             {blockList.map(block => {
                 const startTimeRelative = (block.date.getTime() - startDay.getTime()) / 1000 / 60 / 60
                 const endHourRelative = startTimeRelative + block.hours;
-                if (endHourRelative < 0) return null;
+                if (endHourRelative <= 0.01) return null;
                 if (startTimeRelative >= 24) return null;
 
                 return <div className={clsx('absolute bg-blue-400 text-white w-full px-2 flex text-sm',

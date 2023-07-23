@@ -1,7 +1,8 @@
 import clsx from "clsx";
-import {type DayViewProps, type ScheduledBlock} from "~/components/timeline/models";
+import {type DayViewProps, type ScheduledBlock, TimelineInteractionContext} from "~/components/timeline/models";
+import {useContext} from "react";
 
-function ViewInner({blockList, startDay}: { blockList: ScheduledBlock[], startDay: Date }) {
+function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], startDay: Date, index?: number }) {
     return (
         <div className="relative w-52 h-fit border-2 border-blue-gray-400">
             {
@@ -55,7 +56,7 @@ export function TimelineView({className, dayViewList}: { className?: string, day
                                             </div>
                                         </div>
                                     </div>
-                                    <ViewInner blockList={dayView.blockList} startDay={dayView.startDay}/>
+                                    <ViewInner blockList={dayView.blockList} startDay={dayView.startDay} index={i}/>
                                 </div>
                             ))
                         }

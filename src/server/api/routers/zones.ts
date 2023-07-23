@@ -29,7 +29,7 @@ const zonesRouter = createTRPCRouter({
         })
     }),
 
-    createZone: protectedProcedure.input(z.object({
+    createZones: protectedProcedure.input(z.object({
             name: z.string(),
             color: z.string()
         })
@@ -50,7 +50,7 @@ const zonesRouter = createTRPCRouter({
         }
     }),
 
-    updateZone: protectedProcedure.input(z.object({
+    updateZones: protectedProcedure.input(z.object({
             id: z.string(),
             name: z.string(),
             color: z.string()

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import clsx from "clsx";
 import {type Region, type ZoneInfo} from "~/components/zone/models";
 import {TimelineInteractionContext} from "~/components/timeline/models";
@@ -16,6 +16,8 @@ type DisplayRegionUnion = Region | NotCreatedRegion;
 export function ZoneView({zone, className}: { zone: ZoneInfo, className?: string }) {
     const [scheduledBlocks, setScheduledBlocks] = useState<DisplayRegionUnion[]>((zone.regions));
     const [changeList, setChangeList] = useState<string[]>([]);
+
+    const queryClient = api.useContext();
 
     const { mutate: createRegions } = api.regions.createRegions.useMutation();
     const { mutate: updateRegions } = api.regions.updateRegions.useMutation();
@@ -74,8 +76,11 @@ export function ZoneView({zone, className}: { zone: ZoneInfo, className?: string
         });
     }
 
-    const updateZoneChanges = useCallback(((zone: ZoneInfo) => {
-        if (changeList.length === 0) return;
+
+    const updateFunctionRef = useRef((zone: ZoneInfo) => {return;});
+
+    updateFunctionRef.current = useCallback((zone: ZoneInfo) => {
+        console.log("updating zone", zone.id, changeList);
         const createList: NotCreatedRegion[] = [];
         const updateList: Region[] = [];
         const deleteList: string[] = [];
@@ -103,15 +108,17 @@ export function ZoneView({zone, className}: { zone: ZoneInfo, className?: string
         updateRegions({zoneId: zone?.id ?? "", regions: updateList});
         deleteRegions({regionIds: deleteList});
 
+        void queryClient.zones.invalidate();
+
         setChangeList([]);
-    }), [changeList, createRegions, deleteRegions, scheduledBlocks, updateRegions]);
+    },[changeList, createRegions, deleteRegions, queryClient.zones, scheduledBlocks, updateRegions]);
 
     useEffect(() => {
         // update zones on dismount
         setScheduledBlocks(zone.regions);
 
         return () => {
-            updateZoneChanges(zone);
+            updateFunctionRef.current(zone);
         }
     }, [zone])
 

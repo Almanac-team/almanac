@@ -6,7 +6,7 @@ export interface TimelineInteraction {
     selectedEventId?: string,
     onBlockClick?: (blockId: string) => void,
 
-    onBlockDragStart?: (blockId: string) => void,
+    onBlockMouseDown?: (blockId: string) => void,
     // onBlockDrag?: (blockId: string, dragPercentDelta: number) => void,
     // onBlockDragEnd?: (blockId: string, dragPercentDelta: number) => void,
 
@@ -22,6 +22,7 @@ export interface ScheduledBlock {
     name: string,
     date: Date,
     hours: number,
+    color?: string,
 }
 
 export interface DayViewProps {

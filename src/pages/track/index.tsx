@@ -17,12 +17,12 @@ export default function Home() {
                     <TimelineView dayViewList={[
                         {
                             dayLabel: 'Planned',
-                            activityList: [],
+                            blockList: [],
                             startDay: today
                         },
                         {
                             dayLabel: 'Reality',
-                            activityList: [],
+                            blockList: [],
                             startDay: today
                         }
                     ]}/>

@@ -4,11 +4,11 @@ export const TimelineInteractionContext = createContext<TimelineInteraction>({})
 
 export interface TimelineInteraction {
     selectedEventId?: string,
-    onBlockClick?: (eventId: string) => void,
+    onBlockClick?: (blockId: string) => void,
 
-    onBlockDragStart?: (eventId: string) => void,
-    onBlockDrag?: (eventId: string, dragPercentDelta: number) => void,
-    onBlockDragEnd?: (eventId: string, dragPercentDelta: number) => void,
+    onBlockDragStart?: (blockId: string) => void,
+    onBlockDrag?: (blockId: string, dragPercentDelta: number) => void,
+    onBlockDragEnd?: (blockId: string, dragPercentDelta: number) => void,
 
     onBackgroundClick?: (verticalPercent: number) => void,
 
@@ -27,5 +27,5 @@ export interface ScheduledBlock {
 export interface DayViewProps {
     startDay: Date,
     dayLabel: string,
-    activityList: ScheduledBlock[]
+    blockList: ScheduledBlock[]
 }

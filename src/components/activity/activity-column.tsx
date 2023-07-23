@@ -18,7 +18,7 @@ import {
     TaskSetting
 } from "~/components/activity/models";
 
-function AddActivityModal({onSubmit, updating}: {
+function ActivityCreateModal({onSubmit, updating}: {
     onSubmit?: (activitySetting: ActivitySetting<TaskSetting | EventSetting>) => void,
     updating?: boolean
 }) {
@@ -167,7 +167,7 @@ export function ActivityColumn({categoryInfo}: {
                     </div>
                 </MenuHandler>
                 <MenuBody>
-                    <AddActivityModal onSubmit={
+                    <ActivityCreateModal onSubmit={
                         (activitySetting: ActivitySettingUnion) => {
                             setUpdating(true);
 

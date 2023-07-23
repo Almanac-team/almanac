@@ -7,7 +7,7 @@ function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], 
         selectedEventId,
 
         onBlockClick,
-        onBlockDragStart,
+        onBlockMouseDown,
 
         onBackgroundClick,
         onBackgroundMouseDown,
@@ -22,7 +22,10 @@ function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], 
              onClick={e => {
                  onBackgroundClick?.(index ?? 0, (e.clientY - (ref?.current?.getBoundingClientRect().y ?? 0)) / e.currentTarget.clientHeight)
              }}
-            onMouseDown={e => onBackgroundMouseDown?.(index ?? 0, {x: e.clientX, y: e.clientY}, e.currentTarget.clientHeight)}
+             onMouseDown={e => onBackgroundMouseDown?.(index ?? 0, {
+                 x: e.clientX,
+                 y: e.clientY
+             }, e.currentTarget.clientHeight)}
         >
             {
                 Array.from({length: 24}, (_, i) => i + 1).map(hour => (
@@ -39,6 +42,14 @@ function ViewInner({blockList, startDay, index}: { blockList: ScheduledBlock[], 
                     !(startTimeRelative < 0) && `rounded-t-md`,
                     !(endHourRelative >= 24) && `rounded-b-md`)
                 }
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onBlockClick?.(block.id)
+                            }}
+                            onMouseDown={(e) => {
+                                e.stopPropagation();
+                                onBlockMouseDown?.(block.id)
+                            }}
                             style={{
                                 top: Math.max(startTimeRelative, 0) * 40,
                                 height: (Math.min(endHourRelative, 24) - Math.max(startTimeRelative, 0)) * 40

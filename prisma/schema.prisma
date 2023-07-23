@@ -119,6 +119,7 @@ model Activity {
   task           Task?
   event          Event?
   GeneratedEvent GeneratedEvent[]
+  Zones          Zone[]
 
   @@index([categoryId])
 }
@@ -159,14 +160,16 @@ model GeneratedEvent {
 }
 
 model Zone {
-  id      String   @id @default(cuid())
-  userId  String
-  name    String
-  color   String
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  regions Region[]
+  id       String     @id @default(cuid())
+  userId   String
+  name     String
+  color    String
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  regions  Region[]
+  Activity Activity[]
 
   @@index([userId])
+  @@index([id])
 }
 
 model Region {

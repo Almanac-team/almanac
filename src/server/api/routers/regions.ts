@@ -19,7 +19,7 @@ const regionsRouter = createTRPCRouter({
             return await ctx.prisma.region.update({
                 where: {
                     id: region.id,
-                    ZoneInfo: {
+                    zone: {
                         userId: userId
                     }
                 },
@@ -39,7 +39,7 @@ const regionsRouter = createTRPCRouter({
             }))
     })).mutation(({ctx, input}) => {
         const userId: string = ctx.session.user.id
-        return ctx.prisma.zoneInfo.update({
+        return ctx.prisma.zone.update({
             where: {
                 id: input.zoneId,
                 userId: userId
@@ -68,7 +68,7 @@ const regionsRouter = createTRPCRouter({
                 id: {
                     in: input.regionIds
                 },
-                ZoneInfo: {
+                zone: {
                     userId: userId
                 }
             }

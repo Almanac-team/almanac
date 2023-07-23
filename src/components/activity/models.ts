@@ -1,4 +1,5 @@
 import {TimeConfig} from "~/components/time_picker/date";
+import {ZoneInfo} from "~/components/zone/models";
 
 export interface CategoryInfo {
     id: string;
@@ -13,6 +14,7 @@ export interface ActivitySetting<T extends TaskSetting | EventSetting | undefine
     id: string,
     name: string,
     activityType: ActivityType,
+    zones: ZoneInfo[] | undefined,
     setting: T
 }
 

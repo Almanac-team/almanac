@@ -10,7 +10,7 @@ export interface TimelineInteraction {
     // onBlockDrag?: (blockId: string, dragPercentDelta: number) => void,
     // onBlockDragEnd?: (blockId: string, dragPercentDelta: number) => void,
 
-    onBackgroundClick?: (index: number, clientY: number, elementHeight: number) => void,
+    onBackgroundClick?: (index: number, percentY: number) => void,
 
     onBackgroundMouseDown?: (index: number, pos: {x: number, y: number}, elementHeight: number) => void,
     // onBackgroundDrag?: (index: number, verticalPercent: number, dragPercentDelta: number) => void,

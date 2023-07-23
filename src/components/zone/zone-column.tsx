@@ -66,11 +66,11 @@ export function ZoneOverview({zone, openSetting}: { zone: ZoneInfo, openSetting?
     const queryClient = api.useContext();
 
     const [updating, isUpdating] = useState(false);
-    const {mutate: mutateZone} = api.zones.updateZone.useMutation();
+    const {mutate: mutateZones} = api.zones.updateZones.useMutation();
 
     const submitFunction = useCallback((zone: ZoneInfo) => {
         isUpdating(true);
-        mutateZone(zone, {
+        mutateZones(zone, {
             onSuccess: () => {
                 void queryClient.zones.getZones.invalidate().then(() => {
                         isUpdating(false);
@@ -78,7 +78,7 @@ export function ZoneOverview({zone, openSetting}: { zone: ZoneInfo, openSetting?
                 );
             }
         });
-    }, [mutateZone, queryClient.zones.getZones]);
+    }, [mutateZones, queryClient.zones.getZones]);
 
     return <div className="w-full h-24 bg-gray-200 rounded-lg select-none relative">
         <div className="flex flex-row items-center">
@@ -102,7 +102,7 @@ export function ZoneOverview({zone, openSetting}: { zone: ZoneInfo, openSetting?
 
 export function ZoneColumn({zones, onSelect}: { zones?: ZoneInfo[], onSelect?: (index: number) => void }) {
     const queryClient = api.useContext();
-    const {mutateAsync: createZone} = api.zones.createZone.useMutation();
+    const {mutateAsync: createZones} = api.zones.createZones.useMutation();
     const [isOpen, setIsOpen] = useState(false);
     const [updating, setUpdating] = useState(false);
 
@@ -141,7 +141,7 @@ export function ZoneColumn({zones, onSelect}: { zones?: ZoneInfo[], onSelect?: (
                     <AddZoneModal onSubmit={async (zoneInfo) => {
                         setUpdating(true);
                         try {
-                            await createZone(zoneInfo);
+                            await createZones(zoneInfo);
 
                             void queryClient.zones.getZones.invalidate().then(() => {
                                 setUpdating(false);

@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 import {ActivityType as PrismaActivityType, type PrismaClient} from ".prisma/client";
 import {type TimeConfig as InternalTimeConfig} from "~/components/time_picker/date";
-import {ActivitySetting, ActivityType, EventSetting, TaskSetting} from "~/components/activity/models";
+import {type ActivitySetting, type ActivityType, type EventSetting, type TaskSetting} from "~/components/activity/models";
 
 const TimeConfig = z.object({
     unit: z.enum(['year', 'month', 'week', 'day', 'hour', 'minute']),
@@ -104,7 +104,18 @@ export async function getDetailedActivities(prisma: PrismaClient, userId: string
         },
         include: {
             task: true,
-            event: true
+            event: true,
+            ActivityZonePair: {
+                include: {
+                    zone: {
+                        select: {
+                            id: true,
+                            name: true,
+                            color: true
+                        }
+                    }
+                }
+            }
         }
     })).map((activity): ActivitySetting<TaskSetting | EventSetting> | undefined => {
         let setting;
@@ -122,6 +133,13 @@ export async function getDetailedActivities(prisma: PrismaClient, userId: string
             id: activity.id,
             name: activity.name,
             activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
+            zones: activity.ActivityZonePair.map((pair) => {
+                return {
+                    id: pair.zone.id,
+                    name: pair.zone.name,
+                    color: pair.zone.color
+                }
+            }),
             setting
         }
     }).filter((activity): activity is ActivitySetting<TaskSetting | EventSetting> => {
@@ -146,6 +164,7 @@ const activitiesRouter = createTRPCRouter({
                 id: activity.id,
                 name: activity.name,
                 activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
+                zones: undefined,
                 setting: undefined
             }
         })

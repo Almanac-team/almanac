@@ -14,7 +14,7 @@ interface NotCreatedRegion {
 type DisplayRegionUnion = Region | NotCreatedRegion;
 
 export function ZoneView({zone, className}: { zone: ZoneInfo, className?: string }) {
-    const [scheduledBlocks, setScheduledBlocks] = useState<DisplayRegionUnion[]>((zone.regions));
+    const [scheduledBlocks, setScheduledBlocks] = useState<DisplayRegionUnion[]>(zone.regions ?? []);
     const [changeList, setChangeList] = useState<string[]>([]);
 
     const queryClient = api.useContext();
@@ -115,7 +115,7 @@ export function ZoneView({zone, className}: { zone: ZoneInfo, className?: string
 
     useEffect(() => {
         // update zones on dismount
-        setScheduledBlocks(zone.regions);
+        setScheduledBlocks(zone.regions ?? []);
 
         return () => {
             updateFunctionRef.current(zone);

@@ -14,7 +14,7 @@ export interface ActivitySetting<T extends TaskSetting | EventSetting | undefine
     id: string,
     name: string,
     activityType: ActivityType,
-    zones: ZoneInfo[] | undefined,
+    zones?: ZoneInfo[],
     setting: T
 }
 

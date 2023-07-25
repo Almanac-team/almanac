@@ -3,6 +3,7 @@ import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 import {ActivityType as PrismaActivityType, type PrismaClient} from ".prisma/client";
 import {type TimeConfig as InternalTimeConfig} from "~/components/time_picker/date";
 import {type ActivitySetting, type ActivityType, type EventSetting, type TaskSetting} from "~/components/activity/models";
+import {type ZoneInfo} from "~/components/zone/models";
 
 const TimeConfig = z.object({
     unit: z.enum(['year', 'month', 'week', 'day', 'hour', 'minute']),
@@ -129,17 +130,30 @@ export async function getDetailedActivities(prisma: PrismaClient, userId: string
             return undefined
         }
 
+        const include: ZoneInfo[] = []
+        const exclude: ZoneInfo[] = []
+
+        for (const pair of activity.ActivityZonePair) {
+            const zone = {
+                id: pair.zone.id,
+                name: pair.zone.name,
+                color: pair.zone.color
+            }
+            if (pair.zoneType === 'include') {
+                include.push(zone)
+            } else if (pair.zoneType === 'exclude') {
+                exclude.push(zone)
+            }
+        }
+
         return {
             id: activity.id,
             name: activity.name,
             activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
-            zones: activity.ActivityZonePair.map((pair) => {
-                return {
-                    id: pair.zone.id,
-                    name: pair.zone.name,
-                    color: pair.zone.color
-                }
-            }),
+            zones: {
+                include,
+                exclude,
+            },
             setting
         }
     }).filter((activity): activity is ActivitySetting<TaskSetting | EventSetting> => {
@@ -164,7 +178,6 @@ const activitiesRouter = createTRPCRouter({
                 id: activity.id,
                 name: activity.name,
                 activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
-                zones: undefined,
                 setting: undefined
             }
         })

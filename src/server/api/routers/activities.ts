@@ -2,7 +2,12 @@ import {z} from 'zod';
 import {createTRPCRouter, protectedProcedure} from "~/server/api/trpc"
 import {ActivityType as PrismaActivityType, type PrismaClient} from ".prisma/client";
 import {type TimeConfig as InternalTimeConfig} from "~/components/time_picker/date";
-import {type ActivitySetting, type ActivityType, type EventSetting, type TaskSetting} from "~/components/activity/models";
+import {
+    type ActivitySetting,
+    type ActivityType,
+    type EventSetting,
+    type TaskSetting
+} from "~/components/activity/models";
 import {type ZoneInfo} from "~/components/zone/models";
 
 const TimeConfig = z.object({
@@ -162,9 +167,9 @@ export async function getDetailedActivities(prisma: PrismaClient, userId: string
 }
 
 const activitiesRouter = createTRPCRouter({
-    getActivities: protectedProcedure.input(z.object({
+    getActivityIds: protectedProcedure.input(z.object({
         categoryId: z.string()
-    })).query(async ({ctx, input}): Promise<ActivitySetting<undefined>[]> => {
+    })).query(async ({ctx, input}): Promise<string[]> => {
         const userId = ctx?.session?.user?.id
         return (await ctx.prisma.activity.findMany({
             where: {
@@ -172,15 +177,39 @@ const activitiesRouter = createTRPCRouter({
                     id: input.categoryId,
                     userId: userId
                 }
+            },
+            select: {
+                id: true
             }
-        })).map((activity): ActivitySetting<undefined> => {
-            return {
-                id: activity.id,
-                name: activity.name,
-                activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
-                setting: undefined
-            }
+        })).map((activity): string => {
+            return activity.id
         })
+    }),
+
+    get: protectedProcedure.input(z.object({
+        activityId: z.string(),
+        categoryId: z.string()
+    })).query(async ({ctx, input}): Promise<ActivitySetting<undefined> | null> => {
+        const userId = ctx?.session?.user?.id
+        const activity = (await ctx.prisma.activity.findUnique({
+            where: {
+                id: input.activityId,
+                category: {
+                    id: input.categoryId,
+                    userId: userId
+                }
+            }
+        }))
+        if (activity === null) {
+            return null
+        }
+
+        return {
+            id: activity.id,
+            name: activity.name,
+            activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
+            setting: undefined
+        }
     }),
 
     getDetailedActivities: protectedProcedure.input(z.object({

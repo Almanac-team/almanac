@@ -167,67 +167,16 @@ export async function getDetailedActivities(prisma: PrismaClient, userId: string
 }
 
 const activitiesRouter = createTRPCRouter({
-    /**
-     * This is an internal hook, don't use it. Use useQueryActivities from the data folder instead.
-     */
-    internalGetByCategory: protectedProcedure.input(z.object({
-        categoryId: z.string()
-    })).query(async ({ctx, input}): Promise<ActivitySetting<undefined>[]> => {
-        const userId = ctx?.session?.user?.id
-        return (await ctx.prisma.activity.findMany({
-            where: {
-                category: {
-                    id: input.categoryId,
-                    userId: userId
-                }
-            }
-        })).map((activity) => {
-            return {
-                id: activity.id,
-                name: activity.name,
-                activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
-                setting: undefined
-            }
-        })
-    }),
 
     /**
      * This is an internal hook, don't use it. Use useQueryActivity from the data folder instead.
      */
     internalGet: protectedProcedure.input(z.object({
         activityId: z.string()
-    })).query(async ({ctx, input}): Promise<(ActivitySetting<undefined> & { categoryId: string }) | null> => {
-        const userId = ctx?.session?.user?.id
-        const activity = (await ctx.prisma.activity.findUnique({
-            where: {
-                id: input.activityId,
-                category: {
-                    userId: userId
-                }
-            }
-        }))
-        if (activity === null) {
-            return null
-        }
-
-        return {
-            id: activity.id,
-            name: activity.name,
-            activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
-            categoryId: activity.categoryId,
-            setting: undefined
-        }
-    }),
-
-    /**
-     * This is an internal hook, don't use it. Use useQueryDetailedActivity from the data folder instead.
-     */
-    internalGetDetail: protectedProcedure.input(z.object({
-        activityId: z.string()
     })).query(async ({
                          ctx,
                          input
-                     }): Promise<Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'> & {
+                     }): Promise<ActivitySetting<TaskSetting | EventSetting> & {
         categoryId: string
     } | null | undefined> => {
         const userId = ctx.session.user.id
@@ -289,6 +238,8 @@ const activitiesRouter = createTRPCRouter({
 
         return {
             id: detailedActivity.id,
+            name: detailedActivity.name,
+            activityType: detailedActivity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
             categoryId: detailedActivity.categoryId,
             zones: {
                 include,
@@ -299,14 +250,14 @@ const activitiesRouter = createTRPCRouter({
     }),
 
     /**
-     * This is an internal hook, don't use it. Use useQueryDetailedActivities from the data folder instead.
+     * This is an internal hook, don't use it. Use useQueryActivities from the data folder instead.
      */
-    internalGetDetailByCategory: protectedProcedure.input(z.object({
+    internalGetByCategory: protectedProcedure.input(z.object({
         categoryId: z.string()
     })).query(async ({
                          ctx,
                          input
-                     }): Promise<Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'>[]> => {
+                     }): Promise<ActivitySetting<TaskSetting | EventSetting>[]> => {
         const userId = ctx?.session?.user?.id
         return (await ctx.prisma.activity.findMany({
             where: {
@@ -360,13 +311,15 @@ const activitiesRouter = createTRPCRouter({
 
             return {
                 id: activity.id,
+                name: activity.name,
+                activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
                 zones: {
                     include,
                     exclude,
                 },
                 setting
             }
-        }).filter((e) => e !== undefined) as Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'>[]
+        }).filter((e) => e !== undefined) as ActivitySetting<TaskSetting | EventSetting>[]
     }),
 
     getTask: protectedProcedure.input(z.object({
@@ -412,7 +365,7 @@ const activitiesRouter = createTRPCRouter({
                 reminderMod: TimeConfig,
                 startMod: TimeConfig,
             })
-    })).mutation(({ctx, input}) => {
+    })).mutation(async ({ctx, input}): Promise<string> => {
         const userId = ctx?.session?.user?.id
         return ctx.prisma.activity.create({
             data: {
@@ -434,7 +387,7 @@ const activitiesRouter = createTRPCRouter({
                     }
                 }
             }
-        })
+        }).then((activity) => activity.id)
     }),
 
     createEvent: protectedProcedure.input(z.object({
@@ -447,7 +400,7 @@ const activitiesRouter = createTRPCRouter({
                 reminderMod: TimeConfig,
                 startMod: TimeConfig,
             })
-    })).mutation(({ctx, input}) => {
+    })).mutation(async({ctx, input}): Promise<string> => {
         const userId = ctx?.session?.user?.id
 
         return ctx.prisma.activity.create({
@@ -469,7 +422,7 @@ const activitiesRouter = createTRPCRouter({
                     }
                 }
             }
-        })
+        }).then((activity) => activity.id)
     }),
 
     updateTask: protectedProcedure.input(z.object({

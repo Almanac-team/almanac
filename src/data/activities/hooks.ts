@@ -111,3 +111,8 @@ export function useQueryDetailedActivity({activityId}: {activityId: string}): {d
 
     return {data: detail && activity ? {...activity, ...detail} : null}
 }
+
+export const invalidateDetailedActivities = async ({categoryId}: {categoryId: string}) => {
+    const queryClient = api.useContext();
+    return queryClient.activities.internalGetDetailByCategory.invalidate({categoryId})
+}

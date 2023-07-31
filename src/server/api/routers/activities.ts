@@ -167,7 +167,10 @@ export async function getDetailedActivities(prisma: PrismaClient, userId: string
 }
 
 const activitiesRouter = createTRPCRouter({
-    getByCategory: protectedProcedure.input(z.object({
+    /**
+     * This is an internal hook, don't use it. Use useQueryActivities from the data folder instead.
+     */
+    internalGetByCategory: protectedProcedure.input(z.object({
         categoryId: z.string()
     })).query(async ({ctx, input}): Promise<ActivitySetting<undefined>[]> => {
         const userId = ctx?.session?.user?.id
@@ -188,9 +191,12 @@ const activitiesRouter = createTRPCRouter({
         })
     }),
 
-    get: protectedProcedure.input(z.object({
+    /**
+     * This is an internal hook, don't use it. Use useQueryActivity from the data folder instead.
+     */
+    internalGet: protectedProcedure.input(z.object({
         activityId: z.string()
-    })).query(async ({ctx, input}): Promise<(ActivitySetting<undefined> & {categoryId: string}) | null> => {
+    })).query(async ({ctx, input}): Promise<(ActivitySetting<undefined> & { categoryId: string }) | null> => {
         const userId = ctx?.session?.user?.id
         const activity = (await ctx.prisma.activity.findUnique({
             where: {
@@ -213,12 +219,17 @@ const activitiesRouter = createTRPCRouter({
         }
     }),
 
-    getDetail: protectedProcedure.input(z.object({
+    /**
+     * This is an internal hook, don't use it. Use useQueryDetailedActivity from the data folder instead.
+     */
+    internalGetDetail: protectedProcedure.input(z.object({
         activityId: z.string()
     })).query(async ({
                          ctx,
                          input
-                     }): Promise<Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'> & {categoryId: string} | null | undefined> => {
+                     }): Promise<Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'> & {
+        categoryId: string
+    } | null | undefined> => {
         const userId = ctx.session.user.id
         const detailedActivity = (await ctx.prisma.activity.findUnique({
             where: {
@@ -287,7 +298,10 @@ const activitiesRouter = createTRPCRouter({
         }
     }),
 
-    getDetailByCategory: protectedProcedure.input(z.object({
+    /**
+     * This is an internal hook, don't use it. Use useQueryDetailedActivities from the data folder instead.
+     */
+    internalGetDetailByCategory: protectedProcedure.input(z.object({
         categoryId: z.string()
     })).query(async ({
                          ctx,

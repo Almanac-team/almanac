@@ -9,26 +9,26 @@ import { createContext, useEffect, useState } from 'react';
 export const TimeContext = createContext<Date>(new Date());
 
 const MyApp: AppType<{ session: Session | null }> = ({
-	Component,
-	pageProps: { session, ...pageProps },
+    Component,
+    pageProps: { session, ...pageProps },
 }) => {
-	const [time, setTime] = useState<Date>(new Date());
+    const [time, setTime] = useState<Date>(new Date());
 
-	useEffect(() => {
-		setInterval(() => {
-			setTime(new Date());
-		}, 1000);
-	}, []);
+    useEffect(() => {
+        setInterval(() => {
+            setTime(new Date());
+        }, 1000);
+    }, []);
 
-	return (
-		<SessionProvider session={session}>
-			<Layout>
-				<TimeContext.Provider value={time}>
-					<Component {...pageProps} />
-				</TimeContext.Provider>
-			</Layout>
-		</SessionProvider>
-	);
+    return (
+        <SessionProvider session={session}>
+            <Layout>
+                <TimeContext.Provider value={time}>
+                    <Component {...pageProps} />
+                </TimeContext.Provider>
+            </Layout>
+        </SessionProvider>
+    );
 };
 
 export default api.withTRPC(MyApp);

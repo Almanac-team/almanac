@@ -10,13 +10,15 @@ import {
 } from "~/components/activity/activity-settings";
 import {Tab, Tabs} from "~/components/generic/tab";
 import {
-    ActivitySetting,
-    ActivitySettingUnion,
-    ActivityType,
-    CategoryInfo,
-    EventSetting,
-    TaskSetting
+    type ActivitySetting,
+    type ActivitySettingUnion,
+    type ActivityType,
+    type CategoryInfo,
+    type EventSetting,
+    type TaskSetting
 } from "~/components/activity/models";
+import {useQueryDetailedActivities} from "~/data/activities";
+import {invalidateDetailedActivities} from "~/data/activities/hooks";
 
 function ActivityCreateModal({onSubmit, updating}: {
     onSubmit?: (activitySetting: ActivitySetting<TaskSetting | EventSetting>) => void,
@@ -124,8 +126,7 @@ export const CategoryContext = React.createContext<CategoryInfo>({
 export function ActivityColumn({categoryInfo}: {
     categoryInfo: CategoryInfo
 }) {
-    const queryClient = api.useContext();
-    const {data: activities} = api.activities.getDetailedActivities.useQuery({categoryId: categoryInfo.id});
+    const {data: activities} = useQueryDetailedActivities({categoryId: categoryInfo.id});
     const {mutateAsync: createTask} = api.activities.createTask.useMutation();
     const {mutateAsync: createEvent} = api.activities.createEvent.useMutation();
     const [isOpen, setIsOpen] = useState(false);
@@ -180,7 +181,7 @@ export function ActivityColumn({categoryInfo}: {
                                     },
                                     {
                                         onSuccess: () => {
-                                            void queryClient.activities.getDetailedActivities.invalidate({categoryId: categoryInfo.id}).then(() => {
+                                            void invalidateDetailedActivities({categoryId: categoryInfo.id}).then(() => {
                                                     setIsOpen(false);
                                                     setUpdating(false);
                                                 }
@@ -197,7 +198,7 @@ export function ActivityColumn({categoryInfo}: {
                                     },
                                     {
                                         onSuccess: () => {
-                                            void queryClient.activities.getDetailedActivities.invalidate({categoryId: categoryInfo.id}).then(() => {
+                                            void invalidateDetailedActivities({categoryId: categoryInfo.id}).then(() => {
                                                     setIsOpen(false);
                                                     setUpdating(false);
                                                 }

@@ -185,7 +185,9 @@ export function ActivityColumn({
 			style={{ borderColor: categoryInfo.backgroundColor }}
 		>
 			<button
-				onClick={() => router.push(`/definitions/${categoryInfo.id}`)}
+				onClick={() =>
+					void router.push(`/definitions/${categoryInfo.id}`)
+				}
 			>
 				<div
 					className="flex w-full select-none flex-row items-center justify-center p-2"

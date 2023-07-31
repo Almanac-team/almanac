@@ -167,9 +167,9 @@ export async function getDetailedActivities(prisma: PrismaClient, userId: string
 }
 
 const activitiesRouter = createTRPCRouter({
-    getActivityIds: protectedProcedure.input(z.object({
+    getByCategory: protectedProcedure.input(z.object({
         categoryId: z.string()
-    })).query(async ({ctx, input}): Promise<string[]> => {
+    })).query(async ({ctx, input}): Promise<ActivitySetting<undefined>[]> => {
         const userId = ctx?.session?.user?.id
         return (await ctx.prisma.activity.findMany({
             where: {
@@ -177,25 +177,25 @@ const activitiesRouter = createTRPCRouter({
                     id: input.categoryId,
                     userId: userId
                 }
-            },
-            select: {
-                id: true
             }
-        })).map((activity): string => {
-            return activity.id
+        })).map((activity) => {
+            return {
+                id: activity.id,
+                name: activity.name,
+                activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
+                setting: undefined
+            }
         })
     }),
 
     get: protectedProcedure.input(z.object({
-        activityId: z.string(),
-        categoryId: z.string()
-    })).query(async ({ctx, input}): Promise<ActivitySetting<undefined> | null> => {
+        activityId: z.string()
+    })).query(async ({ctx, input}): Promise<(ActivitySetting<undefined> & {categoryId: string}) | null> => {
         const userId = ctx?.session?.user?.id
         const activity = (await ctx.prisma.activity.findUnique({
             where: {
                 id: input.activityId,
                 category: {
-                    id: input.categoryId,
                     userId: userId
                 }
             }
@@ -208,15 +208,151 @@ const activitiesRouter = createTRPCRouter({
             id: activity.id,
             name: activity.name,
             activityType: activity.type === PrismaActivityType.task ? 'task' : 'event' as ActivityType,
+            categoryId: activity.categoryId,
             setting: undefined
         }
     }),
 
-    getDetailedActivities: protectedProcedure.input(z.object({
+    getDetail: protectedProcedure.input(z.object({
+        activityId: z.string()
+    })).query(async ({
+                         ctx,
+                         input
+                     }): Promise<Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'> & {categoryId: string} | null | undefined> => {
+        const userId = ctx.session.user.id
+        const detailedActivity = (await ctx.prisma.activity.findUnique({
+            where: {
+                id: input.activityId,
+                category: {
+                    userId: userId
+                }
+            },
+            include: {
+                task: true,
+                event: true,
+                ActivityZonePair: {
+                    include: {
+                        zone: {
+                            select: {
+                                id: true,
+                                name: true,
+                                color: true
+                            }
+                        }
+                    }
+                }
+            }
+        }))
+
+        if (detailedActivity === null) {
+            return null
+        }
+
+
+        let setting;
+        if (detailedActivity.type === PrismaActivityType.task) {
+            setting = ConvertTask(detailedActivity.task);
+        } else if (detailedActivity.type === PrismaActivityType.event) {
+            setting = ConvertEvent(detailedActivity.event);
+        }
+
+        if (!setting) {
+            return undefined
+        }
+
+        const include: ZoneInfo[] = []
+        const exclude: ZoneInfo[] = []
+
+        for (const pair of detailedActivity.ActivityZonePair) {
+            const zone = {
+                id: pair.zone.id,
+                name: pair.zone.name,
+                color: pair.zone.color
+            }
+            if (pair.zoneType === 'include') {
+                include.push(zone)
+            } else if (pair.zoneType === 'exclude') {
+                exclude.push(zone)
+            }
+        }
+
+        return {
+            id: detailedActivity.id,
+            categoryId: detailedActivity.categoryId,
+            zones: {
+                include,
+                exclude,
+            },
+            setting
+        }
+    }),
+
+    getDetailByCategory: protectedProcedure.input(z.object({
         categoryId: z.string()
-    })).query(async ({ctx, input}): Promise<ActivitySetting<TaskSetting | EventSetting>[]> => {
+    })).query(async ({
+                         ctx,
+                         input
+                     }): Promise<Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'>[]> => {
         const userId = ctx?.session?.user?.id
-        return getDetailedActivities(ctx.prisma, userId, input.categoryId);
+        return (await ctx.prisma.activity.findMany({
+            where: {
+                category: {
+                    id: input.categoryId,
+                    userId: userId
+                }
+            },
+            include: {
+                task: true,
+                event: true,
+                ActivityZonePair: {
+                    include: {
+                        zone: {
+                            select: {
+                                id: true,
+                                name: true,
+                                color: true
+                            }
+                        }
+                    }
+                }
+            }
+        })).map((activity) => {
+            let setting;
+            if (activity.type === PrismaActivityType.task) {
+                setting = ConvertTask(activity.task);
+            } else if (activity.type === PrismaActivityType.event) {
+                setting = ConvertEvent(activity.event);
+            }
+
+            if (setting === null || setting === undefined) {
+                return undefined
+            }
+
+            const include: ZoneInfo[] = []
+            const exclude: ZoneInfo[] = []
+
+            for (const pair of activity.ActivityZonePair) {
+                const zone = {
+                    id: pair.zone.id,
+                    name: pair.zone.name,
+                    color: pair.zone.color
+                }
+                if (pair.zoneType === 'include') {
+                    include.push(zone)
+                } else if (pair.zoneType === 'exclude') {
+                    exclude.push(zone)
+                }
+            }
+
+            return {
+                id: activity.id,
+                zones: {
+                    include,
+                    exclude,
+                },
+                setting
+            }
+        }).filter((e) => e !== undefined) as Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'>[]
     }),
 
     getTask: protectedProcedure.input(z.object({

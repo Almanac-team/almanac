@@ -18,6 +18,9 @@ import {
 	type EventSetting,
 	type TaskSetting,
 } from '~/components/activity/models';
+import { useQueryActivities } from '~/data/activities/query';
+import { useQueryClient } from '@tanstack/react-query';
+import { appendActivities } from '~/data/activities/mutate';
 
 function ActivityCreateModal({
 	onSubmit,
@@ -160,9 +163,9 @@ export function ActivityColumn({
 }: {
 	categoryInfo: CategoryInfo;
 }) {
-	const queryClient = api.useContext();
+	const queryClient = useQueryClient();
 	const router = useRouter();
-	const { data: activities } = api.activities.getDetailedActivities.useQuery({
+	const { data: activities } = useQueryActivities({
 		categoryId: categoryInfo.id,
 	});
 	const { mutateAsync: createTask } = api.activities.createTask.useMutation();
@@ -238,49 +241,55 @@ export function ActivityColumn({
 							if (activitySetting.activityType === 'task') {
 								const setting =
 									activitySetting.setting as TaskSetting;
-								void createTask(
-									{
-										categoryId: categoryInfo.id,
-										name: activitySetting.name,
-										setting,
-									},
-									{
-										onSuccess: () => {
-											void queryClient.activities.getDetailedActivities
-												.invalidate({
-													categoryId: categoryInfo.id,
-												})
-												.then(() => {
-													setIsOpen(false);
-													setUpdating(false);
-												});
-										},
-									}
-								);
+								createTask({
+									categoryId: categoryInfo.id,
+									name: activitySetting.name,
+									setting,
+								})
+									.then((activityId: string) => {
+										appendActivities({
+											queryClient,
+											categoryId: categoryInfo.id,
+											activity: {
+												...activitySetting,
+												id: activityId,
+											} as ActivitySetting<TaskSetting>,
+										});
+
+										setIsOpen(false);
+										setUpdating(false);
+									})
+									.catch(() => {
+										setIsOpen(false);
+										setUpdating(false);
+									});
 							} else if (
 								activitySetting.activityType === 'event'
 							) {
 								const setting =
 									activitySetting.setting as EventSetting;
-								void createEvent(
-									{
-										categoryId: categoryInfo.id,
-										name: activitySetting.name,
-										setting,
-									},
-									{
-										onSuccess: () => {
-											void queryClient.activities.getDetailedActivities
-												.invalidate({
-													categoryId: categoryInfo.id,
-												})
-												.then(() => {
-													setIsOpen(false);
-													setUpdating(false);
-												});
-										},
-									}
-								);
+								void createEvent({
+									categoryId: categoryInfo.id,
+									name: activitySetting.name,
+									setting,
+								})
+									.then((activityId: string) => {
+										appendActivities({
+											queryClient,
+											categoryId: categoryInfo.id,
+											activity: {
+												...activitySetting,
+												id: activityId,
+											} as ActivitySetting<EventSetting>,
+										});
+
+										setIsOpen(false);
+										setUpdating(false);
+									})
+									.catch(() => {
+										setIsOpen(false);
+										setUpdating(false);
+									});
 							}
 						}}
 						updating={updating}

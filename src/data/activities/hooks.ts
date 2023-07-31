@@ -4,7 +4,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import {type ActivitySetting, type EventSetting, type TaskSetting} from "~/components/activity/models";
 import {useEffect, useState} from "react";
 
-export function useQueryActivities(categoryId: string) {
+export function useQueryActivities({categoryId}: {categoryId: string}): {data: ActivitySetting<undefined>[] | null | undefined} {
     const {data: activities} = api.activities.internalGetByCategory.useQuery({categoryId})
     const queryClient = useQueryClient()
 
@@ -14,12 +14,12 @@ export function useQueryActivities(categoryId: string) {
             queryClient.setQueryData(queryKey, activity)
         })
     }, [activities, queryClient])
-    return activities
+    return {data: activities}
 }
 
-export function useQueryDetailedActivities(categoryId: string): ActivitySetting<TaskSetting | EventSetting>[] | null | undefined {
+export function useQueryDetailedActivities({categoryId}: {categoryId: string}): {data: ActivitySetting<TaskSetting | EventSetting>[] | null | undefined} {
     const {data: details} = api.activities.internalGetDetailByCategory.useQuery({categoryId})
-    const activities = useQueryActivities(categoryId)
+    const {data: activities} = useQueryActivities({categoryId})
 
     const [detailsMap, setDetailsMap] = useState(new Map<string, number>())
 
@@ -38,9 +38,9 @@ export function useQueryDetailedActivities(categoryId: string): ActivitySetting<
 
     }, [details, queryClient])
 
-    if (details === undefined || activities === undefined) return undefined
+    if (details === undefined || activities === undefined) return {data: undefined}
 
-    return details != null && activities != null ? activities.map((activity): ActivitySetting<TaskSetting | EventSetting> | null => {
+    return {data: (details != null && activities != null ? activities.map((activity): ActivitySetting<TaskSetting | EventSetting> | null => {
         const detailIndex = detailsMap.get(activity.id)
         if (detailIndex === undefined) return null
         const detail = details[detailIndex]
@@ -53,10 +53,10 @@ export function useQueryDetailedActivities(categoryId: string): ActivitySetting<
             zones: detail.zones,
             setting: detail.setting
         }
-    }).filter(e => !!e) as ActivitySetting<TaskSetting | EventSetting>[] : null
+    }).filter(e => !!e) as ActivitySetting<TaskSetting | EventSetting>[] : null)}
 }
 
-export function useQueryActivity(activityId: string): ActivitySetting<undefined> | null | undefined {
+export function useQueryActivity({activityId}: {activityId: string}): {data: ActivitySetting<undefined> | null | undefined} {
     const nullableActivity = api.activities.internalGet.useQuery(({activityId})).data
     let categoryId: string | undefined;
     let activity: ActivitySetting<undefined> | undefined;
@@ -79,12 +79,12 @@ export function useQueryActivity(activityId: string): ActivitySetting<undefined>
         }
     }, [activity, activityId, categoryId, queryClient])
 
-    return activity
+    return {data: activity}
 }
 
-export function useQueryDetailedActivity(activityId: string): ActivitySetting<TaskSetting | EventSetting> | null | undefined {
+export function useQueryDetailedActivity({activityId}: {activityId: string}): {data: ActivitySetting<TaskSetting | EventSetting> | null | undefined} {
     const nullableDetail = api.activities.internalGetDetail.useQuery(({activityId})).data
-    const activity = useQueryActivity(activityId);
+    const {data: activity} = useQueryActivity({activityId});
 
     let categoryId: string | undefined;
     let detail: Omit<ActivitySetting<TaskSetting | EventSetting>, 'name' | 'activityType'> | undefined;
@@ -107,7 +107,7 @@ export function useQueryDetailedActivity(activityId: string): ActivitySetting<Ta
         }
     }, [activity, activityId, categoryId, detail, queryClient])
 
-    if (detail === undefined || activity === undefined) return undefined
+    if (detail === undefined || activity === undefined) return {data: undefined}
 
-    return detail && activity ? {...activity, ...detail} : null
+    return {data: detail && activity ? {...activity, ...detail} : null}
 }

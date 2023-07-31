@@ -17,8 +17,9 @@ import {
     type EventSetting,
     type TaskSetting
 } from "~/components/activity/models";
-import {useQueryDetailedActivities} from "~/data/activities";
-import {invalidateDetailedActivities} from "~/data/activities/hooks";
+import {useQueryActivities} from "~/data/activities/query";
+import {useQueryClient} from "@tanstack/react-query";
+import {appendActivities} from "~/data/activities/mutate";
 
 function ActivityCreateModal({onSubmit, updating}: {
     onSubmit?: (activitySetting: ActivitySetting<TaskSetting | EventSetting>) => void,
@@ -126,7 +127,8 @@ export const CategoryContext = React.createContext<CategoryInfo>({
 export function ActivityColumn({categoryInfo}: {
     categoryInfo: CategoryInfo
 }) {
-    const {data: activities} = useQueryDetailedActivities({categoryId: categoryInfo.id});
+    const queryClient = useQueryClient();
+    const {data: activities} = useQueryActivities({categoryId: categoryInfo.id});
     const {mutateAsync: createTask} = api.activities.createTask.useMutation();
     const {mutateAsync: createEvent} = api.activities.createEvent.useMutation();
     const [isOpen, setIsOpen] = useState(false);
@@ -174,38 +176,37 @@ export function ActivityColumn({categoryInfo}: {
 
                             if (activitySetting.activityType === 'task') {
                                 const setting = activitySetting.setting as TaskSetting;
-                                void createTask({
+                                createTask({
                                         categoryId: categoryInfo.id,
                                         name: activitySetting.name,
                                         setting
-                                    },
-                                    {
-                                        onSuccess: () => {
-                                            void invalidateDetailedActivities({categoryId: categoryInfo.id}).then(() => {
-                                                    setIsOpen(false);
-                                                    setUpdating(false);
-                                                }
-                                            )
-                                        }
                                     }
-                                );
+                                ).then((activityId: string) => {
+                                    appendActivities({queryClient, categoryId: categoryInfo.id, activity: {...activitySetting, id: activityId} as ActivitySetting<TaskSetting>});
+
+                                    setIsOpen(false);
+                                    setUpdating(false);
+                                }).catch(() => {
+                                    setIsOpen(false);
+                                    setUpdating(false);
+                                });
+
                             } else if (activitySetting.activityType === 'event') {
                                 const setting = activitySetting.setting as EventSetting;
                                 void createEvent({
                                         categoryId: categoryInfo.id,
                                         name: activitySetting.name,
                                         setting
-                                    },
-                                    {
-                                        onSuccess: () => {
-                                            void invalidateDetailedActivities({categoryId: categoryInfo.id}).then(() => {
-                                                    setIsOpen(false);
-                                                    setUpdating(false);
-                                                }
-                                            )
-                                        }
                                     }
-                                );
+                                ).then((activityId: string) => {
+                                    appendActivities({queryClient, categoryId: categoryInfo.id, activity: {...activitySetting, id: activityId} as ActivitySetting<EventSetting>});
+
+                                    setIsOpen(false);
+                                    setUpdating(false);
+                                }).catch(() => {
+                                    setIsOpen(false);
+                                    setUpdating(false);
+                                });
                             }
                         }
                     }

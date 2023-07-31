@@ -1,2 +1,0 @@
-import {useQueryActivities, useQueryActivity, useQueryDetailedActivities, useQueryDetailedActivity} from "./hooks";
-export {useQueryActivities, useQueryDetailedActivities, useQueryActivity, useQueryDetailedActivity}

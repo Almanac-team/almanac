@@ -3,7 +3,7 @@ import clsx from "clsx";
 import {CategoryContext} from "~/components/activity/activity-column";
 import {
     isEventSetting,
-    isTaskSetting, ActivityUpdateModal,
+    isTaskSetting, ActivityUpdateModal, isTask, isEvent,
 } from "~/components/activity/activity-settings";
 
 import {
@@ -16,7 +16,8 @@ import {IconButton} from "@material-tailwind/react";
 import {api} from "~/utils/api";
 import {Menu, MenuBody, MenuHandler} from "~/components/generic/menu";
 import {type ActivitySetting, type EventSetting, type TaskSetting} from "~/components/activity/models";
-import {invalidateDetailedActivities} from "~/data/activities/hooks";
+import {useQueryClient} from "@tanstack/react-query";
+import {updateActivities} from "~/data/activities/mutate";
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -123,37 +124,45 @@ function Pill({children, className}: { children: ReactNode, className: string })
 
 export function ActivityOverview({activity}: { activity: ActivitySetting<TaskSetting | EventSetting> }) {
     const category = useContext(CategoryContext);
+    const queryClient = useQueryClient();
 
     const [isOpen, setIsOpen] = useState(false);
     const [updating, isUpdating] = useState(false);
-    const {mutate: mutateTask} = api.activities.updateTask.useMutation();
-    const {mutate: mutateEvent} = api.activities.updateEvent.useMutation();
+    const {mutateAsync: mutateTask} = api.activities.updateTask.useMutation();
+    const {mutateAsync: mutateEvent} = api.activities.updateEvent.useMutation();
 
     const submitFunction = useCallback(<T extends TaskSetting | EventSetting, >(activitySetting: ActivitySetting<T>) => {
         isUpdating(true);
-        if (isTaskSetting(activitySetting.setting)) {
-            mutateTask(activitySetting as ActivitySetting<TaskSetting>, {
-                onSuccess: () => {
-                    void invalidateDetailedActivities({categoryId: category.id}).then(() => {
-                            setIsOpen(false);
-                            isUpdating(false);
-                        }
-                    );
-                }
+
+        function updateActivityQuery<K extends TaskSetting | EventSetting>(activitySetting: ActivitySetting<K>) {
+            updateActivities({queryClient, categoryId: category.id, activity: activitySetting});
+        }
+
+        if (isTask(activitySetting)) {
+            mutateTask(activitySetting as ActivitySetting<TaskSetting>).then(() => {
+                updateActivityQuery(activitySetting);
+
+                setIsOpen(false);
+                isUpdating(false);
+            }).catch((e) => {
+                console.log(e);
+                setIsOpen(false);
+                isUpdating(false);
             });
-        } else if (isEventSetting(activitySetting.setting)) {
-            mutateEvent(activitySetting as ActivitySetting<EventSetting>, {
-                onSuccess: () => {
-                    void invalidateDetailedActivities({categoryId: category.id}).then(() => {
-                            setIsOpen(false);
-                            isUpdating(false);
-                        }
-                    );
-                }
+        } else if (isEvent(activitySetting)) {
+            mutateEvent(activitySetting as ActivitySetting<EventSetting>).then(() => {
+                updateActivityQuery(activitySetting);
+
+                setIsOpen(false);
+                isUpdating(false);
+            }).catch((e) => {
+                console.log(e);
+                setIsOpen(false);
+                isUpdating(false);
             });
 
         }
-    }, [category.id, mutateTask, mutateEvent]);
+    }, [mutateTask, queryClient, category.id, mutateEvent]);
 
     let deadline;
     let icon;

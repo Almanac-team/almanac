@@ -84,6 +84,25 @@ const categoriesRouter = createTRPCRouter({
 				});
 		}),
 
+	getCategory: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			const category = await ctx.prisma.category.findUnique({
+				where: { id: input.id },
+			});
+			if (category) {
+				return {
+					id: category.id,
+					categoryName: category.name,
+					backgroundColor: category.color,
+				};
+			}
+		}),
+
 	getCategories: protectedProcedure.query(
 		async ({ ctx }): Promise<CategoryInfo[]> => {
 			const userId = ctx?.session?.user?.id;

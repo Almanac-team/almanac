@@ -3,6 +3,7 @@ import { ActivityOverview } from '~/components/activity/activity-overview';
 import { api } from '~/utils/api';
 import React, { useState } from 'react';
 import { Button } from '@material-tailwind/react';
+import { useRouter } from 'next/router';
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
 import {
 	EventSettingConfig,
@@ -163,6 +164,7 @@ export function ActivityColumn({
 	categoryInfo: CategoryInfo;
 }) {
 	const queryClient = useQueryClient();
+	const router = useRouter();
 	const { data: activities } = useQueryActivities({
 		categoryId: categoryInfo.id,
 	});
@@ -182,14 +184,20 @@ export function ActivityColumn({
 			className="flex h-full w-96 min-w-[20em] flex-col rounded-tl-md rounded-tr-md border-2"
 			style={{ borderColor: categoryInfo.backgroundColor }}
 		>
-			<div
-				className="flex w-full select-none flex-row items-center justify-center p-2"
-				style={{ backgroundColor: categoryInfo.backgroundColor }}
+			<button
+				onClick={() =>
+					void router.push(`/definitions/${categoryInfo.id}`)
+				}
 			>
-				<span className={clsx('font-bold', textColor)}>
-					{categoryInfo.categoryName}
-				</span>
-			</div>
+				<div
+					className="flex w-full select-none flex-row items-center justify-center p-2"
+					style={{ backgroundColor: categoryInfo.backgroundColor }}
+				>
+					<span className={clsx('font-bold', textColor)}>
+						{categoryInfo.categoryName}
+					</span>
+				</div>
+			</button>
 			<div className="flex w-full flex-grow flex-col space-y-2 overflow-y-scroll p-2">
 				<CategoryContext.Provider
 					value={{ ...categoryInfo, textColor }}

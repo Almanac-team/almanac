@@ -5,12 +5,12 @@ import {type ActivitySetting, type EventSetting, type TaskSetting} from "~/compo
 import {useEffect, useState} from "react";
 
 export function useQueryActivities(categoryId: string) {
-    const {data: activities} = api.activities.getByCategory.useQuery({categoryId})
+    const {data: activities} = api.activities.internalGetByCategory.useQuery({categoryId})
     const queryClient = useQueryClient()
 
     useEffect(() => {
         activities?.map((activity) => {
-            const queryKey = getQueryKey(api.activities.get, {activityId: activity.id}, 'query')
+            const queryKey = getQueryKey(api.activities.internalGet, {activityId: activity.id}, 'query')
             queryClient.setQueryData(queryKey, activity)
         })
     }, [activities, queryClient])
@@ -18,7 +18,7 @@ export function useQueryActivities(categoryId: string) {
 }
 
 export function useQueryDetailedActivities(categoryId: string): ActivitySetting<TaskSetting | EventSetting>[] | null | undefined {
-    const {data: details} = api.activities.getDetailByCategory.useQuery({categoryId})
+    const {data: details} = api.activities.internalGetDetailByCategory.useQuery({categoryId})
     const activities = useQueryActivities(categoryId)
 
     const [detailsMap, setDetailsMap] = useState(new Map<string, number>())
@@ -31,7 +31,7 @@ export function useQueryDetailedActivities(categoryId: string): ActivitySetting<
         details?.map((detail, i) => {
             detailsMap.set(detail.id, i)
 
-            const detailQueryKey = getQueryKey(api.activities.getDetail, {activityId: detail.id}, 'query')
+            const detailQueryKey = getQueryKey(api.activities.internalGetDetail, {activityId: detail.id}, 'query')
             queryClient.setQueryData(detailQueryKey, detail)
         })
         setDetailsMap(detailsMap)
@@ -57,7 +57,7 @@ export function useQueryDetailedActivities(categoryId: string): ActivitySetting<
 }
 
 export function useQueryActivity(activityId: string): ActivitySetting<undefined> | null | undefined {
-    const nullableActivity = api.activities.get.useQuery(({activityId})).data
+    const nullableActivity = api.activities.internalGet.useQuery(({activityId})).data
     let categoryId: string | undefined;
     let activity: ActivitySetting<undefined> | undefined;
     if (nullableActivity) ({categoryId, ...activity} = nullableActivity)
@@ -66,7 +66,7 @@ export function useQueryActivity(activityId: string): ActivitySetting<undefined>
 
     useEffect(() => {
         if (activity) {
-            const queryKey = getQueryKey(api.activities.getByCategory, {categoryId}, 'query')
+            const queryKey = getQueryKey(api.activities.internalGetByCategory, {categoryId}, 'query')
             queryClient.setQueryData<ActivitySetting<undefined>[]>(queryKey, (oldActivities) => {
                 if (oldActivities === undefined) return undefined
                 oldActivities?.map((oldActivity) => {
@@ -83,7 +83,7 @@ export function useQueryActivity(activityId: string): ActivitySetting<undefined>
 }
 
 export function useQueryDetailedActivity(activityId: string): ActivitySetting<TaskSetting | EventSetting> | null | undefined {
-    const nullableDetail = api.activities.getDetail.useQuery(({activityId})).data
+    const nullableDetail = api.activities.internalGetDetail.useQuery(({activityId})).data
     const activity = useQueryActivity(activityId);
 
     let categoryId: string | undefined;
@@ -94,7 +94,7 @@ export function useQueryDetailedActivity(activityId: string): ActivitySetting<Ta
 
     useEffect(() => {
         if (activity && detail) {
-            const queryKey = getQueryKey(api.activities.getDetailByCategory, {categoryId}, 'query')
+            const queryKey = getQueryKey(api.activities.internalGetDetailByCategory, {categoryId}, 'query')
             queryClient.setQueryData<ActivitySetting<TaskSetting | EventSetting>[]>(queryKey, (oldActivities) => {
                 if (oldActivities === undefined) return undefined
                 oldActivities?.map((oldActivity) => {

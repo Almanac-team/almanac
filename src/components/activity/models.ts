@@ -8,9 +8,7 @@ export interface CategoryInfo {
     textColor?: string;
 }
 
-export type ActivitySettingUnion = ActivitySetting<
-    TaskSetting | EventSetting | undefined
->;
+export type ActivitySettingUnion = ActivitySetting<TaskSetting | EventSetting>;
 
 export interface ActivitySetting<
     T extends TaskSetting | EventSetting | undefined

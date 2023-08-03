@@ -26,9 +26,7 @@ function ActivityCreateModal({
     onSubmit,
     updating,
 }: {
-    onSubmit?: (
-        activitySetting: ActivitySetting<TaskSetting | EventSetting>
-    ) => void;
+    onSubmit?: (activitySetting: ActivitySettingUnion) => void;
     updating?: boolean;
 }) {
     const [activitySetting, setActivitySetting] = useState<

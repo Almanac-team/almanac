@@ -8,6 +8,37 @@ export interface CategoryInfo {
     textColor?: string;
 }
 
+export interface RepeatConfig {
+    every: number;
+    unit:
+        | {
+              type: 'day';
+          }
+        // bit mask, 0b0000000, 0b0000001 is Monday, 0b1000000 is Sunday
+        | {
+              type: 'week';
+              weekDays: number;
+          }
+        | {
+              type: 'month';
+              monthDay: number;
+          }
+        | {
+              type: 'year';
+              month: number;
+              day: number;
+          };
+    end:
+        | { type: 'count'; count: number }
+        | { type: 'until'; until: Date }
+        | { type: 'never' };
+}
+
+export interface ActivityDefinition {
+    setting: ActivitySettingUnion;
+    repeatConfig?: RepeatConfig;
+}
+
 export type ActivitySettingUnion = ActivitySetting<TaskSetting | EventSetting>;
 
 export interface ActivitySetting<

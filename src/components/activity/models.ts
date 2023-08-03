@@ -14,7 +14,7 @@ export interface RepeatConfig {
         | {
               type: 'day';
           }
-        // bit mask, 0b0000000, 0b0000001 is Monday, 0b1000000 is Sunday
+        // bit mask, 0b0000000, 0b0000001 is Sunday, 0b1000000 is Saturday
         | {
               type: 'week';
               weekDays: number;

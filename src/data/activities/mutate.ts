@@ -1,9 +1,5 @@
 import { type QueryClient } from '@tanstack/react-query';
-import {
-    type ActivitySetting,
-    type EventSetting,
-    type TaskSetting,
-} from '~/components/activity/models';
+import { type ActivitySettingUnion } from '~/components/activity/models';
 import { getQueryKey } from '@trpc/react-query';
 import { api } from '~/utils/api';
 
@@ -14,9 +10,9 @@ export function appendActivities({
 }: {
     queryClient: QueryClient;
     categoryId: string;
-    activity: ActivitySetting<TaskSetting | EventSetting>;
+    activity: ActivitySettingUnion;
 }) {
-    queryClient.setQueryData<ActivitySetting<TaskSetting | EventSetting>[]>(
+    queryClient.setQueryData<ActivitySettingUnion[]>(
         getQueryKey(
             api.activities.internalGetByCategory,
             { categoryId },
@@ -28,7 +24,7 @@ export function appendActivities({
         }
     );
 
-    queryClient.setQueryData<ActivitySetting<TaskSetting | EventSetting>>(
+    queryClient.setQueryData<ActivitySettingUnion>(
         getQueryKey(
             api.activities.internalGet,
             { activityId: activity.id },
@@ -45,9 +41,9 @@ export function updateActivities({
 }: {
     queryClient: QueryClient;
     categoryId: string;
-    activity: ActivitySetting<TaskSetting | EventSetting>;
+    activity: ActivitySettingUnion;
 }) {
-    queryClient.setQueryData<ActivitySetting<TaskSetting | EventSetting>[]>(
+    queryClient.setQueryData<ActivitySettingUnion[]>(
         getQueryKey(
             api.activities.internalGetByCategory,
             { categoryId },
@@ -64,7 +60,7 @@ export function updateActivities({
         }
     );
 
-    queryClient.setQueryData<ActivitySetting<TaskSetting | EventSetting>>(
+    queryClient.setQueryData<ActivitySettingUnion>(
         getQueryKey(
             api.activities.internalGet,
             { activityId: activity.id },

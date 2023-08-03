@@ -26,6 +26,7 @@ import { api } from '~/utils/api';
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
 import {
     type ActivitySetting,
+    type ActivitySettingUnion,
     type EventSetting,
     type TaskSetting,
 } from '~/components/activity/models';
@@ -198,7 +199,7 @@ function Pill({
 export function ActivityOverview({
     activity,
 }: {
-    activity: ActivitySetting<TaskSetting | EventSetting>;
+    activity: ActivitySettingUnion;
 }) {
     const category = useContext(CategoryContext);
     const queryClient = useQueryClient();

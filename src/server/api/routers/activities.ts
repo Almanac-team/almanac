@@ -7,6 +7,7 @@ import {
 import { type TimeConfig as InternalTimeConfig } from '~/components/time_picker/date';
 import {
     type ActivitySetting,
+    type ActivitySettingUnion,
     type ActivityType,
     type EventSetting,
     type TaskSetting,
@@ -117,7 +118,7 @@ export async function getDetailedActivities(
     prisma: PrismaClient,
     userId: string,
     categoryId?: string | undefined
-): Promise<ActivitySetting<TaskSetting | EventSetting>[]> {
+): Promise<ActivitySettingUnion[]> {
     return (
         await prisma.activity.findMany({
             where: {
@@ -143,59 +144,51 @@ export async function getDetailedActivities(
             },
         })
     )
-        .map(
-            (
-                activity
-            ): ActivitySetting<TaskSetting | EventSetting> | undefined => {
-                let setting;
-                if (activity.type === PrismaActivityType.task) {
-                    setting = ConvertTask(activity.task);
-                } else if (activity.type === PrismaActivityType.event) {
-                    setting = ConvertEvent(activity.event);
-                }
+        .map((activity): ActivitySettingUnion | undefined => {
+            let setting;
+            if (activity.type === PrismaActivityType.task) {
+                setting = ConvertTask(activity.task);
+            } else if (activity.type === PrismaActivityType.event) {
+                setting = ConvertEvent(activity.event);
+            }
 
-                if (setting === null || setting === undefined) {
-                    return undefined;
-                }
+            if (setting === null || setting === undefined) {
+                return undefined;
+            }
 
-                const include: ZoneInfo[] = [];
-                const exclude: ZoneInfo[] = [];
+            const include: ZoneInfo[] = [];
+            const exclude: ZoneInfo[] = [];
 
-                for (const pair of activity.ActivityZonePair) {
-                    const zone = {
-                        id: pair.zone.id,
-                        name: pair.zone.name,
-                        color: pair.zone.color,
-                    };
-                    if (pair.zoneType === 'include') {
-                        include.push(zone);
-                    } else if (pair.zoneType === 'exclude') {
-                        exclude.push(zone);
-                    }
-                }
-
-                return {
-                    id: activity.id,
-                    name: activity.name,
-                    activityType:
-                        activity.type === PrismaActivityType.task
-                            ? 'task'
-                            : ('event' as ActivityType),
-                    zones: {
-                        include,
-                        exclude,
-                    },
-                    setting,
+            for (const pair of activity.ActivityZonePair) {
+                const zone = {
+                    id: pair.zone.id,
+                    name: pair.zone.name,
+                    color: pair.zone.color,
                 };
+                if (pair.zoneType === 'include') {
+                    include.push(zone);
+                } else if (pair.zoneType === 'exclude') {
+                    exclude.push(zone);
+                }
             }
-        )
-        .filter(
-            (
-                activity
-            ): activity is ActivitySetting<TaskSetting | EventSetting> => {
-                return activity !== undefined;
-            }
-        );
+
+            return {
+                id: activity.id,
+                name: activity.name,
+                activityType:
+                    activity.type === PrismaActivityType.task
+                        ? 'task'
+                        : ('event' as ActivityType),
+                zones: {
+                    include,
+                    exclude,
+                },
+                setting,
+            };
+        })
+        .filter((activity): activity is ActivitySettingUnion => {
+            return activity !== undefined;
+        });
 }
 
 const activitiesRouter = createTRPCRouter({
@@ -213,7 +206,7 @@ const activitiesRouter = createTRPCRouter({
                 ctx,
                 input,
             }): Promise<
-                | (ActivitySetting<TaskSetting | EventSetting> & {
+                | (ActivitySettingUnion & {
                       categoryId: string;
                   })
                 | null
@@ -301,84 +294,79 @@ const activitiesRouter = createTRPCRouter({
                 categoryId: z.string(),
             })
         )
-        .query(
-            async ({
-                ctx,
-                input,
-            }): Promise<ActivitySetting<TaskSetting | EventSetting>[]> => {
-                const userId = ctx?.session?.user?.id;
-                return (
-                    await ctx.prisma.activity.findMany({
-                        where: {
-                            category: {
-                                id: input.categoryId,
-                                userId: userId,
-                            },
+        .query(async ({ ctx, input }): Promise<ActivitySettingUnion[]> => {
+            const userId = ctx?.session?.user?.id;
+            return (
+                await ctx.prisma.activity.findMany({
+                    where: {
+                        category: {
+                            id: input.categoryId,
+                            userId: userId,
                         },
-                        include: {
-                            task: true,
-                            event: true,
-                            ActivityZonePair: {
-                                include: {
-                                    zone: {
-                                        select: {
-                                            id: true,
-                                            name: true,
-                                            color: true,
-                                        },
+                    },
+                    include: {
+                        task: true,
+                        event: true,
+                        ActivityZonePair: {
+                            include: {
+                                zone: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        color: true,
                                     },
                                 },
                             },
                         },
-                    })
-                )
-                    .map((activity) => {
-                        let setting;
-                        if (activity.type === PrismaActivityType.task) {
-                            setting = ConvertTask(activity.task);
-                        } else if (activity.type === PrismaActivityType.event) {
-                            setting = ConvertEvent(activity.event);
-                        }
+                    },
+                })
+            )
+                .map((activity) => {
+                    let setting;
+                    if (activity.type === PrismaActivityType.task) {
+                        setting = ConvertTask(activity.task);
+                    } else if (activity.type === PrismaActivityType.event) {
+                        setting = ConvertEvent(activity.event);
+                    }
 
-                        if (setting === null || setting === undefined) {
-                            return undefined;
-                        }
+                    if (setting === null || setting === undefined) {
+                        return undefined;
+                    }
 
-                        const include: ZoneInfo[] = [];
-                        const exclude: ZoneInfo[] = [];
+                    const include: ZoneInfo[] = [];
+                    const exclude: ZoneInfo[] = [];
 
-                        for (const pair of activity.ActivityZonePair) {
-                            const zone = {
-                                id: pair.zone.id,
-                                name: pair.zone.name,
-                                color: pair.zone.color,
-                            };
-                            if (pair.zoneType === 'include') {
-                                include.push(zone);
-                            } else if (pair.zoneType === 'exclude') {
-                                exclude.push(zone);
-                            }
-                        }
-
-                        return {
-                            id: activity.id,
-                            name: activity.name,
-                            activityType:
-                                activity.type === PrismaActivityType.task
-                                    ? 'task'
-                                    : ('event' as ActivityType),
-                            zones: {
-                                include,
-                                exclude,
-                            },
-                            setting,
+                    for (const pair of activity.ActivityZonePair) {
+                        const zone = {
+                            id: pair.zone.id,
+                            name: pair.zone.name,
+                            color: pair.zone.color,
                         };
-                    })
-                    .filter((e) => e !== undefined) as ActivitySetting<
-                    TaskSetting | EventSetting
-                >[];
-            }
-        ),
+                        if (pair.zoneType === 'include') {
+                            include.push(zone);
+                        } else if (pair.zoneType === 'exclude') {
+                            exclude.push(zone);
+                        }
+                    }
+
+                    return {
+                        id: activity.id,
+                        name: activity.name,
+                        activityType:
+                            activity.type === PrismaActivityType.task
+                                ? 'task'
+                                : ('event' as ActivityType),
+                        zones: {
+                            include,
+                            exclude,
+                        },
+                        setting,
+                    };
+                })
+                .filter((e) => e !== undefined) as ActivitySetting<
+                TaskSetting | EventSetting
+            >[];
+        }),
 
     getTask: protectedProcedure
         .input(

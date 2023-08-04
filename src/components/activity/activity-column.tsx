@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ActivityOverview } from '~/components/activity/activity-overview';
+import { ActivityDefinitionOverview } from '~/components/activity/activity-definition-overview';
 import { api } from '~/utils/api';
 import React, { useState } from 'react';
 import { Button } from '@material-tailwind/react';
@@ -18,7 +18,10 @@ import {
     type EventSetting,
     type TaskSetting,
 } from '~/components/activity/models';
-import { useQueryActivities } from '~/data/activities/query';
+import {
+    useQueryActivities,
+    useQueryActivityDefinitions,
+} from '~/data/activities/query';
 import { useQueryClient } from '@tanstack/react-query';
 import { appendActivities } from '~/data/activities/mutate';
 
@@ -163,7 +166,7 @@ export function ActivityColumn({
 }) {
     const queryClient = useQueryClient();
     const router = useRouter();
-    const { data: activities } = useQueryActivities({
+    const { data: activityDefinitions } = useQueryActivityDefinitions({
         categoryId: categoryInfo.id,
     });
     const { mutateAsync: createTask } = api.activities.createTask.useMutation();
@@ -200,11 +203,11 @@ export function ActivityColumn({
                 <CategoryContext.Provider
                     value={{ ...categoryInfo, textColor }}
                 >
-                    {activities
-                        ? activities.map((activity) => (
-                              <ActivityOverview
-                                  key={activity.id}
-                                  activity={activity}
+                    {activityDefinitions
+                        ? activityDefinitions.map((activityDefinition) => (
+                              <ActivityDefinitionOverview
+                                  key={activityDefinition.id}
+                                  activityDefinition={activityDefinition}
                               />
                           ))
                         : null}

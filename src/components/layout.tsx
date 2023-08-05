@@ -16,6 +16,7 @@ import {
     UserCircleIcon,
 } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 
 function Sidebar() {
     const router = useRouter();
@@ -83,12 +84,14 @@ function Sidebar() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+    const { data: sessionData } = useSession();
+    
     return (
         <div className="flex max-h-screen min-h-screen w-screen flex-row overflow-hidden">
-            <div>
+            <div className={sessionData ? "" : "hidden"}>
                 <Sidebar />
             </div>
-            <div className="overflow-hidden">{children}</div>
+            <div className="w-full overflow-hidden">{children}</div>
         </div>
     );
 }

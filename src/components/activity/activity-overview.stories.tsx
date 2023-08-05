@@ -1,17 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ActivityOverview } from '~/components/activity/activity-overview';
+import { ActivityDefinitionOverview } from '~/components/activity/activity-definition-overview';
 
 import { type CategoryInfo } from '~/components/activity/models';
 import { CategoryContext } from '~/components/activity/activity-column';
 
-const meta: Meta<typeof ActivityOverview> = {
+const meta: Meta<typeof ActivityDefinitionOverview> = {
     title: 'Activity Overview',
-    component: ActivityOverview,
+    component: ActivityDefinitionOverview,
     tags: ['autodocs'],
 };
 
 export default meta;
-type Story = StoryObj<typeof ActivityOverview>;
+type Story = StoryObj<typeof ActivityDefinitionOverview>;
 const category1: CategoryInfo = {
     id: '1',
     categoryName: 'Task!',
@@ -22,7 +22,7 @@ const category1: CategoryInfo = {
 const render = (args: any) => (
     <div>
         <CategoryContext.Provider value={category1}>
-            <ActivityOverview {...args} />;
+            <ActivityDefinitionOverview {...args} />;
         </CategoryContext.Provider>
     </div>
 );
@@ -31,7 +31,7 @@ const customRender = (categoryInfo: CategoryInfo) => {
     const render = (args: any) => (
         <div>
             <CategoryContext.Provider value={categoryInfo}>
-                <ActivityOverview {...args} />;
+                <ActivityDefinitionOverview {...args} />;
             </CategoryContext.Provider>
         </div>
     );

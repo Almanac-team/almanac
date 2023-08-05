@@ -1,7 +1,10 @@
 import React, {
+    createContext,
     type ReactNode,
     useCallback,
     useContext,
+    useEffect,
+    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -32,6 +35,16 @@ import {
 } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
 import { updateActivities } from '~/data/activities/mutate';
+import {
+    type ActivityDefinition,
+    type ActivityDefinitionUnion,
+    type EndConfig,
+    generateVirtualActivities,
+    type RepeatConfig,
+    type RepeatingActivity,
+    type RepeatSetting,
+    type SingleActivity,
+} from '~/components/activity/activity-definition-models';
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -196,127 +209,206 @@ function Pill({
     );
 }
 
-export function ActivityOverview({
-    activity,
+function ActivityOverview<T extends TaskSetting | EventSetting>({
+    index,
+    activitySetting,
+    repeatSetting,
+    onSubmit,
 }: {
-    activity: ActivitySettingUnion;
+    index: number;
+    activitySetting: ActivitySetting<T>;
+    repeatSetting: RepeatSetting;
+    onSubmit?: (
+        activitySetting: ActivitySetting<T>,
+        repeatSetting: {
+            index: number;
+            scope: 'this' | 'all' | 'future';
+            repeatSetting: RepeatSetting;
+        }
+    ) => unknown;
 }) {
-    const category = useContext(CategoryContext);
-    const queryClient = useQueryClient();
-
     const [isOpen, setIsOpen] = useState(false);
     const [updating, isUpdating] = useState(false);
-    const { mutateAsync: mutateTask } = api.activities.updateTask.useMutation();
-    const { mutateAsync: mutateEvent } =
-        api.activities.updateEvent.useMutation();
-
-    const submitFunction = useCallback(
-        <T extends TaskSetting | EventSetting>(
-            activitySetting: ActivitySetting<T>
-        ) => {
-            isUpdating(true);
-
-            function updateActivityQuery<K extends TaskSetting | EventSetting>(
-                activitySetting: ActivitySetting<K>
-            ) {
-                updateActivities({
-                    queryClient,
-                    categoryId: category.id,
-                    activity: activitySetting,
-                });
-            }
-
-            if (isTask(activitySetting)) {
-                mutateTask(activitySetting as ActivitySetting<TaskSetting>)
-                    .then(() => {
-                        updateActivityQuery(activitySetting);
-
-                        setIsOpen(false);
-                        isUpdating(false);
-                    })
-                    .catch((e) => {
-                        console.log(e);
-                        setIsOpen(false);
-                        isUpdating(false);
-                    });
-            } else if (isEvent(activitySetting)) {
-                mutateEvent(activitySetting as ActivitySetting<EventSetting>)
-                    .then(() => {
-                        updateActivityQuery(activitySetting);
-
-                        setIsOpen(false);
-                        isUpdating(false);
-                    })
-                    .catch((e) => {
-                        console.log(e);
-                        setIsOpen(false);
-                        isUpdating(false);
-                    });
-            }
-        },
-        [mutateTask, queryClient, category.id, mutateEvent]
-    );
 
     let deadline;
     let icon;
-    let settingModal;
+    const activity = activitySetting;
     if (isTaskSetting(activity.setting)) {
         deadline = activity.setting.at;
         icon = <FlagIcon className="h-8 w-6" />;
-
-        settingModal = (
-            <ActivityUpdateModal<TaskSetting>
-                originalActivitySetting={
-                    activity as ActivitySetting<TaskSetting>
-                }
-                updating={updating}
-                onSubmit={submitFunction}
-            />
-        );
     } else if (isEventSetting(activity.setting)) {
         deadline = activity.setting.at;
         icon = <ClockIcon className="h-8 w-6" />;
-
-        settingModal = (
-            <ActivityUpdateModal<EventSetting>
-                originalActivitySetting={
-                    activity as ActivitySetting<EventSetting>
-                }
-                updating={updating}
-                onSubmit={submitFunction}
-            />
-        );
     } else {
         return <></>;
     }
 
     return (
-        <div className="relative h-24 w-full select-none rounded-lg bg-gray-200">
-            <div className="flex flex-row items-center">
-                <ActivityTag />
-                <div className="flex w-full flex-col space-y-2">
-                    <div className="flex space-x-3">
-                        <TimeBubble deadline={deadline} />
-                        <span className="max-w-[calc(100%-100px)] overflow-x-hidden overflow-ellipsis whitespace-nowrap text-xl font-bold text-gray-900">
-                            {activity.name}
-                        </span>
-                    </div>
-                    <div className="flex space-x-2">
-                        <Pill className="bg-gray-400">{icon}</Pill>
-                        <Pill className="bg-gray-400">17:00 - 18:00</Pill>
-                    </div>
+        <div className="relative flex flex-row items-center rounded-lg bg-gray-200">
+            <ActivityTag />
+            <div className="flex w-full flex-col space-y-2">
+                <div className="flex space-x-3">
+                    <TimeBubble deadline={deadline} />
+                    <span className="max-w-[calc(100%-100px)] overflow-x-hidden overflow-ellipsis whitespace-nowrap text-xl font-bold text-gray-900">
+                        {activity.name}
+                    </span>
                 </div>
-                <div className="absolute right-1 top-1">
-                    <Menu open={isOpen} handler={setIsOpen}>
-                        <MenuHandler>
-                            <IconButton className="h-8 w-8 rounded bg-gray-600 hover:bg-gray-500">
-                                <AdjustmentsHorizontalIcon className="h-8 w-6" />
-                            </IconButton>
-                        </MenuHandler>
-                        <MenuBody>{settingModal}</MenuBody>
-                    </Menu>
+                <div className="flex space-x-2">
+                    <Pill className="bg-gray-400">{icon}</Pill>
+                    <Pill className="bg-gray-400">17:00 - 18:00</Pill>
                 </div>
             </div>
+
+            <div className="absolute right-1 top-1">
+                <Menu open={isOpen} handler={setIsOpen}>
+                    <MenuHandler>
+                        <IconButton className="h-8 w-8 rounded bg-gray-600 hover:bg-gray-500">
+                            <AdjustmentsHorizontalIcon className="h-8 w-6" />
+                        </IconButton>
+                    </MenuHandler>
+                    <MenuBody>
+                        <ActivityUpdateModal<T>
+                            index={index}
+                            activitySetting={activitySetting}
+                            repeatSetting={repeatSetting}
+                            onSubmit={onSubmit}
+                        />
+                    </MenuBody>
+                </Menu>
+            </div>
         </div>
+    );
+}
+
+export const ActivityDefinitionContext = createContext<
+    | {
+          activityDefinition: ActivityDefinitionUnion;
+      }
+    | undefined
+>(undefined);
+
+const extractRepeatSetting = <T extends TaskSetting | EventSetting>(
+    activityDefinition: ActivityDefinition<T>
+): RepeatSetting => {
+    if (activityDefinition.data.type === 'single') {
+        return { type: 'single' };
+    } else {
+        return {
+            type: 'repeating',
+            repeatConfig: activityDefinition.data.repeatConfig,
+            endConfig: activityDefinition.data.end,
+        };
+    }
+};
+
+export function ActivityDefinitionOverview<
+    T extends TaskSetting | EventSetting
+>({ activityDefinition }: { activityDefinition: ActivityDefinition<T> }) {
+    const category = useContext(CategoryContext);
+    const queryClient = useQueryClient();
+
+    const [displayActivityDefinition, setEditActivityDefinition] =
+        useState<ActivityDefinition<T>>(activityDefinition);
+
+    const [displayRepeatingSetting, setDisplayRepeatingSetting] =
+        useState<RepeatSetting>(extractRepeatSetting(activityDefinition));
+
+    useEffect(() => {
+        setDisplayRepeatingSetting(
+            extractRepeatSetting(displayActivityDefinition)
+        );
+    }, [displayActivityDefinition]);
+
+    const { mutateAsync: mutateTask } = api.activities.updateTask.useMutation();
+    const { mutateAsync: mutateEvent } =
+        api.activities.updateEvent.useMutation();
+
+    const submitChange = useCallback(
+        (
+            activitySetting: ActivitySetting<T>,
+            repeatSetting: {
+                index: number;
+                scope: 'this' | 'all' | 'future';
+                repeatSetting: RepeatSetting;
+            }
+        ) => {
+            console.log(activitySetting, repeatSetting);
+
+            if (repeatSetting.repeatSetting.type === 'single') {
+                setEditActivityDefinition({
+                    id: displayActivityDefinition.id,
+                    data: {
+                        ...displayActivityDefinition.data,
+                        type: 'single',
+                        activitySetting: activitySetting,
+                    },
+                });
+                setDisplayRepeatingSetting(repeatSetting.repeatSetting);
+            } else {
+                setEditActivityDefinition({
+                    id: displayActivityDefinition.id,
+                    data: {
+                        ...displayActivityDefinition.data,
+                        type: 'repeating',
+                        repeatConfig: repeatSetting.repeatSetting.repeatConfig,
+                        end: repeatSetting.repeatSetting.endConfig,
+                        activitySetting,
+                        exceptions: new Map(),
+                    },
+                });
+                setDisplayRepeatingSetting(repeatSetting.repeatSetting);
+            }
+        },
+        [displayActivityDefinition]
+    );
+
+    const activitySettings: ActivitySetting<T>[] = useMemo(() => {
+        const data = displayActivityDefinition.data;
+        if (data.type === 'single') {
+            return [data.activitySetting];
+        } else {
+            const g = generateVirtualActivities<T>(100, data);
+            console.log(g);
+            return g;
+        }
+    }, [displayActivityDefinition]);
+
+    let inner;
+
+    if (displayActivityDefinition.data.type === 'single') {
+        inner = (
+            <ActivityOverview
+                index={0}
+                activitySetting={displayActivityDefinition.data.activitySetting}
+                repeatSetting={displayRepeatingSetting}
+                onSubmit={submitChange}
+            />
+        );
+    } else {
+        inner = (
+            <div className="space-y-1 border-y-4 border-gray-800 bg-gray-400 p-1">
+                {activitySettings.map(
+                    (activitySetting: ActivitySetting<T>, index: number) => (
+                        <ActivityOverview
+                            key={index}
+                            index={index}
+                            activitySetting={activitySetting}
+                            repeatSetting={displayRepeatingSetting}
+                            onSubmit={submitChange}
+                        />
+                    )
+                )}
+            </div>
+        );
+    }
+
+    return (
+        <ActivityDefinitionContext.Provider
+            value={{
+                activityDefinition: displayActivityDefinition,
+            }}
+        >
+            <div className="min-h-24 w-full select-none">{inner}</div>
+        </ActivityDefinitionContext.Provider>
     );
 }

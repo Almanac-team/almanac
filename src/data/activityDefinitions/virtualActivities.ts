@@ -4,6 +4,7 @@ import {
     type TaskSetting,
 } from '~/components/activity/models';
 import {
+    type ActivityCompletions,
     type ActivityDefinition,
     type EndConfig,
     type RepeatingActivity,
@@ -31,18 +32,41 @@ function checkGenerationViolation(
     return false;
 }
 
+function checkIfComplete(
+    index: number,
+    activityCompletions?: ActivityCompletions
+) {
+    if (!activityCompletions) {
+        return false;
+    }
+    return (
+        activityCompletions.latestFinishedIndex >= index &&
+        !activityCompletions.exceptions.has(index)
+    );
+}
+
+export type ActivitySettingWithCompletion = ActivitySetting & {
+    completed: boolean;
+};
+
 export function getActivitiesFromDefinition(
     activityDefinition: ActivityDefinition,
     maxCount: number,
     latestDate?: Date,
     startShift = 0
-): ActivitySetting[] {
+): ActivitySettingWithCompletion[] {
+    const activityCompletion = activityDefinition.activityCompletions;
     if (activityDefinition.data.type === 'single') {
-        return [activityDefinition.data.activitySetting];
+        return [
+            {
+                ...activityDefinition.data.activitySetting,
+                completed: checkIfComplete(0, activityCompletion),
+            },
+        ];
     }
     const repeatingActivity = activityDefinition.data;
 
-    const activitySettings: ActivitySetting[] = [];
+    const activitySettings: ActivitySettingWithCompletion[] = [];
 
     const repeatConfig = repeatingActivity.repeatConfig;
     const endConfig = repeatingActivity.endConfig;
@@ -65,10 +89,11 @@ export function getActivitiesFromDefinition(
                       },
                   };
 
-        const activitySetting: ActivitySetting = {
+        const activitySetting: ActivitySettingWithCompletion = {
             ...repeatingActivity.activitySetting,
             setting,
             id: `virtual-${activitySettings.length}`,
+            completed: checkIfComplete(i, activityCompletion),
         };
 
         let multiplier = 1;

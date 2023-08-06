@@ -5,13 +5,14 @@ import {
     TimeConfigInput,
 } from '~/components/time_picker/date';
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from '@material-tailwind/react';
 import {
     type ActivitySetting,
     type EventSetting,
     type TaskSetting,
 } from '~/components/activity/models';
+import { type RepeatSetting } from '~/components/activity/activity-definition-models';
 
 export function isTaskSetting(
     setting: TaskSetting | EventSetting | undefined
@@ -25,57 +26,254 @@ export function isEventSetting(
     return setting !== undefined && !isTaskSetting(setting);
 }
 
-export function isTask(
-    activity: ActivitySetting<TaskSetting | EventSetting | undefined>
-): activity is ActivitySetting<TaskSetting> {
-    return isTaskSetting(activity.setting);
+export function isTask(activity: ActivitySetting): boolean {
+    return activity.setting.type === 'task';
 }
 
-export function isEvent(
-    activity: ActivitySetting<TaskSetting | EventSetting | undefined>
-): activity is ActivitySetting<EventSetting> {
-    return isEventSetting(activity.setting);
+export function isEvent(activity: ActivitySetting): boolean {
+    return activity.setting.type === 'event';
 }
 
-export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
-    originalActivitySetting,
+function intToDayOfWeek(day: number) {
+    switch (day) {
+        case 0:
+            return 'Sunday';
+        case 1:
+            return 'Monday';
+        case 2:
+            return 'Tuesday';
+        case 3:
+            return 'Wednesday';
+        case 4:
+            return 'Thursday';
+        case 5:
+            return 'Friday';
+        default:
+            return 'Saturday';
+    }
+}
+
+function intToOrdinal(num: number) {
+    const lastDigit = num % 10;
+    const numStr = num.toString();
+    switch (lastDigit) {
+        case 1:
+            return numStr + 'st';
+        case 2:
+            return numStr + 'nd';
+        case 3:
+            return numStr + 'rd';
+        default:
+            return numStr + 'th';
+    }
+}
+
+function intToMonth(month: number) {
+    switch (month) {
+        case 0:
+            return 'January';
+        case 1:
+            return 'Febuary';
+        case 2:
+            return 'March';
+        case 3:
+            return 'April';
+        case 4:
+            return 'May';
+        case 5:
+            return 'June';
+        case 6:
+            return 'July';
+        case 7:
+            return 'August';
+        case 8:
+            return 'September';
+        case 9:
+            return 'October';
+        case 10:
+            return 'November';
+        default:
+            return 'December';
+    }
+}
+
+export function RepeatConfigInput({
+    start,
+    onChange,
+    repeatSetting,
+}: {
+    start: Date;
+    onChange?: (repeatSetting: RepeatSetting) => unknown;
+    repeatSetting: RepeatSetting;
+}) {
+    const repeatDefaultValue = useMemo(() => {
+        if (repeatSetting.type === 'single') {
+            return 'none';
+        } else {
+            const unit = repeatSetting.repeatConfig.unit;
+            if (!unit) return 'none';
+
+            switch (unit.type) {
+                case 'day':
+                    return 'day';
+                case 'week':
+                    return 'week';
+                case 'month':
+                    return 'month';
+                case 'year':
+                    return 'year';
+            }
+        }
+    }, [repeatSetting]);
+
+    return (
+        <div className="flex items-center">
+            <div className="flex items-center space-x-2 whitespace-nowrap">
+                <span>Repeat</span>
+                <select
+                    value={repeatDefaultValue}
+                    className="mr-2 h-full rounded border border-gray-300 p-2"
+                    onChange={(e) => {
+                        switch (e.target.value) {
+                            case 'none':
+                                onChange?.({ type: 'single' });
+                                break;
+                            case 'day':
+                                onChange?.({
+                                    type: 'repeating',
+                                    repeatConfig: {
+                                        every: 1,
+                                        unit: { type: 'day' },
+                                    },
+                                    endConfig: { type: 'never' },
+                                });
+                                break;
+                            case 'week':
+                                onChange?.({
+                                    type: 'repeating',
+                                    repeatConfig: {
+                                        every: 1,
+                                        unit: {
+                                            type: 'week',
+                                            weekDays: 2 << start.getDay(),
+                                        },
+                                    },
+                                    endConfig: { type: 'never' },
+                                });
+                                break;
+                            case 'month':
+                                onChange?.({
+                                    type: 'repeating',
+                                    repeatConfig: {
+                                        every: 1,
+                                        unit: {
+                                            type: 'month',
+                                            monthDay: start.getDate(),
+                                        },
+                                    },
+                                    endConfig: { type: 'never' },
+                                });
+                                break;
+                            case 'year':
+                                onChange?.({
+                                    type: 'repeating',
+                                    repeatConfig: {
+                                        every: 1,
+                                        unit: {
+                                            type: 'year',
+                                            month: start.getMonth() + 1,
+                                            day: start.getDate(),
+                                        },
+                                    },
+                                    endConfig: { type: 'never' },
+                                });
+                                break;
+                        }
+                    }}
+                >
+                    <option value="none">Never</option>
+                    <option value="day">Daily</option>
+                    <option value="week">
+                        Weekly on {intToDayOfWeek(start.getDay())}
+                    </option>
+                    <option value="month">
+                        Monthly on the {intToOrdinal(start.getDate())}
+                    </option>
+                    <option value="year">
+                        Annually on {intToMonth(start.getMonth())}{' '}
+                        {start.getDate()}
+                    </option>
+                </select>
+            </div>
+        </div>
+    );
+}
+
+export function ActivityUpdateModal({
+    index,
+    activitySetting,
+    repeatSetting,
     onSubmit,
     updating,
 }: {
-    originalActivitySetting: ActivitySetting<T>;
-    onSubmit?: (activitySetting: ActivitySetting<T>) => void;
+    index: number;
+    activitySetting: ActivitySetting;
+    repeatSetting: RepeatSetting;
+    onSubmit?: (
+        activitySetting: ActivitySetting,
+        repeatSetting: {
+            index: number;
+            scope: 'this' | 'all' | 'future';
+            repeatSetting: RepeatSetting;
+        }
+    ) => unknown;
     updating?: boolean;
 }) {
+    const [configActivitySetting, setConfigActivitySetting] = useState<
+        ActivitySetting | undefined
+    >(undefined);
+
+    const [configRepeatSetting, setConfigRepeatSetting] = useState<
+        RepeatSetting | undefined
+    >(undefined);
+
+    const displayActivitySetting = useMemo(() => {
+        if (!configActivitySetting) return activitySetting;
+        return configActivitySetting;
+    }, [configActivitySetting, activitySetting]);
+
+    const displayConfigRepeatSetting = useMemo(() => {
+        if (!configRepeatSetting) return repeatSetting;
+        return configRepeatSetting;
+    }, [configRepeatSetting, repeatSetting]);
+
     const [error, setError] = useState(false);
 
-    const [activitySetting, setActivitySetting] = useState<ActivitySetting<T>>(
-        originalActivitySetting
-    );
-    let inner;
+    let innerConfig;
 
-    if (isTaskSetting(activitySetting.setting)) {
-        inner = (
+    if (isTaskSetting(displayActivitySetting.setting.value)) {
+        innerConfig = (
             <TaskSettingConfig
-                setting={activitySetting.setting}
-                onChange={(setting) =>
-                    setActivitySetting({
-                        ...activitySetting,
-                        setting: setting as T,
-                    })
-                }
+                setting={displayActivitySetting.setting.value}
+                onChange={(setting: TaskSetting) => {
+                    setConfigActivitySetting({
+                        ...displayActivitySetting,
+                        setting: { type: 'task', value: setting },
+                    });
+                }}
                 disabled={updating}
             />
         );
     } else {
-        inner = (
+        innerConfig = (
             <EventSettingConfig
-                setting={activitySetting.setting}
-                onChange={(setting) =>
-                    setActivitySetting({
-                        ...activitySetting,
-                        setting: setting as T,
-                    })
-                }
+                setting={displayActivitySetting.setting.value}
+                onChange={(setting: EventSetting) => {
+                    setConfigActivitySetting({
+                        ...displayActivitySetting,
+                        setting: { type: 'event', value: setting },
+                    });
+                }}
                 disabled={updating}
             />
         );
@@ -90,7 +288,7 @@ export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
         >
             <input
                 type="text"
-                value={activitySetting.name}
+                value={displayActivitySetting.name}
                 className={clsx(
                     'mr-2 border-b-2 p-2 text-xl text-gray-700 transition-colors focus:outline-none',
                     !error
@@ -100,20 +298,31 @@ export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
                 placeholder="Activity Name"
                 onChange={(e) => {
                     setError(false);
-                    setActivitySetting({
-                        ...activitySetting,
+                    setConfigActivitySetting({
+                        ...displayActivitySetting,
                         name: e.target.value,
                     });
                 }}
                 disabled={updating}
             />
-            {inner}
+            <RepeatConfigInput
+                start={displayActivitySetting.setting.value.at}
+                onChange={(repeatSetting: RepeatSetting) => {
+                    setConfigRepeatSetting(repeatSetting);
+                }}
+                repeatSetting={displayConfigRepeatSetting}
+            />
+            {innerConfig}
             <Button
                 onClick={() => {
-                    if (activitySetting.name.trim() === '') {
+                    if (displayActivitySetting.name.trim() === '') {
                         setError(true);
                     } else if (onSubmit) {
-                        onSubmit(activitySetting);
+                        onSubmit(configActivitySetting ?? activitySetting, {
+                            index,
+                            scope: 'all',
+                            repeatSetting: configRepeatSetting ?? repeatSetting,
+                        });
                     }
                 }}
                 disabled={updating}

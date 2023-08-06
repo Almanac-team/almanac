@@ -95,12 +95,12 @@ model UserSettings {
 }
 
 model Category {
-  id         String     @id @default(cuid())
-  name       String
-  color      String
-  userId     String
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  activities Activity[]
+  id                  String               @id @default(cuid())
+  name                String
+  color               String
+  userId              String
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  activityDefinitions ActivityDefinition[]
 
   @@index([userId])
 }
@@ -110,18 +110,60 @@ enum ActivityType {
   event
 }
 
-model Activity {
-  id               String             @id @default(cuid())
-  categoryId       String
-  name             String
-  category         Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  type             ActivityType       @default(task)
-  task             Task?
-  event            Event?
-  GeneratedEvent   GeneratedEvent[]
-  ActivityZonePair ActivityZonePair[]
+model ActivityDefinition {
+  id             String        @id @default(cuid())
+  categoryId     String
+  activities     Activity[]
+  repeatConfig   RepeatConfig?
+  endConfig      EndConfig?
+  repeatConfigId String?
+  endConfigId    String?
+  category       Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([categoryId])
+}
+
+enum RepeatUnit {
+  day
+  week
+  month
+  year
+}
+
+model RepeatConfig {
+  activityDefinitionId String             @unique
+  every                Int
+  unit                 RepeatUnit
+  info                 Int
+  activityDefinition   ActivityDefinition @relation(fields: [activityDefinitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum EndType {
+  count
+  until
+  never
+}
+
+model EndConfig {
+  activityDefinitionId String             @unique
+  endType              EndType
+  endDate              DateTime
+  endCount             Int
+  activityDefinition   ActivityDefinition @relation(fields: [activityDefinitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Activity {
+  id                   String             @id @default(cuid())
+  activityDefinitionId String
+  name                 String
+  activityDefinition   ActivityDefinition @relation(fields: [activityDefinitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  type                 ActivityType       @default(task)
+  task                 Task?
+  event                Event?
+  GeneratedEvent       GeneratedEvent[]
+  ActivityZonePair     ActivityZonePair[]
+
+  @@index([activityDefinitionId])
 }
 
 // Task - something to be finished by a set time

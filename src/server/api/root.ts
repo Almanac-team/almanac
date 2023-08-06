@@ -1,10 +1,10 @@
 import { createTRPCRouter } from '~/server/api/trpc';
 import userSettingsRouter from './routers/userSettings';
 import categoriesRouter from '~/server/api/routers/categories';
-import activitiesRouter from '~/server/api/routers/activities';
 import generatedEventsRouter from '~/server/api/routers/generateEvents';
 import zonesRouter from '~/server/api/routers/zones';
 import regionsRouter from '~/server/api/routers/regions';
+import activityDefinitionsRouter from '~/server/api/routers/activityDefinitions';
 
 /**
  * This is the primary router for your server.
@@ -14,7 +14,7 @@ import regionsRouter from '~/server/api/routers/regions';
 export const appRouter = createTRPCRouter({
     settings: userSettingsRouter,
     categories: categoriesRouter,
-    activities: activitiesRouter,
+    activityDefinitions: activityDefinitionsRouter,
     generatedEvents: generatedEventsRouter,
     zones: zonesRouter,
     regions: regionsRouter,

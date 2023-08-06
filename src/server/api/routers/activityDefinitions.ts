@@ -673,8 +673,28 @@ const activityDefinitionsRouter = createTRPCRouter({
             if (input.data.type === 'single') {
                 const activitySetting = input.data.activitySetting;
 
-                return ctx.prisma.activityDefinition
-                    .update({
+                const [, , createResult] = await ctx.prisma.$transaction([
+                    ctx.prisma.repeatConfig.deleteMany({
+                        where: {
+                            activityDefinitionId: input.id,
+                            activityDefinition: {
+                                category: {
+                                    userId: userId,
+                                },
+                            },
+                        },
+                    }),
+                    ctx.prisma.endConfig.deleteMany({
+                        where: {
+                            activityDefinitionId: input.id,
+                            activityDefinition: {
+                                category: {
+                                    userId: userId,
+                                },
+                            },
+                        },
+                    }),
+                    ctx.prisma.activityDefinition.update({
                         where: {
                             id: input.id,
                             category: {
@@ -708,8 +728,9 @@ const activityDefinitionsRouter = createTRPCRouter({
                                 },
                             },
                         },
-                    })
-                    .then((activity) => activity.id);
+                    }),
+                ]);
+                return createResult.id;
             } else {
                 const activitySetting = input.data.activitySetting;
 

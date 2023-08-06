@@ -14,8 +14,8 @@ import {
 import { ActivityType as PrismaActivityEnum, Prisma } from '@prisma/client';
 import { type ZoneInfo } from '~/components/zone/models';
 import {
-    convertIntToTimeConfig,
-    convertTimeConfigToInt,
+    convertMinutesToTimeConfig,
+    convertTimeConfigToMinutes,
 } from '~/components/time_picker/models';
 
 export const RepeatConfigZodSchema = z.object({
@@ -242,9 +242,9 @@ export function ConvertTask(task: PrismaTaskType): TaskSetting | null {
     return {
         at: task.dueDate,
         estimatedRequiredTime: task.estimatedTime,
-        deadlineMod: convertIntToTimeConfig(task.deadlineMod),
-        reminderMod: convertIntToTimeConfig(task.reminderMod),
-        startMod: convertIntToTimeConfig(task.startMod),
+        deadlineMod: convertMinutesToTimeConfig(task.deadlineMod),
+        reminderMod: convertMinutesToTimeConfig(task.reminderMod),
+        startMod: convertMinutesToTimeConfig(task.startMod),
     };
 }
 
@@ -264,8 +264,8 @@ export function ConvertEvent(event: PrismaEventType): EventSetting | null {
     return {
         at: event.startDate,
         estimatedRequiredTime: event.estimatedTime,
-        reminderMod: convertIntToTimeConfig(event.reminderMod),
-        startMod: convertIntToTimeConfig(event.startMod),
+        reminderMod: convertMinutesToTimeConfig(event.reminderMod),
+        startMod: convertMinutesToTimeConfig(event.startMod),
     };
 }
 
@@ -273,9 +273,9 @@ const getTaskSchema = (setting: z.infer<typeof TaskSchema>) => {
     return {
         dueDate: setting.at,
         estimatedTime: setting.estimatedRequiredTime,
-        deadlineMod: convertTimeConfigToInt(setting.deadlineMod),
-        reminderMod: convertTimeConfigToInt(setting.reminderMod),
-        startMod: convertTimeConfigToInt(setting.startMod),
+        deadlineMod: convertTimeConfigToMinutes(setting.deadlineMod),
+        reminderMod: convertTimeConfigToMinutes(setting.reminderMod),
+        startMod: convertTimeConfigToMinutes(setting.startMod),
     };
 };
 
@@ -283,8 +283,8 @@ const getEventSchema = (setting: z.infer<typeof EventSchema>) => {
     return {
         startDate: setting.at,
         estimatedTime: setting.estimatedRequiredTime,
-        reminderMod: convertTimeConfigToInt(setting.reminderMod),
-        startMod: convertTimeConfigToInt(setting.startMod),
+        reminderMod: convertTimeConfigToMinutes(setting.reminderMod),
+        startMod: convertTimeConfigToMinutes(setting.startMod),
     };
 };
 

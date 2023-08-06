@@ -297,9 +297,11 @@ const extractRepeatSetting = (
     }
 };
 
-export function ActivityDefinitionOverview<
-    T extends TaskSetting | EventSetting
->({ activityDefinition }: { activityDefinition: ActivityDefinition }) {
+export function ActivityDefinitionOverview({
+    activityDefinition,
+}: {
+    activityDefinition: ActivityDefinition;
+}) {
     const category = useContext(CategoryContext);
     const queryClient = useQueryClient();
 

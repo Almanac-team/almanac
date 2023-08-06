@@ -17,13 +17,15 @@ import {
     FlagIcon,
 } from '@heroicons/react/24/outline';
 import { TimeContext } from '~/pages/_app';
-import { IconButton } from '@material-tailwind/react';
+import { Checkbox, IconButton } from '@material-tailwind/react';
 import { api } from '~/utils/api';
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
 import { type ActivitySetting } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
 import {
+    type ActivityCompletions,
     type ActivityDefinition,
+    computeActivityCompletionsDiff,
     type RepeatSetting,
 } from '~/components/activity/activity-definition-models';
 import { updateActivityDefinitions } from '~/data/activityDefinitions/mutate';
@@ -199,11 +201,14 @@ function ActivityOverview({
     index,
     activitySetting,
     repeatSetting,
+    completed,
     onSubmit,
+    onCompletionChange,
 }: {
     index: number;
     activitySetting: ActivitySetting;
     repeatSetting: RepeatSetting;
+    completed?: boolean;
     onSubmit?: (
         activitySetting: ActivitySetting,
         repeatSetting: {
@@ -213,6 +218,7 @@ function ActivityOverview({
         },
         closeModal: () => unknown
     ) => unknown;
+    onCompletionChange?: (completed: boolean) => unknown;
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const [updating, isUpdating] = useState(false);
@@ -229,7 +235,12 @@ function ActivityOverview({
     }
 
     return (
-        <div className="relative flex flex-row items-center rounded-lg bg-gray-200">
+        <div
+            className={clsx(
+                'relative flex flex-row items-center rounded-lg bg-gray-200',
+                completed && 'contrast-50'
+            )}
+        >
             <ActivityTag />
             <div className="flex w-full flex-col space-y-2">
                 <div className="flex space-x-3">
@@ -274,6 +285,17 @@ function ActivityOverview({
                     </MenuBody>
                 </Menu>
             </div>
+
+            <div className="absolute bottom-2 right-2">
+                <input
+                    type="checkbox"
+                    className="h-6 w-6 bg-gray-600 hover:bg-gray-500"
+                    checked={completed}
+                    onChange={(e) =>
+                        onCompletionChange?.(e.target.value === 'on')
+                    }
+                />
+            </div>
         </div>
     );
 }
@@ -309,6 +331,9 @@ export function ActivityDefinitionOverview({
 
     const { mutateAsync: updateActivityDefinition } =
         api.activityDefinitions.updateActivityDefinition.useMutation();
+
+    const { mutateAsync: updateActivityCompletions } =
+        api.activityDefinitions.updateActivityCompletions.useMutation();
 
     const repeatSetting = useMemo(
         () => extractRepeatSetting(activityDefinition),
@@ -366,6 +391,62 @@ export function ActivityDefinitionOverview({
         [activityDefinition, category.id, queryClient, updateActivityDefinition]
     );
 
+    const setChecked = useCallback(
+        (index: number, checked: boolean) => {
+            const oldActivityDefinition = activityDefinition;
+            const diff = computeActivityCompletionsDiff(
+                activityDefinition.activityCompletions ?? null,
+                index,
+                checked
+            );
+
+            const newActivityCompletions: ActivityCompletions = {
+                latestFinishedIndex: index,
+                exceptions: new Set<number>(
+                    activityDefinition.activityCompletions?.exceptions ?? []
+                ),
+            };
+
+            diff.added.forEach((index) =>
+                newActivityCompletions.exceptions.add(index)
+            );
+            diff.removed.forEach((index) =>
+                newActivityCompletions.exceptions.delete(index)
+            );
+
+            updateActivityDefinitions({
+                queryClient,
+                categoryId: category.id,
+                activityDefinition: {
+                    ...activityDefinition,
+                    activityCompletions: newActivityCompletions,
+                },
+            });
+
+            updateActivityCompletions({
+                activityDefinitionId: activityDefinition.id,
+                index,
+                checked,
+            })
+                .then(() => {
+                    return;
+                })
+                .catch(() => {
+                    updateActivityDefinitions({
+                        queryClient,
+                        categoryId: category.id,
+                        activityDefinition: oldActivityDefinition,
+                    });
+                });
+        },
+        [
+            activityDefinition,
+            category.id,
+            queryClient,
+            updateActivityCompletions,
+        ]
+    );
+
     const activitySettings: ActivitySettingWithCompletion[] = useMemo(() => {
         return getActivitiesFromDefinition(activityDefinition, 10);
     }, [activityDefinition]);
@@ -373,25 +454,38 @@ export function ActivityDefinitionOverview({
     let inner;
 
     if (activityDefinition.data.type === 'single') {
+        const activitySetting = activitySettings[0];
+        if (!activitySetting) return null;
         inner = (
             <ActivityOverview
                 index={0}
-                activitySetting={activityDefinition.data.activitySetting}
+                activitySetting={activitySetting}
                 repeatSetting={repeatSetting}
+                completed={activitySetting.completed}
                 onSubmit={submitChange}
+                onCompletionChange={(completed: boolean) => {
+                    setChecked(0, completed);
+                }}
             />
         );
     } else {
         inner = (
             <div className="max-h-96 space-y-1 overflow-y-scroll border-y-4 border-gray-800 bg-gray-400 p-1">
                 {activitySettings.map(
-                    (activitySetting: ActivitySetting, index: number) => (
+                    (
+                        activitySetting: ActivitySettingWithCompletion,
+                        index: number
+                    ) => (
                         <ActivityOverview
                             key={index}
                             index={index}
+                            completed={activitySetting.completed}
                             activitySetting={activitySetting}
                             repeatSetting={repeatSetting}
                             onSubmit={submitChange}
+                            onCompletionChange={(completed: boolean) => {
+                                setChecked(index, completed);
+                            }}
                         />
                     )
                 )}

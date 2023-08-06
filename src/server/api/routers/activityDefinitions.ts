@@ -3,6 +3,7 @@ import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc';
 import {
     type ActivityCompletions,
     type ActivityDefinition,
+    computeActivityCompletionsDiff,
     type EndConfig,
     type RepeatConfig,
 } from '~/components/activity/activity-definition-models';
@@ -854,6 +855,75 @@ const activityDefinitionsRouter = createTRPCRouter({
                     })
                     .then((activity) => activity.id);
             }
+        }),
+
+    updateActivityCompletions: protectedProcedure
+        .input(
+            z.object({
+                activityDefinitionId: z.string(),
+                index: z.number(),
+                checked: z.boolean(),
+            })
+        )
+        .mutation(async ({ ctx, input }): Promise<boolean> => {
+            const userId = ctx.session.user.id;
+
+            const activityCompletions =
+                await ctx.prisma.activityCompletions.findUnique({
+                    where: {
+                        activityDefinitionId: input.activityDefinitionId,
+                        activityDefinition: {
+                            category: {
+                                userId: userId,
+                            },
+                        },
+                    },
+                    include: {
+                        exceptions: true,
+                    },
+                });
+
+            const existingActivityCompletions = activityCompletions
+                ? ConvertActivityCompletion(activityCompletions)
+                : null;
+
+            const { added, removed } = computeActivityCompletionsDiff(
+                existingActivityCompletions,
+                input.index,
+                input.checked
+            );
+
+            return (
+                (
+                    await ctx.prisma.activityCompletions.upsert({
+                        where: {
+                            activityDefinitionId: input.activityDefinitionId,
+                        },
+                        create: {
+                            activityDefinitionId: input.activityDefinitionId,
+                            latestFinishedIndex: input.index,
+                            exceptions: {
+                                create: added.map((index) => ({
+                                    index: index,
+                                })),
+                            },
+                        },
+                        update: {
+                            latestFinishedIndex: input.index,
+                            exceptions: {
+                                create: added.map((index) => ({
+                                    index: index,
+                                })),
+                                deleteMany: {
+                                    index: {
+                                        in: removed,
+                                    },
+                                },
+                            },
+                        },
+                    })
+                ).latestFinishedIndex === input.index
+            );
         }),
 });
 

@@ -31,8 +31,8 @@ function checkGenerationViolation(
 }
 
 export function generateVirtualActivities(
-    count: number,
-    repeatingActivity: RepeatingActivity
+    repeatingActivity: RepeatingActivity,
+    count: number
 ): ActivitySetting[] {
     const activitySettings: ActivitySetting[] = [];
 

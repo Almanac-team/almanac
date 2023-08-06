@@ -373,7 +373,7 @@ export function ActivityDefinitionOverview({
         if (data.type === 'single') {
             return [data.activitySetting];
         } else {
-            const g = generateVirtualActivities(10, data);
+            const g = generateVirtualActivities(data, 10);
             console.log(g);
             return g;
         }

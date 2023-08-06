@@ -93,8 +93,10 @@ const zonesRouter = createTRPCRouter({
             const activity = await ctx.prisma.activity.findUnique({
                 where: {
                     id: input.activityId,
-                    category: {
-                        userId: userId,
+                    activityDefinition: {
+                        category: {
+                            userId: userId,
+                        },
                     },
                 },
                 include: {
@@ -127,4 +129,4 @@ const zonesRouter = createTRPCRouter({
         }),
 });
 
-export default zonesRouter;
+export default zonesRouter

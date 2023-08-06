@@ -29,12 +29,10 @@ import { api } from '~/utils/api';
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
 import {
     type ActivitySetting,
-    type ActivitySettingUnion,
     type EventSetting,
     type TaskSetting,
 } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
-import { updateActivities } from '~/data/activities/mutate';
 import {
     type ActivityDefinition,
     type ActivityDefinitionUnion,
@@ -45,6 +43,7 @@ import {
     type RepeatSetting,
     type SingleActivity,
 } from '~/components/activity/activity-definition-models';
+import { updateActivityDefinitions } from '~/data/activityDefinitions/mutate';
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -296,7 +295,7 @@ const extractRepeatSetting = <T extends TaskSetting | EventSetting>(
         return {
             type: 'repeating',
             repeatConfig: activityDefinition.data.repeatConfig,
-            endConfig: activityDefinition.data.end,
+            endConfig: activityDefinition.data.endConfig,
         };
     }
 };
@@ -306,6 +305,9 @@ export function ActivityDefinitionOverview<
 >({ activityDefinition }: { activityDefinition: ActivityDefinition<T> }) {
     const category = useContext(CategoryContext);
     const queryClient = useQueryClient();
+
+    const { mutateAsync: updateActivityDefinition } =
+        api.activityDefinitions.updateActivityDefinition.useMutation();
 
     const [displayActivityDefinition, setEditActivityDefinition] =
         useState<ActivityDefinition<T>>(activityDefinition);
@@ -319,10 +321,6 @@ export function ActivityDefinitionOverview<
         );
     }, [displayActivityDefinition]);
 
-    const { mutateAsync: mutateTask } = api.activities.updateTask.useMutation();
-    const { mutateAsync: mutateEvent } =
-        api.activities.updateEvent.useMutation();
-
     const submitChange = useCallback(
         (
             activitySetting: ActivitySetting<T>,
@@ -335,31 +333,53 @@ export function ActivityDefinitionOverview<
             console.log(activitySetting, repeatSetting);
 
             if (repeatSetting.repeatSetting.type === 'single') {
-                setEditActivityDefinition({
+                const newActivityDefinition: ActivityDefinition<T> = {
                     id: displayActivityDefinition.id,
                     data: {
                         ...displayActivityDefinition.data,
                         type: 'single',
                         activitySetting: activitySetting,
                     },
+                };
+                updateActivityDefinitions({
+                    queryClient,
+                    categoryId: category.id,
+                    activityDefinition: newActivityDefinition,
                 });
+
+                updateActivityDefinition(newActivityDefinition);
+                setEditActivityDefinition(newActivityDefinition);
                 setDisplayRepeatingSetting(repeatSetting.repeatSetting);
             } else {
-                setEditActivityDefinition({
+                const newActivityDefinition: ActivityDefinition<T> = {
                     id: displayActivityDefinition.id,
                     data: {
                         ...displayActivityDefinition.data,
                         type: 'repeating',
                         repeatConfig: repeatSetting.repeatSetting.repeatConfig,
-                        end: repeatSetting.repeatSetting.endConfig,
+                        endConfig: repeatSetting.repeatSetting.endConfig,
                         activitySetting,
                         exceptions: new Map(),
                     },
+                };
+                updateActivityDefinitions({
+                    queryClient,
+                    categoryId: category.id,
+                    activityDefinition: newActivityDefinition,
                 });
+
+                updateActivityDefinition(newActivityDefinition);
+
+                setEditActivityDefinition(newActivityDefinition);
                 setDisplayRepeatingSetting(repeatSetting.repeatSetting);
             }
         },
-        [displayActivityDefinition]
+        [
+            category.id,
+            displayActivityDefinition.data,
+            displayActivityDefinition.id,
+            queryClient,
+        ]
     );
 
     const activitySettings: ActivitySetting<T>[] = useMemo(() => {

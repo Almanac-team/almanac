@@ -29,13 +29,13 @@ export function isEventSetting(
 export function isTask(
     activity: ActivitySetting<TaskSetting | EventSetting | undefined>
 ): activity is ActivitySetting<TaskSetting> {
-    return isTaskSetting(activity.setting);
+    return activity.activityType === 'task';
 }
 
 export function isEvent(
     activity: ActivitySetting<TaskSetting | EventSetting | undefined>
 ): activity is ActivitySetting<EventSetting> {
-    return isEventSetting(activity.setting);
+    return activity.activityType === 'event';
 }
 
 function intToDayOfWeek(day: number) {

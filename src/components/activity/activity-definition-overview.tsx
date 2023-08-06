@@ -366,6 +366,11 @@ export function ActivityDefinitionOverview({
 
             updateActivityDefinition(newActivityDefinition)
                 .then(() => {
+                    updateActivityDefinitions({
+                        queryClient,
+                        categoryId: category.id,
+                        activityDefinition: newActivityDefinition,
+                    });
                     setEditActivityDefinition(newActivityDefinition);
                     setDisplayRepeatingSetting(repeatSetting.repeatSetting);
                 })

@@ -160,8 +160,8 @@ model Activity {
   type                 ActivityType
   task                 Task?
   event                Event?
-  GeneratedEvent       GeneratedEvent[]
-  ActivityZonePair     ActivityZonePair[]
+  generatedEvent       GeneratedEvent[]
+  activityZonePair     ActivityZonePair[]
 
   @@index([activityDefinitionId])
 }
@@ -225,7 +225,7 @@ model Zone {
   color            String
   user             User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   regions          Region[]
-  ActivityZonePair ActivityZonePair[]
+  activityZonePair ActivityZonePair[]
 
   @@index([userId])
   @@index([id])

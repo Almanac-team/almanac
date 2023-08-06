@@ -1,5 +1,5 @@
-import { type TimeConfig } from '~/components/time_picker/date';
 import { type ZoneInfo } from '~/components/zone/models';
+import { type TimeConfig } from '~/components/time_picker/models';
 
 export interface CategoryInfo {
     id: string;

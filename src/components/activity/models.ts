@@ -8,6 +8,14 @@ export interface CategoryInfo {
     textColor?: string;
 }
 
+export type TaskActivitySetting = Omit<ActivitySetting, 'setting'> & {
+    setting: { type: 'task'; value: TaskSetting };
+};
+
+export type EventActivitySetting = Omit<ActivitySetting, 'setting'> & {
+    setting: { type: 'event'; value: EventSetting };
+};
+
 export interface ActivitySetting {
     id: string;
     name: string;

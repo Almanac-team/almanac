@@ -9,7 +9,8 @@
     "lint": "next lint",
     "start": "next start",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "jest --watch"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^16.3.0",
@@ -38,7 +39,10 @@
     "@storybook/nextjs": "^7.0.23",
     "@storybook/react": "^7.0.23",
     "@storybook/testing-library": "^0.0.14-next.2",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^14.0.0",
     "@types/eslint": "^8.37.0",
+    "@types/jest": "^29.5.3",
     "@types/node": "^18.16.0",
     "@types/prettier": "^2.7.2",
     "@types/react": "^18.2.6",
@@ -49,6 +53,8 @@
     "eslint": "^8.45.0",
     "eslint-config-next": "^13.4.2",
     "eslint-plugin-storybook": "^0.6.12",
+    "jest": "^29.6.2",
+    "jest-environment-jsdom": "^29.6.2",
     "postcss": "^8.4.21",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.2.8",

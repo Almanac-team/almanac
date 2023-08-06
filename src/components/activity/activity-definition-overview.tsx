@@ -223,7 +223,7 @@ function ActivityOverview({
     const [isOpen, setIsOpen] = useState(false);
     const [updating, isUpdating] = useState(false);
 
-    let deadline;
+    let deadline: Date;
     let icon;
     const activity = activitySetting;
     if (activity.setting.type === 'task') {
@@ -251,7 +251,13 @@ function ActivityOverview({
                 </div>
                 <div className="flex space-x-2">
                     <Pill className="bg-gray-400">{icon}</Pill>
-                    <Pill className="bg-gray-400">17:00 - 18:00</Pill>
+                    <Pill className="bg-gray-400">
+                        {deadline.getHours().toString()}:
+                        {deadline.getMinutes().toString().padStart(2, '0')}
+                    </Pill>
+                    <Pill className="bg-gray-400">
+                        {deadline.toDateString()}
+                    </Pill>
                 </div>
             </div>
 
@@ -276,8 +282,13 @@ function ActivityOverview({
                                 }
                             ) => {
                                 isUpdating(true);
-                                onSubmit?.(activitySetting, repeatSetting, () =>
-                                    setIsOpen(false)
+                                onSubmit?.(
+                                    activitySetting,
+                                    repeatSetting,
+                                    () => {
+                                        setIsOpen(false);
+                                        isUpdating(false);
+                                    }
                                 );
                             }}
                             updating={updating}

@@ -7,7 +7,6 @@ import {
     type ActivityCompletions,
     type ActivityDefinition,
     type EndConfig,
-    type RepeatingActivity,
 } from '~/components/activity/activity-definition-models';
 
 function checkGenerationViolation(
@@ -92,7 +91,7 @@ export function getActivitiesFromDefinition(
         const activitySetting: ActivitySettingWithCompletion = {
             ...repeatingActivity.activitySetting,
             setting,
-            id: `virtual-${activitySettings.length}`,
+            id: `${activityDefinition.id}-${activitySettings.length}`,
             completed: checkIfComplete(i, activityCompletion),
         };
 

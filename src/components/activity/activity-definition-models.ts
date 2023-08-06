@@ -58,4 +58,10 @@ export interface RepeatingActivity {
 export interface ActivityDefinition {
     id: string;
     data: SingleActivity | RepeatingActivity;
+    activityCompletions?: ActivityCompletions;
+}
+
+export interface ActivityCompletions {
+    latestFinishedIndex: number;
+    exceptions: Set<number>;
 }

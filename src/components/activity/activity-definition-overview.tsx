@@ -10,13 +10,7 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import { CategoryContext } from '~/components/activity/activity-column';
-import {
-    ActivityUpdateModal,
-    isEvent,
-    isEventSetting,
-    isTask,
-    isTaskSetting,
-} from '~/components/activity/activity-settings';
+import { ActivityUpdateModal } from '~/components/activity/activity-settings';
 
 import {
     AdjustmentsHorizontalIcon,
@@ -27,20 +21,12 @@ import { TimeContext } from '~/pages/_app';
 import { IconButton } from '@material-tailwind/react';
 import { api } from '~/utils/api';
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
-import {
-    type ActivitySetting,
-    type EventSetting,
-    type TaskSetting,
-} from '~/components/activity/models';
+import { type ActivitySetting } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
 import {
     type ActivityDefinition,
-    type EndConfig,
     generateVirtualActivities,
-    type RepeatConfig,
-    type RepeatingActivity,
     type RepeatSetting,
-    type SingleActivity,
 } from '~/components/activity/activity-definition-models';
 import { updateActivityDefinitions } from '~/data/activityDefinitions/mutate';
 

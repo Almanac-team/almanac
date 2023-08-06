@@ -24,10 +24,10 @@ import { type ActivitySetting } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
 import {
     type ActivityDefinition,
-    generateVirtualActivities,
     type RepeatSetting,
 } from '~/components/activity/activity-definition-models';
 import { updateActivityDefinitions } from '~/data/activityDefinitions/mutate';
+import { generateVirtualActivities } from '~/data/activityDefinitions/virtualActivities';
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;

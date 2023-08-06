@@ -38,7 +38,7 @@ export function generateVirtualActivities(
     const activitySettings: ActivitySetting[] = [];
 
     const repeatConfig = repeatingActivity.repeatConfig;
-    const end = repeatingActivity.endConfig;
+    const endConfig = repeatingActivity.endConfig;
 
     for (let i = startShift; i < maxCount; i++) {
         const setting:
@@ -90,7 +90,7 @@ export function generateVirtualActivities(
             checkGenerationViolation(
                 activitySetting,
                 activitySettings.length + 1,
-                end
+                endConfig
             )
         ) {
             return activitySettings;

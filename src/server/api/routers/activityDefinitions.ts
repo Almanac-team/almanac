@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc';
 import {
+    type ActivityCompletions,
     type ActivityDefinition,
     type EndConfig,
     type RepeatConfig,
@@ -353,6 +354,36 @@ const getEndConfigSchema = (endConfig: z.infer<typeof EndConfigSchema>) => {
     };
 };
 
+const activityCompletion = Prisma.validator<Prisma.ActivityCompletionsArgs>()({
+    include: {
+        exceptions: true,
+    },
+});
+export type PrismaActivityCompletionType = Prisma.ActivityCompletionsGetPayload<
+    typeof activityCompletion
+>;
+
+export function ConvertActivityCompletion(
+    activityCompletion: PrismaActivityCompletionType
+): ActivityCompletions | null {
+    if (
+        activityCompletion === null ||
+        activityCompletion.exceptions === undefined
+    )
+        return null;
+
+    const exceptions = new Set<number>();
+
+    activityCompletion.exceptions.forEach((exception) => {
+        exceptions.add(exception.index);
+    });
+
+    return {
+        latestFinishedIndex: activityCompletion.latestFinishedIndex,
+        exceptions,
+    };
+}
+
 const activityDefinitionsRouter = createTRPCRouter({
     /**
      * This is an internal hook, don't use it. Use useQueryActivity from the data folder instead.
@@ -397,6 +428,11 @@ const activityDefinitionsRouter = createTRPCRouter({
                             },
                             repeatConfig: true,
                             endConfig: true,
+                            activityCompletions: {
+                                include: {
+                                    exceptions: true,
+                                },
+                            },
                         },
                     });
                 if (!activityDefinitionInfo) return null;
@@ -410,17 +446,22 @@ const activityDefinitionsRouter = createTRPCRouter({
                 const activity = ConvertActivity(rawActivitySetting);
                 if (!activity) return undefined;
 
-                if (activityDefinitionInfo.repeatConfig === null) {
-                    return {
-                        id: activityDefinitionInfo.id,
-                        data: {
-                            type: 'single',
-                            activitySetting: activity,
-                        },
+                const activityCompletions =
+                    activityDefinitionInfo.activityCompletions
+                        ? ConvertActivityCompletion(
+                              activityDefinitionInfo.activityCompletions
+                          ) ?? undefined
+                        : undefined;
 
-                        categoryId: activityDefinitionInfo.categoryId,
-                    };
-                }
+                return {
+                    id: activityDefinitionInfo.id,
+                    data: {
+                        type: 'single',
+                        activitySetting: activity,
+                    },
+                    activityCompletions,
+                    categoryId: activityDefinitionInfo.categoryId,
+                };
             }
         ),
 
@@ -457,6 +498,11 @@ const activityDefinitionsRouter = createTRPCRouter({
                         },
                         repeatConfig: true,
                         endConfig: true,
+                        activityCompletions: {
+                            include: {
+                                exceptions: true,
+                            },
+                        },
                     },
                 });
 
@@ -484,12 +530,20 @@ const activityDefinitionsRouter = createTRPCRouter({
                                 ConvertActivity(rawActivitySetting);
                             if (!activity) return undefined;
 
+                            const activityCompletions =
+                                activityDefinitionInfo.activityCompletions
+                                    ? ConvertActivityCompletion(
+                                          activityDefinitionInfo.activityCompletions
+                                      ) ?? undefined
+                                    : undefined;
+
                             return {
                                 id: activityDefinitionInfo.id,
                                 data: {
                                     type: 'single',
                                     activitySetting: activity,
                                 },
+                                activityCompletions,
                             };
                         } else {
                             const rawActivitySettings =
@@ -505,6 +559,13 @@ const activityDefinitionsRouter = createTRPCRouter({
                                 ConvertActivity(rawActivitySetting);
                             if (!activity) return undefined;
 
+                            const activityCompletions =
+                                activityDefinitionInfo.activityCompletions
+                                    ? ConvertActivityCompletion(
+                                          activityDefinitionInfo.activityCompletions
+                                      ) ?? undefined
+                                    : undefined;
+
                             return {
                                 id: activityDefinitionInfo.id,
                                 data: {
@@ -518,6 +579,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                                     ),
                                     exceptions: new Map(),
                                 },
+                                activityCompletions,
                             };
                         }
                     }

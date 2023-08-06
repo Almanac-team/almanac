@@ -6,13 +6,13 @@ import {
     type RepeatConfig,
 } from '~/components/activity/activity-definition-models';
 import {
-    ActivitySchema,
-    ConvertActivity,
-    convertTimeConfigToInt,
-    type EventSchema,
-    type TaskSchema,
-} from '~/server/api/routers/activities';
-import { Prisma } from '.prisma/client';
+    type ActivitySetting,
+    type EventSetting,
+    type TaskSetting,
+} from '~/components/activity/models';
+import { ActivityType as PrismaActivityEnum, Prisma } from '@prisma/client';
+import { type ZoneInfo } from '~/components/zone/models';
+import { type TimeConfig as InternalTimeConfig } from '~/components/time_picker/date';
 
 export const RepeatConfigZodSchema = z.object({
     every: z.number(),
@@ -123,6 +123,198 @@ export const EndConfigSchema = z.discriminatedUnion('type', [
         type: z.literal('never'),
     }),
 ]);
+
+export const TimeConfig = z.object({
+    unit: z.enum(['year', 'month', 'week', 'day', 'hour', 'minute']),
+    value: z.number(),
+});
+export const TaskSchema = z.object({
+    at: z.date(),
+    estimatedRequiredTime: z.number(),
+    deadlineMod: TimeConfig,
+    reminderMod: TimeConfig,
+    startMod: TimeConfig,
+});
+export const EventSchema = z.object({
+    at: z.date(),
+    estimatedRequiredTime: z.number(),
+    reminderMod: TimeConfig,
+    startMod: TimeConfig,
+});
+export const ActivitySchema = z.object({
+    name: z.string(),
+    setting: z.discriminatedUnion('type', [
+        z.object({
+            type: z.literal('task'),
+            value: TaskSchema,
+        }),
+        z.object({
+            type: z.literal('event'),
+            value: EventSchema,
+        }),
+    ]),
+});
+
+export function convertIntToTimeConfig(time: number): InternalTimeConfig {
+    if (time >= 525600) {
+        return {
+            unit: 'year',
+            value: time / 525600,
+        };
+    } else if (time >= 43200) {
+        return {
+            unit: 'month',
+            value: time / 43200,
+        };
+    } else if (time >= 10080) {
+        return {
+            unit: 'week',
+            value: time / 10080,
+        };
+    } else if (time >= 1440) {
+        return {
+            unit: 'day',
+            value: time / 1440,
+        };
+    } else if (time >= 60) {
+        return {
+            unit: 'hour',
+            value: time / 60,
+        };
+    } else {
+        return {
+            unit: 'minute',
+            value: time,
+        };
+    }
+}
+
+export function convertTimeConfigToInt(timeConfig: InternalTimeConfig): number {
+    switch (timeConfig.unit) {
+        case 'minute':
+            return timeConfig.value;
+        case 'hour':
+            return timeConfig.value * 60;
+        case 'day':
+            return timeConfig.value * 24 * 60;
+        case 'week':
+            return timeConfig.value * 7 * 24 * 60;
+        case 'month':
+            return timeConfig.value * 30 * 24 * 60;
+        case 'year':
+            return timeConfig.value * 365 * 24 * 60;
+    }
+}
+
+const activityWithDetails = Prisma.validator<Prisma.ActivityArgs>()({
+    include: {
+        task: true,
+        event: true,
+
+        ActivityZonePair: {
+            include: {
+                zone: true,
+            },
+        },
+    },
+});
+export type PrismaActivityType = Prisma.ActivityGetPayload<
+    typeof activityWithDetails
+>;
+
+export function ConvertActivity(
+    activity: PrismaActivityType
+): ActivitySetting | undefined {
+    let setting:
+        | { type: 'task'; value: TaskSetting }
+        | { type: 'event'; value: EventSetting };
+
+    if (activity.type === PrismaActivityEnum.task) {
+        if (!activity.task) return undefined;
+        const value = ConvertTask(activity.task);
+        if (!value) return undefined;
+        setting = { type: 'task', value };
+    } else {
+        if (!activity.event) return undefined;
+        const value = ConvertEvent(activity.event);
+        if (!value) return undefined;
+        setting = { type: 'event', value };
+    }
+
+    if (!setting.value) {
+        return undefined;
+    }
+
+    const include: ZoneInfo[] = [];
+    const exclude: ZoneInfo[] = [];
+
+    for (const pair of activity.ActivityZonePair) {
+        const zone = {
+            id: pair.zone.id,
+            name: pair.zone.name,
+            color: pair.zone.color,
+        };
+        if (pair.zoneType === 'include') {
+            include.push(zone);
+        } else if (pair.zoneType === 'exclude') {
+            exclude.push(zone);
+        }
+    }
+
+    return {
+        id: activity.id,
+        name: activity.name,
+        zones: {
+            include,
+            exclude,
+        },
+        setting,
+    };
+}
+
+const taskWithDetails = Prisma.validator<Prisma.TaskArgs>()({
+    select: {
+        activityId: true,
+        dueDate: true,
+        estimatedTime: true,
+        deadlineMod: true,
+        reminderMod: true,
+        startMod: true,
+    },
+});
+export type PrismaTaskType = Prisma.TaskGetPayload<typeof taskWithDetails>;
+
+export function ConvertTask(task: PrismaTaskType): TaskSetting | null {
+    if (task === null || task === undefined) return null;
+    return {
+        at: task.dueDate,
+        estimatedRequiredTime: task.estimatedTime,
+        deadlineMod: convertIntToTimeConfig(task.deadlineMod),
+        reminderMod: convertIntToTimeConfig(task.reminderMod),
+        startMod: convertIntToTimeConfig(task.startMod),
+    };
+}
+
+const eventWithDetails = Prisma.validator<Prisma.EventArgs>()({
+    select: {
+        activityId: true,
+        startDate: true,
+        estimatedTime: true,
+        reminderMod: true,
+        startMod: true,
+    },
+});
+export type PrismaEventType = Prisma.EventGetPayload<typeof eventWithDetails>;
+
+export function ConvertEvent(event: PrismaEventType): EventSetting | null {
+    if (event === null || event === undefined) return null;
+    return {
+        at: event.startDate,
+        estimatedRequiredTime: event.estimatedTime,
+        reminderMod: convertIntToTimeConfig(event.reminderMod),
+        startMod: convertIntToTimeConfig(event.startMod),
+    };
+}
 
 const getTaskSchema = (setting: z.infer<typeof TaskSchema>) => {
     return {

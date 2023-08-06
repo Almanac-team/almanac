@@ -32,14 +32,15 @@ function checkGenerationViolation(
 
 export function generateVirtualActivities(
     repeatingActivity: RepeatingActivity,
-    count: number
+    maxCount: number,
+    startShift = 0
 ): ActivitySetting[] {
     const activitySettings: ActivitySetting[] = [];
 
     const repeatConfig = repeatingActivity.repeatConfig;
     const end = repeatingActivity.endConfig;
 
-    for (let i = 0; i < count; i++) {
+    for (let i = startShift; i < maxCount; i++) {
         const setting:
             | { type: 'task'; value: TaskSetting }
             | { type: 'event'; value: EventSetting } =

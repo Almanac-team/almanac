@@ -211,7 +211,7 @@ const activityWithDetails = Prisma.validator<Prisma.ActivityArgs>()({
         task: true,
         event: true,
 
-        ActivityZonePair: {
+        activityZonePair: {
             include: {
                 zone: true,
             },
@@ -248,7 +248,7 @@ export function ConvertActivity(
     const include: ZoneInfo[] = [];
     const exclude: ZoneInfo[] = [];
 
-    for (const pair of activity.ActivityZonePair) {
+    for (const pair of activity.activityZonePair) {
         const zone = {
             id: pair.zone.id,
             name: pair.zone.name,
@@ -388,7 +388,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                                 include: {
                                     task: true,
                                     event: true,
-                                    ActivityZonePair: {
+                                    activityZonePair: {
                                         include: {
                                             zone: true,
                                         },
@@ -448,7 +448,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                             include: {
                                 task: true,
                                 event: true,
-                                ActivityZonePair: {
+                                activityZonePair: {
                                     include: {
                                         zone: true,
                                     },

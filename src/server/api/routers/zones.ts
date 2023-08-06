@@ -100,7 +100,7 @@ const zonesRouter = createTRPCRouter({
                     },
                 },
                 include: {
-                    ActivityZonePair: {
+                    activityZonePair: {
                         include: {
                             zone: {
                                 include: {
@@ -112,7 +112,7 @@ const zonesRouter = createTRPCRouter({
                 },
             });
 
-            return activity?.ActivityZonePair.map((pair) => {
+            return activity?.activityZonePair.map((pair) => {
                 return {
                     id: pair.zone.id,
                     name: pair.zone.name,

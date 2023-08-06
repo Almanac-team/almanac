@@ -11,7 +11,7 @@ export interface TimeConfig {
     unit: TimeConfigUnit;
 }
 
-export function convertIntToTimeConfig(time: number): TimeConfig {
+export function convertMinutesToTimeConfig(time: number): TimeConfig {
     if (time >= 525600) {
         return {
             unit: 'year',
@@ -45,7 +45,7 @@ export function convertIntToTimeConfig(time: number): TimeConfig {
     }
 }
 
-export function convertTimeConfigToInt(timeConfig: TimeConfig): number {
+export function convertTimeConfigToMinutes(timeConfig: TimeConfig): number {
     switch (timeConfig.unit) {
         case 'minute':
             return timeConfig.value;
@@ -59,5 +59,7 @@ export function convertTimeConfigToInt(timeConfig: TimeConfig): number {
             return timeConfig.value * 30 * 24 * 60;
         case 'year':
             return timeConfig.value * 365 * 24 * 60;
+        default:
+            return -1;
     }
 }

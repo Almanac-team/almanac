@@ -91,4 +91,30 @@ describe('compute activity completions diff', () => {
         expect(removed).toEqual([]);
         expect(newLatestFinishedIndex).toEqual(6);
     });
+
+    it('should move index down 1', () => {
+        const completions = {
+            latestFinishedIndex: 5,
+            exceptions: new Set<number>([]),
+        };
+
+        const { added, removed, newLatestFinishedIndex } =
+            computeActivityCompletionsDiff(completions, 5, false);
+        expect(added).toEqual([]);
+        expect(removed).toEqual([]);
+        expect(newLatestFinishedIndex).toEqual(4);
+    });
+
+    it('should set index to -1', () => {
+        const completions = {
+            latestFinishedIndex: 0,
+            exceptions: new Set<number>([]),
+        };
+
+        const { added, removed, newLatestFinishedIndex } =
+            computeActivityCompletionsDiff(completions, 0, false);
+        expect(added).toEqual([]);
+        expect(removed).toEqual([]);
+        expect(newLatestFinishedIndex).toEqual(-1);
+    });
 });

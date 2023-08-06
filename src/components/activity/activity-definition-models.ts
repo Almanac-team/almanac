@@ -96,6 +96,7 @@ export function computeActivityCompletionsDiff(
         }
     } else {
         if (index == latestFinishedIndex) {
+            newLatestFinishedIndex = index - 1;
             for (let i = index - 1; i >= 0; i--) {
                 if (exceptions.has(i)) {
                     removed.push(i);

@@ -1,4 +1,8 @@
-import { type ActivitySetting } from '~/components/activity/models';
+import {
+    type ActivitySetting,
+    type EventSetting,
+    type TaskSetting,
+} from '~/components/activity/models';
 
 export type RepeatSetting =
     | { type: 'single' }
@@ -92,8 +96,26 @@ export function generateVirtualActivities(
     const end = repeatingActivity.endConfig;
 
     for (let i = 0; i < count; i++) {
+        const setting:
+            | { type: 'task'; value: TaskSetting }
+            | { type: 'event'; value: EventSetting } =
+            repeatingActivity.activitySetting.setting.type === 'task'
+                ? {
+                      type: 'task',
+                      value: {
+                          ...repeatingActivity.activitySetting.setting.value,
+                      },
+                  }
+                : {
+                      type: 'event',
+                      value: {
+                          ...repeatingActivity.activitySetting.setting.value,
+                      },
+                  };
+
         const activitySetting: ActivitySetting = {
             ...repeatingActivity.activitySetting,
+            setting,
             id: `virtual-${activitySettings.length}`,
         };
 
@@ -114,13 +136,11 @@ export function generateVirtualActivities(
                 break;
         }
 
-        activitySetting.setting.value = {
-            ...activitySetting.setting.value,
-            at: new Date(
-                repeatingActivity.activitySetting.setting.value.at.getTime() +
-                    i * repeatingActivity.repeatConfig.every * multiplier
-            ),
-        };
+        activitySetting.setting.value.at = new Date(
+            repeatingActivity.activitySetting.setting.value.at.getTime() +
+                i * repeatingActivity.repeatConfig.every * multiplier
+        );
+
         if (
             checkGenerationViolation(
                 activitySetting,

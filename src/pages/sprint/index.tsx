@@ -1,8 +1,7 @@
 import Head from 'next/head';
 import { WeekView } from '~/components/timeline/timeline-view';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@material-tailwind/react';
-import { api } from '~/utils/api';
 import { type ScheduledBlock } from '~/components/timeline/models';
 
 export function getWeekStart(date: Date) {
@@ -24,13 +23,13 @@ export default function Home() {
     const [activityList, setActivityList] = useState<ScheduledBlock[]>([]);
     const [firstDayMidnight] = useState<Date>(getWeekStart(new Date()));
 
-    const { data } = api.generatedEvents.getGeneratedEvents.useQuery();
+    // const { data } = api.generatedEvents.getGeneratedEvents.useQuery();
 
-    useEffect(() => {
-        if (data) {
-            setActivityList(data);
-        }
-    }, [data]);
+    // useEffect(() => {
+    //     if (data) {
+    //         setActivityList(data);
+    //     }
+    // }, [data]);
 
     return (
         <>

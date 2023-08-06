@@ -861,15 +861,31 @@ const activityDefinitionsRouter = createTRPCRouter({
         .input(
             z.object({
                 activityDefinitionId: z.string(),
-                index: z.number(),
-                checked: z.boolean(),
+                newIndex: z.number(),
+                exceptions: z.array(z.number()),
             })
         )
         .mutation(async ({ ctx, input }): Promise<boolean> => {
             const userId = ctx.session.user.id;
 
-            const activityCompletions =
-                await ctx.prisma.activityCompletions.findUnique({
+            const [, upsert] = await ctx.prisma.$transaction([
+                ctx.prisma.activityCompletionExceptions.deleteMany({
+                    where: {
+                        activityDefinitionId: input.activityDefinitionId,
+                        activityCompletion: {
+                            activityDefinition: {
+                                category: {
+                                    userId: userId,
+                                },
+                            },
+                        },
+                        index: {
+                            notIn: input.exceptions,
+                        },
+                    },
+                }),
+
+                ctx.prisma.activityCompletions.upsert({
                     where: {
                         activityDefinitionId: input.activityDefinitionId,
                         activityDefinition: {
@@ -878,53 +894,30 @@ const activityDefinitionsRouter = createTRPCRouter({
                             },
                         },
                     },
-                    include: {
-                        exceptions: true,
+                    create: {
+                        activityDefinitionId: input.activityDefinitionId,
+                        latestFinishedIndex: input.newIndex,
+                        exceptions: {
+                            create: input.exceptions.map((index) => ({
+                                index: index,
+                            })),
+                        },
                     },
-                });
-
-            const existingActivityCompletions = activityCompletions
-                ? ConvertActivityCompletion(activityCompletions)
-                : null;
-
-            const { newLatestFinishedIndex, added, removed } =
-                computeActivityCompletionsDiff(
-                    existingActivityCompletions,
-                    input.index,
-                    input.checked
-                );
-
-            return (
-                (
-                    await ctx.prisma.activityCompletions.upsert({
-                        where: {
-                            activityDefinitionId: input.activityDefinitionId,
-                        },
-                        create: {
-                            activityDefinitionId: input.activityDefinitionId,
-                            latestFinishedIndex: newLatestFinishedIndex,
-                            exceptions: {
-                                create: added.map((index) => ({
+                    update: {
+                        latestFinishedIndex: input.newIndex,
+                        exceptions: {
+                            createMany: {
+                                data: input.exceptions.map((index) => ({
                                     index: index,
                                 })),
+                                skipDuplicates: true,
                             },
                         },
-                        update: {
-                            latestFinishedIndex: newLatestFinishedIndex,
-                            exceptions: {
-                                create: added.map((index) => ({
-                                    index: index,
-                                })),
-                                deleteMany: {
-                                    index: {
-                                        in: removed,
-                                    },
-                                },
-                            },
-                        },
-                    })
-                ).latestFinishedIndex === input.index
-            );
+                    },
+                }),
+            ]);
+
+            return upsert.latestFinishedIndex === input.newIndex;
         }),
 });
 

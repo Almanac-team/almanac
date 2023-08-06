@@ -399,20 +399,21 @@ export function ActivityDefinitionOverview({
                 index,
                 checked
             );
-
-            const newActivityCompletions: ActivityCompletions = {
-                latestFinishedIndex: diff.newLatestFinishedIndex,
-                exceptions: new Set<number>(
+            let newActivityCompletions: ActivityCompletions | undefined =
+                undefined;
+            if (diff.newLatestFinishedIndex !== -1) {
+                const exceptions = new Set<number>(
                     activityDefinition.activityCompletions?.exceptions ?? []
-                ),
-            };
+                );
 
-            diff.added.forEach((index) =>
-                newActivityCompletions.exceptions.add(index)
-            );
-            diff.removed.forEach((index) =>
-                newActivityCompletions.exceptions.delete(index)
-            );
+                diff.added.forEach((index) => exceptions.add(index));
+                diff.removed.forEach((index) => exceptions.delete(index));
+
+                newActivityCompletions = {
+                    latestFinishedIndex: diff.newLatestFinishedIndex,
+                    exceptions,
+                };
+            }
 
             updateActivityDefinitions({
                 queryClient,
@@ -425,8 +426,8 @@ export function ActivityDefinitionOverview({
 
             updateActivityCompletions({
                 activityDefinitionId: activityDefinition.id,
-                index,
-                checked,
+                newIndex: newActivityCompletions?.latestFinishedIndex ?? -1,
+                exceptions: [...(newActivityCompletions?.exceptions ?? [])],
             })
                 .then(() => {
                     return;

@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { type ActivityDefinition } from '~/components/activity/activity-definition-models';
 
-export function useQueryActivityDefinitions({
+export function useQueryActivityDefinitionsByCategory({
     categoryId,
 }: {
     categoryId: string;

@@ -35,7 +35,6 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import {
     type ActivityDefinition,
-    type ActivityDefinitionUnion,
     type EndConfig,
     generateVirtualActivities,
     type RepeatConfig,
@@ -208,17 +207,17 @@ function Pill({
     );
 }
 
-function ActivityOverview<T extends TaskSetting | EventSetting>({
+function ActivityOverview({
     index,
     activitySetting,
     repeatSetting,
     onSubmit,
 }: {
     index: number;
-    activitySetting: ActivitySetting<T>;
+    activitySetting: ActivitySetting;
     repeatSetting: RepeatSetting;
     onSubmit?: (
-        activitySetting: ActivitySetting<T>,
+        activitySetting: ActivitySetting,
         repeatSetting: {
             index: number;
             scope: 'this' | 'all' | 'future';
@@ -232,14 +231,12 @@ function ActivityOverview<T extends TaskSetting | EventSetting>({
     let deadline;
     let icon;
     const activity = activitySetting;
-    if (isTaskSetting(activity.setting)) {
-        deadline = activity.setting.at;
+    if (activity.setting.type === 'task') {
+        deadline = activity.setting.value.at;
         icon = <FlagIcon className="h-8 w-6" />;
-    } else if (isEventSetting(activity.setting)) {
-        deadline = activity.setting.at;
-        icon = <ClockIcon className="h-8 w-6" />;
     } else {
-        return <></>;
+        deadline = activity.setting.value.at;
+        icon = <ClockIcon className="h-8 w-6" />;
     }
 
     return (
@@ -266,7 +263,7 @@ function ActivityOverview<T extends TaskSetting | EventSetting>({
                         </IconButton>
                     </MenuHandler>
                     <MenuBody>
-                        <ActivityUpdateModal<T>
+                        <ActivityUpdateModal
                             index={index}
                             activitySetting={activitySetting}
                             repeatSetting={repeatSetting}
@@ -281,13 +278,13 @@ function ActivityOverview<T extends TaskSetting | EventSetting>({
 
 export const ActivityDefinitionContext = createContext<
     | {
-          activityDefinition: ActivityDefinitionUnion;
+          activityDefinition: ActivityDefinition;
       }
     | undefined
 >(undefined);
 
-const extractRepeatSetting = <T extends TaskSetting | EventSetting>(
-    activityDefinition: ActivityDefinition<T>
+const extractRepeatSetting = (
+    activityDefinition: ActivityDefinition
 ): RepeatSetting => {
     if (activityDefinition.data.type === 'single') {
         return { type: 'single' };
@@ -302,7 +299,7 @@ const extractRepeatSetting = <T extends TaskSetting | EventSetting>(
 
 export function ActivityDefinitionOverview<
     T extends TaskSetting | EventSetting
->({ activityDefinition }: { activityDefinition: ActivityDefinition<T> }) {
+>({ activityDefinition }: { activityDefinition: ActivityDefinition }) {
     const category = useContext(CategoryContext);
     const queryClient = useQueryClient();
 
@@ -310,7 +307,7 @@ export function ActivityDefinitionOverview<
         api.activityDefinitions.updateActivityDefinition.useMutation();
 
     const [displayActivityDefinition, setEditActivityDefinition] =
-        useState<ActivityDefinition<T>>(activityDefinition);
+        useState<ActivityDefinition>(activityDefinition);
 
     const [displayRepeatingSetting, setDisplayRepeatingSetting] =
         useState<RepeatSetting>(extractRepeatSetting(activityDefinition));
@@ -323,17 +320,17 @@ export function ActivityDefinitionOverview<
 
     const submitChange = useCallback(
         (
-            activitySetting: ActivitySetting<T>,
+            activitySetting: ActivitySetting,
             repeatSetting: {
                 index: number;
                 scope: 'this' | 'all' | 'future';
                 repeatSetting: RepeatSetting;
             }
         ) => {
-            console.log(activitySetting, repeatSetting);
+            let newActivityDefinition: ActivityDefinition;
 
             if (repeatSetting.repeatSetting.type === 'single') {
-                const newActivityDefinition: ActivityDefinition<T> = {
+                newActivityDefinition = {
                     id: displayActivityDefinition.id,
                     data: {
                         ...displayActivityDefinition.data,
@@ -346,12 +343,8 @@ export function ActivityDefinitionOverview<
                     categoryId: category.id,
                     activityDefinition: newActivityDefinition,
                 });
-
-                updateActivityDefinition(newActivityDefinition);
-                setEditActivityDefinition(newActivityDefinition);
-                setDisplayRepeatingSetting(repeatSetting.repeatSetting);
             } else {
-                const newActivityDefinition: ActivityDefinition<T> = {
+                newActivityDefinition = {
                     id: displayActivityDefinition.id,
                     data: {
                         ...displayActivityDefinition.data,
@@ -367,27 +360,36 @@ export function ActivityDefinitionOverview<
                     categoryId: category.id,
                     activityDefinition: newActivityDefinition,
                 });
-
-                updateActivityDefinition(newActivityDefinition);
-
-                setEditActivityDefinition(newActivityDefinition);
-                setDisplayRepeatingSetting(repeatSetting.repeatSetting);
             }
+
+            updateActivityDefinition(newActivityDefinition)
+                .then(() => {
+                    setEditActivityDefinition(newActivityDefinition);
+                    setDisplayRepeatingSetting(repeatSetting.repeatSetting);
+                })
+                .catch(() => {
+                    setEditActivityDefinition(activityDefinition);
+                    setDisplayRepeatingSetting(
+                        extractRepeatSetting(activityDefinition)
+                    );
+                });
         },
         [
+            activityDefinition,
             category.id,
             displayActivityDefinition.data,
             displayActivityDefinition.id,
             queryClient,
+            updateActivityDefinition,
         ]
     );
 
-    const activitySettings: ActivitySetting<T>[] = useMemo(() => {
+    const activitySettings: ActivitySetting[] = useMemo(() => {
         const data = displayActivityDefinition.data;
         if (data.type === 'single') {
             return [data.activitySetting];
         } else {
-            const g = generateVirtualActivities<T>(100, data);
+            const g = generateVirtualActivities(100, data);
             console.log(g);
             return g;
         }
@@ -408,7 +410,7 @@ export function ActivityDefinitionOverview<
         inner = (
             <div className="space-y-1 border-y-4 border-gray-800 bg-gray-400 p-1">
                 {activitySettings.map(
-                    (activitySetting: ActivitySetting<T>, index: number) => (
+                    (activitySetting: ActivitySetting, index: number) => (
                         <ActivityOverview
                             key={index}
                             index={index}

@@ -7,18 +7,14 @@ import { useRouter } from 'next/router';
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
 import {
     EventSettingConfig,
-    isEvent,
-    isTask,
     TaskSettingConfig,
 } from '~/components/activity/activity-settings';
 import { Tab, Tabs } from '~/components/generic/tab';
 import {
-    type ActivitySetting,
-    type ActivityType,
     type CategoryInfo,
     type EventSetting,
     type TaskSetting,
-    type ActivitySettingUnion,
+    type ActivitySetting,
 } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
 import { useQueryActivityDefinitions } from '~/data/activityDefinitions/query';
@@ -28,21 +24,20 @@ function ActivityCreateModal({
     onSubmit,
     updating,
 }: {
-    onSubmit?: (activitySetting: ActivitySettingUnion) => void;
+    onSubmit?: (activitySetting: ActivitySetting) => void;
     updating?: boolean;
 }) {
     const [activitySetting, setActivitySetting] = useState<
-        ActivitySetting<undefined>
+        Omit<ActivitySetting, 'setting'>
     >({
         id: '-1',
         name: '',
-        activityType: 'task',
-        setting: undefined,
     });
 
     const [unionSetting, setUnionSetting] = useState<
-        TaskSetting & EventSetting
+        TaskSetting & EventSetting & { activityType: 'task' | 'event' }
     >({
+        activityType: 'task',
         at: (() => {
             const date = new Date();
             date.setHours(23, 59, 0, 0);
@@ -84,20 +79,21 @@ function ActivityCreateModal({
             />
 
             <Tabs
-                activeValue={activitySetting.activityType}
-                onChange={(type) =>
-                    setActivitySetting({
-                        ...activitySetting,
-                        activityType: type as ActivityType,
-                    })
-                }
+                activeValue={unionSetting.activityType}
+                onChange={(type: string) => {
+                    if (type != 'task' && type != 'event') return;
+                    setUnionSetting({
+                        ...unionSetting,
+                        activityType: type,
+                    });
+                }}
                 disabled={updating}
             >
                 <Tab value="task">Task</Tab>
                 <Tab value="event">Event</Tab>
             </Tabs>
 
-            {activitySetting.activityType === 'task' ? (
+            {unionSetting.activityType === 'task' ? (
                 <TaskSettingConfig
                     setting={unionSetting}
                     onChange={(newSetting: TaskSetting) =>
@@ -123,14 +119,18 @@ function ActivityCreateModal({
                     if (activitySetting.name.trim() === '') {
                         setError(true);
                     } else if (onSubmit) {
-                        const setting: TaskSetting | EventSetting =
-                            activitySetting.activityType === 'task'
-                                ? (unionSetting as TaskSetting)
-                                : (unionSetting as EventSetting);
-
                         onSubmit({
                             ...activitySetting,
-                            setting,
+                            setting:
+                                unionSetting.activityType === 'task'
+                                    ? {
+                                          type: 'task',
+                                          value: unionSetting as TaskSetting,
+                                      }
+                                    : {
+                                          type: 'event',
+                                          value: unionSetting as EventSetting,
+                                      },
                         });
                     }
                 }}
@@ -168,10 +168,8 @@ export function ActivityColumn({
     const { data: activityDefinitions } = useQueryActivityDefinitions({
         categoryId: categoryInfo.id,
     });
-    const { mutateAsync: createTaskDefinition } =
-        api.activityDefinitions.createTaskDefinition.useMutation();
-    const { mutateAsync: createEventDefinition } =
-        api.activityDefinitions.createEventDefinition.useMutation();
+    const { mutateAsync: createActivityDefinition } =
+        api.activityDefinitions.createActivityDefinition.useMutation();
     const [isOpen, setIsOpen] = useState(false);
     const [updating, setUpdating] = useState(false);
 
@@ -238,84 +236,36 @@ export function ActivityColumn({
                 </MenuHandler>
                 <MenuBody>
                     <ActivityCreateModal
-                        onSubmit={(activitySetting: ActivitySettingUnion) => {
+                        onSubmit={(activitySetting: ActivitySetting) => {
                             setUpdating(true);
 
-                            if (isTask(activitySetting)) {
-                                createTaskDefinition({
-                                    categoryId: categoryInfo.id,
-                                    data: {
-                                        type: 'single',
-                                        activitySetting,
-                                    },
-                                })
-                                    .then((activityDefinitionId: string) => {
-                                        appendActivityDefinitions({
-                                            queryClient,
-                                            categoryId: categoryInfo.id,
-                                            activityDefinition: {
-                                                id: activityDefinitionId,
-                                                data: {
-                                                    type: 'single',
-                                                    activitySetting,
-                                                },
+                            createActivityDefinition({
+                                categoryId: categoryInfo.id,
+                                data: {
+                                    type: 'single',
+                                    activitySetting,
+                                },
+                            })
+                                .then((activityDefinitionId: string) => {
+                                    appendActivityDefinitions({
+                                        queryClient,
+                                        categoryId: categoryInfo.id,
+                                        activityDefinition: {
+                                            id: activityDefinitionId,
+                                            data: {
+                                                type: 'single',
+                                                activitySetting,
                                             },
-                                        });
-
-                                        setIsOpen(false);
-                                        setUpdating(false);
-                                    })
-                                    .catch(() => {
-                                        setIsOpen(false);
-                                        setUpdating(false);
+                                        },
                                     });
-                            } else if (isEvent(activitySetting)) {
-                                void createEventDefinition({
-                                    categoryId: categoryInfo.id,
-                                    data: {
-                                        type: 'single',
-                                        activitySetting,
-                                    },
+
+                                    setIsOpen(false);
+                                    setUpdating(false);
                                 })
-                                    .then((activityDefinitionId: string) => {
-                                        appendActivityDefinitions({
-                                            queryClient,
-                                            categoryId: categoryInfo.id,
-                                            activityDefinition: {
-                                                id: activityDefinitionId,
-                                                data: {
-                                                    type: 'single',
-                                                    activitySetting: {
-                                                        ...activitySetting,
-                                                        setting: {
-                                                            at: activitySetting
-                                                                .setting.at,
-                                                            estimatedRequiredTime:
-                                                                activitySetting
-                                                                    .setting
-                                                                    .estimatedRequiredTime,
-                                                            reminderMod:
-                                                                activitySetting
-                                                                    .setting
-                                                                    .reminderMod,
-                                                            startMod:
-                                                                activitySetting
-                                                                    .setting
-                                                                    .startMod,
-                                                        },
-                                                    },
-                                                },
-                                            },
-                                        });
-
-                                        setIsOpen(false);
-                                        setUpdating(false);
-                                    })
-                                    .catch(() => {
-                                        setIsOpen(false);
-                                        setUpdating(false);
-                                    });
-                            }
+                                .catch(() => {
+                                    setIsOpen(false);
+                                    setUpdating(false);
+                                });
                         }}
                         updating={updating}
                     />

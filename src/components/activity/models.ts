@@ -8,19 +8,16 @@ export interface CategoryInfo {
     textColor?: string;
 }
 
-export type ActivitySettingUnion = ActivitySetting<TaskSetting | EventSetting>;
-
-export interface ActivitySetting<
-    T extends TaskSetting | EventSetting | undefined
-> {
+export interface ActivitySetting {
     id: string;
     name: string;
-    activityType: ActivityType;
     zones?: {
         include: ZoneInfo[];
         exclude: ZoneInfo[];
     };
-    setting: T;
+    setting:
+        | { type: 'task'; value: TaskSetting }
+        | { type: 'event'; value: EventSetting };
 }
 
 export interface TaskSetting {
@@ -37,5 +34,3 @@ export interface EventSetting {
     reminderMod: TimeConfig;
     startMod: TimeConfig;
 }
-
-export type ActivityType = 'task' | 'event';

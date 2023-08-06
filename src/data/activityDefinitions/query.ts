@@ -2,14 +2,14 @@ import { api } from '~/utils/api';
 import { getQueryKey } from '@trpc/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
-import { type ActivityDefinitionUnion } from '~/components/activity/activity-definition-models';
+import { type ActivityDefinition } from '~/components/activity/activity-definition-models';
 
 export function useQueryActivityDefinitions({
     categoryId,
 }: {
     categoryId: string;
 }): {
-    data: ActivityDefinitionUnion[] | null | undefined;
+    data: ActivityDefinition[] | null | undefined;
 } {
     const { data: activityDefinitions } =
         api.activityDefinitions.internalGetByCategory.useQuery({
@@ -24,7 +24,7 @@ export function useQueryActivityDefinitions({
                 { activityDefinitionId: activityDefinition.id },
                 'query'
             );
-            queryClient.setQueryData<ActivityDefinitionUnion>(
+            queryClient.setQueryData<ActivityDefinition>(
                 queryKey,
                 activityDefinition
             );
@@ -38,7 +38,7 @@ export function useQueryActivityDefinition({
 }: {
     activityDefintionId: string;
 }): {
-    data: ActivityDefinitionUnion | null | undefined;
+    data: ActivityDefinition | null | undefined;
 } {
     const nullableActivityDefinition =
         api.activityDefinitions.internalGet.useQuery({
@@ -50,10 +50,10 @@ export function useQueryActivityDefinition({
         activityDefinition,
     }: {
         categoryId: string | undefined;
-        activityDefinition: ActivityDefinitionUnion | undefined;
+        activityDefinition: ActivityDefinition | undefined;
     } = useMemo(() => {
         let categoryId: string | undefined;
-        let activityDefinition: ActivityDefinitionUnion | undefined;
+        let activityDefinition: ActivityDefinition | undefined;
         if (nullableActivityDefinition)
             ({ categoryId, ...activityDefinition } =
                 nullableActivityDefinition);
@@ -69,7 +69,7 @@ export function useQueryActivityDefinition({
                 { categoryId },
                 'query'
             );
-            queryClient.setQueryData<ActivityDefinitionUnion[]>(
+            queryClient.setQueryData<ActivityDefinition[]>(
                 queryKey,
                 (oldActivityDefinitions) => {
                     if (oldActivityDefinitions === undefined) return undefined;

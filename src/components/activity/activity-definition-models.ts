@@ -1,9 +1,4 @@
-import {
-    type ActivitySetting,
-    type ActivitySettingUnion,
-    type EventSetting,
-    type TaskSetting,
-} from '~/components/activity/models';
+import { type ActivitySetting } from '~/components/activity/models';
 
 export type RepeatSetting =
     | { type: 'single' }
@@ -40,59 +35,33 @@ export type EndConfig =
     | { type: 'until'; until: Date }
     | { type: 'never' };
 
-export type ActivityDefinitionUnion = ActivityDefinition<
-    TaskSetting | EventSetting
->;
-
-interface RepeatingActivityException<T extends TaskSetting | EventSetting> {
+interface RepeatingActivityException {
     id: string;
     data:
         | { type: 'skip' }
-        | { type: 'override'; activitySetting: ActivitySetting<T> };
+        | { type: 'override'; activitySetting: ActivitySetting };
 }
 
-export interface SingleActivity<T extends TaskSetting | EventSetting> {
+export interface SingleActivity {
     type: 'single';
-    activitySetting: ActivitySetting<T>;
+    activitySetting: ActivitySetting;
 }
 
-// export function changeActivity<T extends TaskSetting | EventSetting>(
-//     repeatingActivity: RepeatingActivity<T>,
-//     index: number,
-//     activity: ActivitySetting<T>
-// ): RepeatingActivity<T> {
-//     if (index === 0) {
-//         if (repeatingActivity.repeatingGroups[0]) {
-//             const copy = [...repeatingActivity.repeatingGroups];
-//             copy[0] = {
-//                 ...repeatingActivity.repeatingGroups[0],
-//                 data: activity,
-//             };
-//
-//             return {
-//                 ...repeatingActivity,
-//                 repeatingGroups: copy,
-//             };
-//         }
-//     }
-//     return repeatingActivity;
-// }
-
-export interface RepeatingActivity<T extends TaskSetting | EventSetting> {
+export interface RepeatingActivity {
     type: 'repeating';
-    activitySetting: ActivitySetting<T>;
+    activitySetting: ActivitySetting;
     repeatConfig: RepeatConfig;
     endConfig: EndConfig;
-    exceptions: Map<number, RepeatingActivityException<T>>;
+    exceptions: Map<number, RepeatingActivityException>;
 }
 
-export interface ActivityDefinition<T extends TaskSetting | EventSetting> {
+export interface ActivityDefinition {
     id: string;
-    data: SingleActivity<T> | RepeatingActivity<T>;
+    data: SingleActivity | RepeatingActivity;
 }
 
 function checkGenerationViolation(
-    virtualActivity: ActivitySettingUnion,
+    virtualActivity: ActivitySetting,
     count: number,
     end: EndConfig
 ) {
@@ -103,7 +72,7 @@ function checkGenerationViolation(
             }
             break;
         case 'until':
-            if (virtualActivity.setting.at >= end.until) {
+            if (virtualActivity.setting.value.at >= end.until) {
                 return true;
             }
             break;
@@ -113,17 +82,17 @@ function checkGenerationViolation(
     return false;
 }
 
-export function generateVirtualActivities<T extends TaskSetting | EventSetting>(
+export function generateVirtualActivities(
     count: number,
-    repeatingActivity: RepeatingActivity<T>
-): ActivitySetting<T>[] {
-    const activitySettings: ActivitySetting<T>[] = [];
+    repeatingActivity: RepeatingActivity
+): ActivitySetting[] {
+    const activitySettings: ActivitySetting[] = [];
 
     const repeatConfig = repeatingActivity.repeatConfig;
     const end = repeatingActivity.endConfig;
 
     for (let i = 0; i < count; i++) {
-        const activitySetting: ActivitySetting<T> = {
+        const activitySetting: ActivitySetting = {
             ...repeatingActivity.activitySetting,
             id: `virtual-${activitySettings.length}`,
         };
@@ -145,10 +114,10 @@ export function generateVirtualActivities<T extends TaskSetting | EventSetting>(
                 break;
         }
 
-        activitySetting.setting = {
-            ...activitySetting.setting,
+        activitySetting.setting.value = {
+            ...activitySetting.setting.value,
             at: new Date(
-                repeatingActivity.activitySetting.setting.at.getTime() +
+                repeatingActivity.activitySetting.setting.value.at.getTime() +
                     i * repeatingActivity.repeatConfig.every * multiplier
             ),
         };

@@ -1,7 +1,7 @@
 import { type QueryClient } from '@tanstack/react-query';
 import { getQueryKey } from '@trpc/react-query';
 import { api } from '~/utils/api';
-import { type ActivityDefinitionUnion } from '~/components/activity/activity-definition-models';
+import { type ActivityDefinition } from '~/components/activity/activity-definition-models';
 
 export function appendActivityDefinitions({
     queryClient,
@@ -10,9 +10,9 @@ export function appendActivityDefinitions({
 }: {
     queryClient: QueryClient;
     categoryId: string;
-    activityDefinition: ActivityDefinitionUnion;
+    activityDefinition: ActivityDefinition;
 }) {
-    queryClient.setQueryData<ActivityDefinitionUnion[]>(
+    queryClient.setQueryData<ActivityDefinition[]>(
         getQueryKey(
             api.activityDefinitions.internalGetByCategory,
             { categoryId },
@@ -24,7 +24,7 @@ export function appendActivityDefinitions({
         }
     );
 
-    queryClient.setQueryData<ActivityDefinitionUnion>(
+    queryClient.setQueryData<ActivityDefinition>(
         getQueryKey(
             api.activityDefinitions.internalGet,
             { activityDefinitionId: activityDefinition.id },
@@ -41,9 +41,9 @@ export function updateActivityDefinitions({
 }: {
     queryClient: QueryClient;
     categoryId: string;
-    activityDefinition: ActivityDefinitionUnion;
+    activityDefinition: ActivityDefinition;
 }) {
-    queryClient.setQueryData<ActivityDefinitionUnion[]>(
+    queryClient.setQueryData<ActivityDefinition[]>(
         getQueryKey(
             api.activityDefinitions.internalGetByCategory,
             { categoryId },
@@ -60,7 +60,7 @@ export function updateActivityDefinitions({
         }
     );
 
-    queryClient.setQueryData<ActivityDefinitionUnion>(
+    queryClient.setQueryData<ActivityDefinition>(
         getQueryKey(
             api.activityDefinitions.internalGet,
             { activityDefinitionId: activityDefinition.id },

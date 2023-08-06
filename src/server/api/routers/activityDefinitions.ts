@@ -1,21 +1,17 @@
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc';
 import {
-    type ActivityDefinitionUnion,
+    type ActivityDefinition,
     type EndConfig,
     type RepeatConfig,
 } from '~/components/activity/activity-definition-models';
 import {
+    ActivitySchema,
     ConvertActivity,
     convertTimeConfigToInt,
-    EventActivitySchema,
     type EventSchema,
-    TaskActivitySchema,
     type TaskSchema,
 } from '~/server/api/routers/activities';
-import { type TimeConfig } from '~/components/time_picker/date';
-import { TaskSetting } from '~/components/activity/models';
-import { type RepeatUnit } from '@prisma/client';
 import { Prisma } from '.prisma/client';
 
 export const RepeatConfigZodSchema = z.object({
@@ -213,7 +209,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                 ctx,
                 input,
             }): Promise<
-                | (ActivityDefinitionUnion & {
+                | (ActivityDefinition & {
                       categoryId: string;
                   })
                 | null
@@ -278,7 +274,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                 categoryId: z.string(),
             })
         )
-        .query(async ({ ctx, input }): Promise<ActivityDefinitionUnion[]> => {
+        .query(async ({ ctx, input }): Promise<ActivityDefinition[]> => {
             const userId = ctx.session.user.id;
             const activityDefinitionInfos =
                 await ctx.prisma.activityDefinition.findMany({
@@ -309,7 +305,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                 .map(
                     (
                         activityDefinitionInfo
-                    ): ActivityDefinitionUnion | undefined => {
+                    ): ActivityDefinition | undefined => {
                         if (!activityDefinitionInfo) return undefined;
 
                         if (
@@ -367,21 +363,21 @@ const activityDefinitionsRouter = createTRPCRouter({
                         }
                     }
                 )
-                .filter((x) => x !== undefined) as ActivityDefinitionUnion[];
+                .filter((x) => x !== undefined) as ActivityDefinition[];
         }),
 
-    createTaskDefinition: protectedProcedure
+    createActivityDefinition: protectedProcedure
         .input(
             z.object({
                 categoryId: z.string(),
                 data: z.discriminatedUnion('type', [
                     z.object({
                         type: z.literal('single'),
-                        activitySetting: TaskActivitySchema,
+                        activitySetting: ActivitySchema,
                     }),
                     z.object({
                         type: z.literal('repeating'),
-                        activitySetting: TaskActivitySchema,
+                        activitySetting: ActivitySchema,
                         repeatConfig: RepeatConfigZodSchema,
                         endConfig: EndConfigSchema,
                     }),
@@ -393,7 +389,6 @@ const activityDefinitionsRouter = createTRPCRouter({
 
             if (input.data.type === 'single') {
                 const activitySetting = input.data.activitySetting;
-                const setting = activitySetting.setting;
 
                 return ctx.prisma.activityDefinition
                     .create({
@@ -407,23 +402,25 @@ const activityDefinitionsRouter = createTRPCRouter({
                             activities: {
                                 create: {
                                     name: activitySetting.name,
-                                    type: 'task',
-                                    task: {
-                                        create: {
-                                            dueDate: setting.at,
-                                            estimatedTime:
-                                                setting.estimatedRequiredTime,
-                                            deadlineMod: convertTimeConfigToInt(
-                                                setting.deadlineMod
-                                            ),
-                                            reminderMod: convertTimeConfigToInt(
-                                                setting.reminderMod
-                                            ),
-                                            startMod: convertTimeConfigToInt(
-                                                setting.startMod
-                                            ),
-                                        },
-                                    },
+                                    type: activitySetting.setting.type,
+                                    task:
+                                        activitySetting.setting.type === 'task'
+                                            ? {
+                                                  create: getTaskSchema(
+                                                      activitySetting.setting
+                                                          .value
+                                                  ),
+                                              }
+                                            : undefined,
+                                    event:
+                                        activitySetting.setting.type === 'event'
+                                            ? {
+                                                  create: getEventSchema(
+                                                      activitySetting.setting
+                                                          .value
+                                                  ),
+                                              }
+                                            : undefined,
                                 },
                             },
                         },
@@ -431,7 +428,6 @@ const activityDefinitionsRouter = createTRPCRouter({
                     .then((activity) => activity.id);
             } else {
                 const activitySetting = input.data.activitySetting;
-                const setting = activitySetting.setting;
 
                 return ctx.prisma.activityDefinition
                     .create({
@@ -445,140 +441,25 @@ const activityDefinitionsRouter = createTRPCRouter({
                             activities: {
                                 create: {
                                     name: activitySetting.name,
-                                    type: 'task',
-                                    task: {
-                                        create: {
-                                            dueDate: setting.at,
-                                            estimatedTime:
-                                                setting.estimatedRequiredTime,
-                                            deadlineMod: convertTimeConfigToInt(
-                                                setting.deadlineMod
-                                            ),
-                                            reminderMod: convertTimeConfigToInt(
-                                                setting.reminderMod
-                                            ),
-                                            startMod: convertTimeConfigToInt(
-                                                setting.startMod
-                                            ),
-                                        },
-                                    },
-                                },
-                            },
-                            repeatConfig: {
-                                create: {
-                                    every: input.data.repeatConfig.every,
-                                    unit: input.data.repeatConfig.unit.type,
-                                    info: encodeRepeatConfig(
-                                        input.data.repeatConfig
-                                    ),
-                                },
-                            },
-                            endConfig: {
-                                create: {
-                                    endType: input.data.endConfig.type,
-                                    endDate:
-                                        input.data.endConfig.type === 'until'
-                                            ? input.data.endConfig.until
-                                            : '0',
-                                    endCount:
-                                        input.data.endConfig.type === 'count'
-                                            ? input.data.endConfig.count
-                                            : 0,
-                                },
-                            },
-                        },
-                    })
-                    .then((activity) => activity.id);
-            }
-        }),
-
-    createEventDefinition: protectedProcedure
-        .input(
-            z.object({
-                categoryId: z.string(),
-                data: z.discriminatedUnion('type', [
-                    z.object({
-                        type: z.literal('single'),
-                        activitySetting: EventActivitySchema,
-                    }),
-                    z.object({
-                        type: z.literal('repeating'),
-                        activitySetting: EventActivitySchema,
-                        repeatConfig: RepeatConfigZodSchema,
-                        endConfig: EndConfigSchema,
-                    }),
-                ]),
-            })
-        )
-        .mutation(async ({ ctx, input }): Promise<string> => {
-            const userId = ctx?.session?.user?.id;
-
-            if (input.data.type === 'single') {
-                const activitySetting = input.data.activitySetting;
-                const setting = activitySetting.setting;
-
-                return ctx.prisma.activityDefinition
-                    .create({
-                        data: {
-                            category: {
-                                connect: {
-                                    id: input.categoryId,
-                                    userId: userId,
-                                },
-                            },
-                            activities: {
-                                create: {
-                                    name: activitySetting.name,
-                                    type: 'event',
-                                    event: {
-                                        create: {
-                                            startDate: setting.at,
-                                            estimatedTime:
-                                                setting.estimatedRequiredTime,
-                                            reminderMod: convertTimeConfigToInt(
-                                                setting.reminderMod
-                                            ),
-                                            startMod: convertTimeConfigToInt(
-                                                setting.startMod
-                                            ),
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    })
-                    .then((activity) => activity.id);
-            } else {
-                const activitySetting = input.data.activitySetting;
-                const setting = activitySetting.setting;
-
-                return ctx.prisma.activityDefinition
-                    .create({
-                        data: {
-                            category: {
-                                connect: {
-                                    id: input.categoryId,
-                                    userId: userId,
-                                },
-                            },
-                            activities: {
-                                create: {
-                                    name: activitySetting.name,
-                                    type: 'event',
-
-                                    event: {
-                                        create: {
-                                            startDate: setting.at,
-                                            estimatedTime:
-                                                setting.estimatedRequiredTime,
-                                            reminderMod: convertTimeConfigToInt(
-                                                setting.reminderMod
-                                            ),
-                                            startMod: convertTimeConfigToInt(
-                                                setting.startMod
-                                            ),
-                                        },
-                                    },
+                                    type: activitySetting.setting.type,
+                                    task:
+                                        activitySetting.setting.type === 'task'
+                                            ? {
+                                                  create: getTaskSchema(
+                                                      activitySetting.setting
+                                                          .value
+                                                  ),
+                                              }
+                                            : undefined,
+                                    event:
+                                        activitySetting.setting.type === 'event'
+                                            ? {
+                                                  create: getEventSchema(
+                                                      activitySetting.setting
+                                                          .value
+                                                  ),
+                                              }
+                                            : undefined,
                                 },
                             },
                             repeatConfig: {
@@ -616,17 +497,11 @@ const activityDefinitionsRouter = createTRPCRouter({
                 data: z.discriminatedUnion('type', [
                     z.object({
                         type: z.literal('single'),
-                        activitySetting: z.discriminatedUnion('activityType', [
-                            TaskActivitySchema,
-                            EventActivitySchema,
-                        ]),
+                        activitySetting: ActivitySchema,
                     }),
                     z.object({
                         type: z.literal('repeating'),
-                        activitySetting: z.discriminatedUnion('activityType', [
-                            TaskActivitySchema,
-                            EventActivitySchema,
-                        ]),
+                        activitySetting: ActivitySchema,
                         repeatConfig: RepeatConfigZodSchema,
                         endConfig: EndConfigSchema,
                     }),
@@ -650,26 +525,28 @@ const activityDefinitionsRouter = createTRPCRouter({
                         data: {
                             activities: {
                                 deleteMany: {},
-                                create:
-                                    activitySetting.activityType === 'task'
-                                        ? {
-                                              name: activitySetting.name,
-                                              type: activitySetting.activityType,
-                                              task: {
+                                create: {
+                                    name: activitySetting.name,
+                                    type: activitySetting.setting.type,
+                                    task:
+                                        activitySetting.setting.type === 'task'
+                                            ? {
                                                   create: getTaskSchema(
                                                       activitySetting.setting
+                                                          .value
                                                   ),
-                                              },
-                                          }
-                                        : {
-                                              name: activitySetting.name,
-                                              type: activitySetting.activityType,
-                                              event: {
+                                              }
+                                            : undefined,
+                                    event:
+                                        activitySetting.setting.type === 'event'
+                                            ? {
                                                   create: getEventSchema(
                                                       activitySetting.setting
+                                                          .value
                                                   ),
-                                              },
-                                          },
+                                              }
+                                            : undefined,
+                                },
                             },
                         },
                     })
@@ -688,26 +565,28 @@ const activityDefinitionsRouter = createTRPCRouter({
                         data: {
                             activities: {
                                 deleteMany: {},
-                                create:
-                                    activitySetting.activityType === 'task'
-                                        ? {
-                                              name: activitySetting.name,
-                                              type: activitySetting.activityType,
-                                              task: {
+                                create: {
+                                    name: activitySetting.name,
+                                    type: activitySetting.setting.type,
+                                    task:
+                                        activitySetting.setting.type === 'task'
+                                            ? {
                                                   create: getTaskSchema(
                                                       activitySetting.setting
+                                                          .value
                                                   ),
-                                              },
-                                          }
-                                        : {
-                                              name: activitySetting.name,
-                                              type: activitySetting.activityType,
-                                              event: {
+                                              }
+                                            : undefined,
+                                    event:
+                                        activitySetting.setting.type === 'event'
+                                            ? {
                                                   create: getEventSchema(
                                                       activitySetting.setting
+                                                          .value
                                                   ),
-                                              },
-                                          },
+                                              }
+                                            : undefined,
+                                },
                             },
                             repeatConfig: {
                                 upsert: {

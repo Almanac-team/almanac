@@ -26,16 +26,12 @@ export function isEventSetting(
     return setting !== undefined && !isTaskSetting(setting);
 }
 
-export function isTask(
-    activity: ActivitySetting<TaskSetting | EventSetting | undefined>
-): activity is ActivitySetting<TaskSetting> {
-    return activity.activityType === 'task';
+export function isTask(activity: ActivitySetting): boolean {
+    return activity.setting.type === 'task';
 }
 
-export function isEvent(
-    activity: ActivitySetting<TaskSetting | EventSetting | undefined>
-): activity is ActivitySetting<EventSetting> {
-    return activity.activityType === 'event';
+export function isEvent(activity: ActivitySetting): boolean {
+    return activity.setting.type === 'event';
 }
 
 function intToDayOfWeek(day: number) {
@@ -101,7 +97,7 @@ function intToMonth(month: number) {
     }
 }
 
-export function RepeatConfigInput<T extends TaskSetting | EventSetting>({
+export function RepeatConfigInput({
     start,
     onChange,
     repeatSetting,
@@ -213,7 +209,7 @@ export function RepeatConfigInput<T extends TaskSetting | EventSetting>({
     );
 }
 
-export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
+export function ActivityUpdateModal({
     index,
     activitySetting,
     repeatSetting,
@@ -221,10 +217,10 @@ export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
     updating,
 }: {
     index: number;
-    activitySetting: ActivitySetting<T>;
+    activitySetting: ActivitySetting;
     repeatSetting: RepeatSetting;
     onSubmit?: (
-        activitySetting: ActivitySetting<T>,
+        activitySetting: ActivitySetting,
         repeatSetting: {
             index: number;
             scope: 'this' | 'all' | 'future';
@@ -234,7 +230,7 @@ export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
     updating?: boolean;
 }) {
     const [configActivitySetting, setConfigActivitySetting] = useState<
-        ActivitySetting<T> | undefined
+        ActivitySetting | undefined
     >(undefined);
 
     const [configRepeatSetting, setConfigRepeatSetting] = useState<
@@ -255,14 +251,14 @@ export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
 
     let innerConfig;
 
-    if (isTaskSetting(displayActivitySetting.setting)) {
+    if (isTaskSetting(displayActivitySetting.setting.value)) {
         innerConfig = (
             <TaskSettingConfig
-                setting={displayActivitySetting.setting}
+                setting={displayActivitySetting.setting.value}
                 onChange={(setting: TaskSetting) => {
                     setConfigActivitySetting({
                         ...displayActivitySetting,
-                        setting: setting as T,
+                        setting: { type: 'task', value: setting },
                     });
                 }}
                 disabled={updating}
@@ -271,11 +267,11 @@ export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
     } else {
         innerConfig = (
             <EventSettingConfig
-                setting={displayActivitySetting.setting}
+                setting={displayActivitySetting.setting.value}
                 onChange={(setting: EventSetting) => {
                     setConfigActivitySetting({
                         ...displayActivitySetting,
-                        setting: setting as T,
+                        setting: { type: 'event', value: setting },
                     });
                 }}
                 disabled={updating}
@@ -309,8 +305,8 @@ export function ActivityUpdateModal<T extends TaskSetting | EventSetting>({
                 }}
                 disabled={updating}
             />
-            <RepeatConfigInput<T>
-                start={displayActivitySetting.setting.at}
+            <RepeatConfigInput
+                start={displayActivitySetting.setting.value.at}
                 onChange={(repeatSetting: RepeatSetting) => {
                     setConfigRepeatSetting(repeatSetting);
                 }}

@@ -2,10 +2,9 @@ import { z } from 'zod';
 import { ActivityType as PrismaActivityEnum, Prisma } from '@prisma/client';
 import { type TimeConfig as InternalTimeConfig } from '~/components/time_picker/date';
 import {
-    type ActivityType,
+    type ActivitySetting,
     type EventSetting,
     type TaskSetting,
-    type ActivitySettingUnion,
 } from '~/components/activity/models';
 import { type ZoneInfo } from '~/components/zone/models';
 
@@ -29,16 +28,33 @@ export const EventSchema = z.object({
     startMod: TimeConfig,
 });
 
-export const TaskActivitySchema = z.object({
+// export const TaskActivitySchema = z.object({
+//     name: z.string(),
+//     setting: z.object({
+//         type: z.literal('task'),
+//         value: TaskSchema,
+//     }),
+// });
+//
+// export const EventActivitySchema = z.object({
+//     name: z.string(),
+//     setting: z.object({
+//         type: z.literal('event'),
+//         value: EventSchema,
+//     }),
+// });
+export const ActivitySchema = z.object({
     name: z.string(),
-    activityType: z.literal('task'),
-    setting: TaskSchema,
-});
-
-export const EventActivitySchema = z.object({
-    name: z.string(),
-    activityType: z.literal('event'),
-    setting: EventSchema,
+    setting: z.discriminatedUnion('type', [
+        z.object({
+            type: z.literal('task'),
+            value: TaskSchema,
+        }),
+        z.object({
+            type: z.literal('event'),
+            value: EventSchema,
+        }),
+    ]),
 });
 
 export function convertIntToTimeConfig(time: number): InternalTimeConfig {
@@ -111,18 +127,24 @@ export type PrismaActivityType = Prisma.ActivityGetPayload<
 
 export function ConvertActivity(
     activity: PrismaActivityType
-): ActivitySettingUnion | undefined {
-    let setting;
+): ActivitySetting | undefined {
+    let setting:
+        | { type: 'task'; value: TaskSetting }
+        | { type: 'event'; value: EventSetting };
 
     if (activity.type === PrismaActivityEnum.task) {
         if (!activity.task) return undefined;
-        setting = ConvertTask(activity.task);
-    } else if (activity.type === PrismaActivityEnum.event) {
+        const value = ConvertTask(activity.task);
+        if (!value) return undefined;
+        setting = { type: 'task', value };
+    } else {
         if (!activity.event) return undefined;
-        setting = ConvertEvent(activity.event);
+        const value = ConvertEvent(activity.event);
+        if (!value) return undefined;
+        setting = { type: 'event', value };
     }
 
-    if (!setting) {
+    if (!setting.value) {
         return undefined;
     }
 
@@ -145,10 +167,6 @@ export function ConvertActivity(
     return {
         id: activity.id,
         name: activity.name,
-        activityType:
-            activity.type === PrismaActivityEnum.task
-                ? 'task'
-                : ('event' as ActivityType),
         zones: {
             include,
             exclude,
@@ -207,7 +225,7 @@ export function ConvertEvent(event: PrismaEventType): EventSetting | null {
 //     prisma: PrismaClient,
 //     userId: string,
 //     categoryId?: string | undefined
-// ): Promise<ActivitySettingUnion[]> {
+// ): Promise<ActivitySetting[]> {
 //     return (
 //         await prisma.activity.findMany({
 //             where: {
@@ -233,7 +251,7 @@ export function ConvertEvent(event: PrismaEventType): EventSetting | null {
 //             },
 //         })
 //     )
-//         .map((activity): ActivitySettingUnion | undefined => {
+//         .map((activity): ActivitySetting | undefined => {
 //             let setting;
 //             if (activity.type === PrismaActivityType.task) {
 //                 setting = ConvertTask(activity.task);
@@ -275,7 +293,7 @@ export function ConvertEvent(event: PrismaEventType): EventSetting | null {
 //                 setting,
 //             };
 //         })
-//         .filter((activity): activity is ActivitySettingUnion => {
+//         .filter((activity): activity is ActivitySetting => {
 //             return activity !== undefined;
 //         });
 // }
@@ -295,7 +313,7 @@ export function ConvertEvent(event: PrismaEventType): EventSetting | null {
 //                 ctx,
 //                 input,
 //             }): Promise<
-//                 | (ActivitySettingUnion & {
+//                 | (ActivitySetting & {
 //                       categoryId: string;
 //                   })
 //                 | null
@@ -383,7 +401,7 @@ export function ConvertEvent(event: PrismaEventType): EventSetting | null {
 //                 categoryId: z.string(),
 //             })
 //         )
-//         .query(async ({ ctx, input }): Promise<ActivitySettingUnion[]> => {
+//         .query(async ({ ctx, input }): Promise<ActivitySetting[]> => {
 //             const userId = ctx?.session?.user?.id;
 //             return (
 //                 await ctx.prisma.activity.findMany({

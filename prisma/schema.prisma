@@ -131,14 +131,11 @@ enum RepeatUnit {
 }
 
 model RepeatConfig {
-  id                   String             @id @default(cuid())
   activityDefinitionId String             @unique
   every                Int
   unit                 RepeatUnit
   info                 Int
-  activityDefinition   ActivityDefinition @relation(fields: [activityDefinitionId], references: [id])
-
-  @@index([id])
+  activityDefinition   ActivityDefinition @relation(fields: [activityDefinitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum EndType {
@@ -148,14 +145,11 @@ enum EndType {
 }
 
 model EndConfig {
-  id                   String             @id @default(cuid())
   activityDefinitionId String             @unique
   endType              EndType
   endDate              DateTime
   endCount             Int
-  activityDefinition   ActivityDefinition @relation(fields: [activityDefinitionId], references: [id])
-
-  @@index([id])
+  activityDefinition   ActivityDefinition @relation(fields: [activityDefinitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Activity {

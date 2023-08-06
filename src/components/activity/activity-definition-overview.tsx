@@ -333,11 +333,6 @@ export function ActivityDefinitionOverview({
                         activitySetting: activitySetting,
                     },
                 };
-                updateActivityDefinitions({
-                    queryClient,
-                    categoryId: category.id,
-                    activityDefinition: newActivityDefinition,
-                });
             } else {
                 newActivityDefinition = {
                     id: activityDefinition.id,

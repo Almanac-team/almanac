@@ -65,3 +65,50 @@ export interface ActivityCompletions {
     latestFinishedIndex: number;
     exceptions: Set<number>;
 }
+
+export function computeActivityCompletionsDiff(
+    activityCompletions: ActivityCompletions | null,
+    index: number,
+    completed: boolean
+): {
+    added: number[];
+    removed: number[];
+    newLatestFinishedIndex: number;
+} {
+    const latestFinishedIndex = activityCompletions?.latestFinishedIndex ?? -1;
+    const exceptions = activityCompletions?.exceptions ?? new Set();
+
+    const added: number[] = [];
+    let removed: number[] = [];
+    let newLatestFinishedIndex;
+
+    if (completed) {
+        if (index >= latestFinishedIndex) {
+            newLatestFinishedIndex = index;
+            for (let i = latestFinishedIndex + 1; i < index; i++) {
+                added.push(i);
+            }
+            removed = Array.from(exceptions).filter(
+                (num) => num >= latestFinishedIndex + 1 && num < index
+            );
+        } else if (exceptions.has(index)) {
+            removed.push(index);
+        }
+    } else {
+        if (index == latestFinishedIndex) {
+            for (let i = index - 1; i >= 0; i--) {
+                if (exceptions.has(i)) {
+                    removed.push(i);
+                    newLatestFinishedIndex = i - 1;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    return {
+        added,
+        removed,
+        newLatestFinishedIndex: newLatestFinishedIndex ?? latestFinishedIndex,
+    };
+}

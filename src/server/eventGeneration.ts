@@ -1,4 +1,6 @@
 import { type ZoneInfo } from '~/components/zone/models';
+import { type ActivitySetting } from '~/components/activity/models';
+import { convertTimeConfigToMinutes } from '~/components/time_picker/models';
 
 function getNextWeekStart(weekStart: Date): Date {
     const weekEnd = new Date(weekStart);
@@ -23,7 +25,6 @@ export type AbsTaskActivitySetting = Omit<AbsActivitySetting, 'setting'> & {
 
 export interface AbsActivitySetting {
     id: string;
-    name: string;
     zones?: {
         include: ZoneInfo[];
         exclude: ZoneInfo[];
@@ -195,6 +196,64 @@ function createPartitionedTasksWithPriorityFromTasks(
 
 function sortScheduledEventsByStart(scheduledEvents: ScheduledEvent[]) {
     scheduledEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
+}
+
+export function convertActivitiesToAbsActivities(
+    activities: ActivitySetting[]
+) {
+    const absActivities: AbsActivitySetting[] = [];
+
+    for (const activity of activities) {
+        let absSetting:
+            | { type: 'task'; value: AbsTaskSetting }
+            | { type: 'event'; value: AbsEventSetting }
+            | undefined = undefined;
+        const setting = activity.setting;
+        if (setting.type === 'task') {
+            absSetting = {
+                type: 'task',
+                value: {
+                    at: new Date(setting.value.at),
+                    estimatedRequiredTime: setting.value.estimatedRequiredTime,
+                    earliestStart: new Date(
+                        setting.value.at.getTime() -
+                            convertTimeConfigToMinutes(setting.value.startMod) *
+                                60 *
+                                1000
+                    ),
+                    softDeadline: new Date(
+                        setting.value.at.getTime() -
+                            convertTimeConfigToMinutes(
+                                setting.value.deadlineMod
+                            ) *
+                                60 *
+                                1000
+                    ),
+                },
+            };
+        } else {
+            absSetting = {
+                type: 'event',
+                value: {
+                    at: new Date(setting.value.at),
+                    estimatedRequiredTime: setting.value.estimatedRequiredTime,
+                    earliestStart: new Date(
+                        setting.value.at.getTime() -
+                            convertTimeConfigToMinutes(setting.value.startMod) *
+                                60 *
+                                1000
+                    ),
+                },
+            };
+        }
+
+        absActivities.push({
+            id: activity.id,
+            setting: absSetting,
+        });
+    }
+
+    return absActivities;
 }
 
 export function generateEvents(

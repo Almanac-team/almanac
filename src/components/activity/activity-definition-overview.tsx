@@ -291,9 +291,9 @@ function ActivityOverview({
                     type="checkbox"
                     className="h-6 w-6 bg-gray-600 hover:bg-gray-500"
                     checked={completed}
-                    onChange={(e) =>
-                        onCompletionChange?.(e.target.value === 'on')
-                    }
+                    onChange={() => {
+                        onCompletionChange?.(!completed);
+                    }}
                 />
             </div>
         </div>
@@ -401,7 +401,7 @@ export function ActivityDefinitionOverview({
             );
 
             const newActivityCompletions: ActivityCompletions = {
-                latestFinishedIndex: index,
+                latestFinishedIndex: diff.newLatestFinishedIndex,
                 exceptions: new Set<number>(
                     activityDefinition.activityCompletions?.exceptions ?? []
                 ),

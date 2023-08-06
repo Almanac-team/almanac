@@ -4,6 +4,7 @@ import {
     type TaskSetting,
 } from '~/components/activity/models';
 import {
+    type ActivityDefinition,
     type EndConfig,
     type RepeatingActivity,
 } from '~/components/activity/activity-definition-models';
@@ -30,12 +31,17 @@ function checkGenerationViolation(
     return false;
 }
 
-export function generateVirtualActivities(
-    repeatingActivity: RepeatingActivity,
+export function getActivitiesFromDefinition(
+    activityDefinition: ActivityDefinition,
     maxCount: number,
     latestDate?: Date,
     startShift = 0
 ): ActivitySetting[] {
+    if (activityDefinition.data.type === 'single') {
+        return [activityDefinition.data.activitySetting];
+    }
+    const repeatingActivity = activityDefinition.data;
+
     const activitySettings: ActivitySetting[] = [];
 
     const repeatConfig = repeatingActivity.repeatConfig;

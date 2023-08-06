@@ -27,7 +27,7 @@ import {
     type RepeatSetting,
 } from '~/components/activity/activity-definition-models';
 import { updateActivityDefinitions } from '~/data/activityDefinitions/mutate';
-import { generateVirtualActivities } from '~/data/activityDefinitions/virtualActivities';
+import { getActivitiesFromDefinition } from '~/data/activityDefinitions/virtualActivities';
 
 const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
@@ -369,14 +369,7 @@ export function ActivityDefinitionOverview({
     );
 
     const activitySettings: ActivitySetting[] = useMemo(() => {
-        const data = activityDefinition.data;
-        if (data.type === 'single') {
-            return [data.activitySetting];
-        } else {
-            const g = generateVirtualActivities(data, 10);
-            console.log(g);
-            return g;
-        }
+        return getActivitiesFromDefinition(activityDefinition, 10);
     }, [activityDefinition]);
 
     let inner;

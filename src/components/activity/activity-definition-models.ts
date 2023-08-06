@@ -104,6 +104,10 @@ export function computeActivityCompletionsDiff(
                     break;
                 }
             }
+        } else if (index < latestFinishedIndex) {
+            if (!exceptions.has(index)) {
+                added.push(index);
+            }
         }
     }
     return {

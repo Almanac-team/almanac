@@ -887,11 +887,12 @@ const activityDefinitionsRouter = createTRPCRouter({
                 ? ConvertActivityCompletion(activityCompletions)
                 : null;
 
-            const { added, removed } = computeActivityCompletionsDiff(
-                existingActivityCompletions,
-                input.index,
-                input.checked
-            );
+            const { newLatestFinishedIndex, added, removed } =
+                computeActivityCompletionsDiff(
+                    existingActivityCompletions,
+                    input.index,
+                    input.checked
+                );
 
             return (
                 (
@@ -901,7 +902,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                         },
                         create: {
                             activityDefinitionId: input.activityDefinitionId,
-                            latestFinishedIndex: input.index,
+                            latestFinishedIndex: newLatestFinishedIndex,
                             exceptions: {
                                 create: added.map((index) => ({
                                     index: index,
@@ -909,7 +910,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                             },
                         },
                         update: {
-                            latestFinishedIndex: input.index,
+                            latestFinishedIndex: newLatestFinishedIndex,
                             exceptions: {
                                 create: added.map((index) => ({
                                     index: index,

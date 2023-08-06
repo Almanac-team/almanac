@@ -40,7 +40,7 @@ function ActivityCreateModal({
         activityType: 'task',
         at: (() => {
             const date = new Date();
-            date.setHours(23, 59, 0, 0);
+            date.setHours(47, 59, 0, 0);
             return date;
         })(),
         estimatedRequiredTime: 60,

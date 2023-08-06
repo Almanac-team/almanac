@@ -4,7 +4,7 @@ import {
     type ScheduledBlock,
     TimelineInteractionContext,
 } from '~/components/timeline/models';
-import { useContext, useRef } from 'react';
+import { useContext, useMemo, useRef } from 'react';
 
 function ViewInner({
     blockList,
@@ -165,58 +165,57 @@ export function WeekView({
     blockList: ScheduledBlock[];
     firstDayMidnight: Date;
 }) {
-    return (
-        <TimelineView
-            className={className ?? ''}
-            dayViewList={[
-                {
-                    dayLabel: 'Monday',
-                    blockList,
-                    startDay: firstDayMidnight,
-                },
-                {
-                    dayLabel: 'Tuesday',
-                    blockList,
-                    startDay: new Date(
-                        firstDayMidnight.getTime() + 24 * 60 * 60 * 1000
-                    ),
-                },
-                {
-                    dayLabel: 'Wednesday',
-                    blockList,
-                    startDay: new Date(
-                        firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 2
-                    ),
-                },
-                {
-                    dayLabel: 'Thursday',
-                    blockList,
-                    startDay: new Date(
-                        firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 3
-                    ),
-                },
-                {
-                    dayLabel: 'Friday',
-                    blockList,
-                    startDay: new Date(
-                        firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 4
-                    ),
-                },
-                {
-                    dayLabel: 'Saturday',
-                    blockList,
-                    startDay: new Date(
-                        firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 5
-                    ),
-                },
-                {
-                    dayLabel: 'Sunday',
-                    blockList,
-                    startDay: new Date(
-                        firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 6
-                    ),
-                },
-            ]}
-        />
-    );
+    const dayViewList = useMemo(() => {
+        return [
+            {
+                dayLabel: 'Monday',
+                blockList,
+                startDay: firstDayMidnight,
+            },
+            {
+                dayLabel: 'Tuesday',
+                blockList,
+                startDay: new Date(
+                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000
+                ),
+            },
+            {
+                dayLabel: 'Wednesday',
+                blockList,
+                startDay: new Date(
+                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 2
+                ),
+            },
+            {
+                dayLabel: 'Thursday',
+                blockList,
+                startDay: new Date(
+                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 3
+                ),
+            },
+            {
+                dayLabel: 'Friday',
+                blockList,
+                startDay: new Date(
+                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 4
+                ),
+            },
+            {
+                dayLabel: 'Saturday',
+                blockList,
+                startDay: new Date(
+                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 5
+                ),
+            },
+            {
+                dayLabel: 'Sunday',
+                blockList,
+                startDay: new Date(
+                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 6
+                ),
+            },
+        ];
+    }, [blockList, firstDayMidnight]);
+
+    return <TimelineView className={className} dayViewList={dayViewList} />;
 }

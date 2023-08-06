@@ -3,7 +3,6 @@ import React, {
     type ReactNode,
     useCallback,
     useContext,
-    useEffect,
     useMemo,
     useRef,
     useState,
@@ -208,7 +207,8 @@ function ActivityOverview({
             index: number;
             scope: 'this' | 'all' | 'future';
             repeatSetting: RepeatSetting;
-        }
+        },
+        closeModal: () => unknown
     ) => unknown;
 }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -253,7 +253,20 @@ function ActivityOverview({
                             index={index}
                             activitySetting={activitySetting}
                             repeatSetting={repeatSetting}
-                            onSubmit={onSubmit}
+                            onSubmit={(
+                                activitySetting: ActivitySetting,
+                                repeatSetting: {
+                                    index: number;
+                                    scope: 'this' | 'all' | 'future';
+                                    repeatSetting: RepeatSetting;
+                                }
+                            ) => {
+                                isUpdating(true);
+                                onSubmit?.(activitySetting, repeatSetting, () =>
+                                    setIsOpen(false)
+                                );
+                            }}
+                            updating={updating}
                         />
                     </MenuBody>
                 </Menu>
@@ -306,7 +319,8 @@ export function ActivityDefinitionOverview({
                 index: number;
                 scope: 'this' | 'all' | 'future';
                 repeatSetting: RepeatSetting;
-            }
+            },
+            closeModal: () => unknown
         ) => {
             let newActivityDefinition: ActivityDefinition;
 
@@ -345,6 +359,7 @@ export function ActivityDefinitionOverview({
                         categoryId: category.id,
                         activityDefinition: newActivityDefinition,
                     });
+                    closeModal();
                 })
                 .catch(() => {
                     return;

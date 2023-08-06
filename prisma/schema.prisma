@@ -111,16 +111,33 @@ enum ActivityType {
 }
 
 model ActivityDefinition {
-  id             String        @id @default(cuid())
-  categoryId     String
-  activities     Activity[]
-  repeatConfig   RepeatConfig?
-  endConfig      EndConfig?
-  repeatConfigId String?
-  endConfigId    String?
-  category       Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id                  String               @id @default(cuid())
+  categoryId          String
+  activities          Activity[]
+  repeatConfig        RepeatConfig?
+  endConfig           EndConfig?
+  repeatConfigId      String?
+  endConfigId         String?
+  category            Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  activityCompletions ActivityCompletions?
 
   @@index([categoryId])
+}
+
+model ActivityCompletions {
+  activityDefinitionId String                         @unique
+  activityDefinition   ActivityDefinition             @relation(fields: [activityDefinitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  latestFinishedIndex  Int // -1 if none
+  exceptions           ActivityCompletionExceptions[]
+}
+
+model ActivityCompletionExceptions {
+  activityDefinitionId String
+  index                Int
+  activityCompletion   ActivityCompletions @relation(fields: [activityDefinitionId], references: [activityDefinitionId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([activityDefinitionId, index])
+  @@index([activityDefinitionId])
 }
 
 enum RepeatUnit {

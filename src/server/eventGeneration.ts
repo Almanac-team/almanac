@@ -1,8 +1,7 @@
 import { type GeneratedEvent } from '~/pages/sprint';
 import {
-    type ActivitySetting,
-    type EventSetting,
-    type TaskSetting,
+    type EventActivitySetting,
+    type TaskActivitySetting,
 } from '~/components/activity/models';
 
 function getNextWeekStart(weekStart: Date): Date {
@@ -12,11 +11,11 @@ function getNextWeekStart(weekStart: Date): Date {
 }
 
 function findHardDeadlineTasks(
-    tasks: ActivitySetting<TaskSetting>[],
+    tasks: TaskActivitySetting[],
     weekStart: Date
-): ActivitySetting<TaskSetting>[] {
+): TaskActivitySetting[] {
     const weekEnd = getNextWeekStart(weekStart);
-    return tasks.filter((task) => task.setting.at < weekEnd);
+    return tasks.filter((task) => task.setting.value.at < weekEnd);
 }
 
 export interface SchedulableEvents {
@@ -37,12 +36,10 @@ function scheduleEvent(
     return [];
 }
 
-function splitTasks(
-    tasks: ActivitySetting<TaskSetting>[]
-): SchedulableEvents[] {
+function splitTasks(tasks: TaskActivitySetting[]): SchedulableEvents[] {
     const SchedulableEvents: SchedulableEvents[] = [];
     for (const task of tasks) {
-        if (task.setting.estimatedRequiredTime > 1) {
+        if (task.setting.value.estimatedRequiredTime > 1) {
             // split task into multiple events
         }
     }
@@ -52,8 +49,8 @@ function splitTasks(
 
 // main function
 export function generateEvents(
-    tasks: ActivitySetting<TaskSetting>[],
-    events: ActivitySetting<EventSetting>[],
+    tasks: TaskActivitySetting[],
+    events: EventActivitySetting[],
     weekStart: Date
 ): GeneratedEvent[] {
     const scheduledEvents: ScheduledEvents[] = [];

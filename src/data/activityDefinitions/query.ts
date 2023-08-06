@@ -4,6 +4,29 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import { type ActivityDefinition } from '~/components/activity/activity-definition-models';
 
+export function useQueryActivityDefinitions(): {
+    data: ActivityDefinition[] | null | undefined;
+} {
+    const { data: activityDefinitions } =
+        api.activityDefinitions.internalGetAll.useQuery();
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        activityDefinitions?.map((activityDefinition) => {
+            const queryKey = getQueryKey(
+                api.activityDefinitions.internalGet,
+                { activityDefinitionId: activityDefinition.id },
+                'query'
+            );
+            queryClient.setQueryData<ActivityDefinition>(
+                queryKey,
+                activityDefinition
+            );
+        });
+    }, [activityDefinitions, queryClient]);
+    return { data: activityDefinitions };
+}
+
 export function useQueryActivityDefinitionsByCategory({
     categoryId,
 }: {

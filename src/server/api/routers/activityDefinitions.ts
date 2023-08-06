@@ -588,6 +588,123 @@ const activityDefinitionsRouter = createTRPCRouter({
                 .filter((x) => x !== undefined) as ActivityDefinition[];
         }),
 
+    /**
+     * This is an internal hook, don't use it. Use useQueryActivities from the data folder instead.
+     */
+    internalGetAll: protectedProcedure.query(
+        async ({ ctx }): Promise<ActivityDefinition[]> => {
+            const userId = ctx.session.user.id;
+            const activityDefinitionInfos =
+                await ctx.prisma.activityDefinition.findMany({
+                    where: {
+                        category: {
+                            userId: userId,
+                        },
+                    },
+                    include: {
+                        activities: {
+                            include: {
+                                task: true,
+                                event: true,
+                                activityZonePair: {
+                                    include: {
+                                        zone: true,
+                                    },
+                                },
+                            },
+                        },
+                        repeatConfig: true,
+                        endConfig: true,
+                        activityCompletions: {
+                            include: {
+                                exceptions: true,
+                            },
+                        },
+                    },
+                });
+
+            return activityDefinitionInfos
+                .map(
+                    (
+                        activityDefinitionInfo
+                    ): ActivityDefinition | undefined => {
+                        if (!activityDefinitionInfo) return undefined;
+
+                        if (
+                            !activityDefinitionInfo.repeatConfig ||
+                            !activityDefinitionInfo.endConfig
+                        ) {
+                            const rawActivitySettings =
+                                activityDefinitionInfo.activities;
+                            if (rawActivitySettings === undefined)
+                                return undefined;
+
+                            const rawActivitySetting = rawActivitySettings[0];
+                            if (rawActivitySetting === undefined)
+                                return undefined;
+
+                            const activity =
+                                ConvertActivity(rawActivitySetting);
+                            if (!activity) return undefined;
+
+                            const activityCompletions =
+                                activityDefinitionInfo.activityCompletions
+                                    ? ConvertActivityCompletion(
+                                          activityDefinitionInfo.activityCompletions
+                                      ) ?? undefined
+                                    : undefined;
+
+                            return {
+                                id: activityDefinitionInfo.id,
+                                data: {
+                                    type: 'single',
+                                    activitySetting: activity,
+                                },
+                                activityCompletions,
+                            };
+                        } else {
+                            const rawActivitySettings =
+                                activityDefinitionInfo.activities;
+                            if (rawActivitySettings === undefined)
+                                return undefined;
+
+                            const rawActivitySetting = rawActivitySettings[0];
+                            if (rawActivitySetting === undefined)
+                                return undefined;
+
+                            const activity =
+                                ConvertActivity(rawActivitySetting);
+                            if (!activity) return undefined;
+
+                            const activityCompletions =
+                                activityDefinitionInfo.activityCompletions
+                                    ? ConvertActivityCompletion(
+                                          activityDefinitionInfo.activityCompletions
+                                      ) ?? undefined
+                                    : undefined;
+
+                            return {
+                                id: activityDefinitionInfo.id,
+                                data: {
+                                    type: 'repeating',
+                                    activitySetting: activity,
+                                    repeatConfig: decodeRepeatConfig(
+                                        activityDefinitionInfo.repeatConfig
+                                    ),
+                                    endConfig: decodeEndConfig(
+                                        activityDefinitionInfo.endConfig
+                                    ),
+                                    exceptions: new Map(),
+                                },
+                                activityCompletions,
+                            };
+                        }
+                    }
+                )
+                .filter((x) => x !== undefined) as ActivityDefinition[];
+        }
+    ),
+
     createActivityDefinition: protectedProcedure
         .input(
             z.object({

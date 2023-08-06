@@ -294,17 +294,10 @@ export function ActivityDefinitionOverview({
     const { mutateAsync: updateActivityDefinition } =
         api.activityDefinitions.updateActivityDefinition.useMutation();
 
-    const [displayActivityDefinition, setEditActivityDefinition] =
-        useState<ActivityDefinition>(activityDefinition);
-
-    const [displayRepeatingSetting, setDisplayRepeatingSetting] =
-        useState<RepeatSetting>(extractRepeatSetting(activityDefinition));
-
-    useEffect(() => {
-        setDisplayRepeatingSetting(
-            extractRepeatSetting(displayActivityDefinition)
-        );
-    }, [displayActivityDefinition]);
+    const repeatSetting = useMemo(
+        () => extractRepeatSetting(activityDefinition),
+        [activityDefinition]
+    );
 
     const submitChange = useCallback(
         (
@@ -319,9 +312,9 @@ export function ActivityDefinitionOverview({
 
             if (repeatSetting.repeatSetting.type === 'single') {
                 newActivityDefinition = {
-                    id: displayActivityDefinition.id,
+                    id: activityDefinition.id,
                     data: {
-                        ...displayActivityDefinition.data,
+                        ...activityDefinition.data,
                         type: 'single',
                         activitySetting: activitySetting,
                     },
@@ -333,9 +326,9 @@ export function ActivityDefinitionOverview({
                 });
             } else {
                 newActivityDefinition = {
-                    id: displayActivityDefinition.id,
+                    id: activityDefinition.id,
                     data: {
-                        ...displayActivityDefinition.data,
+                        ...activityDefinition.data,
                         type: 'repeating',
                         repeatConfig: repeatSetting.repeatSetting.repeatConfig,
                         endConfig: repeatSetting.repeatSetting.endConfig,
@@ -343,11 +336,6 @@ export function ActivityDefinitionOverview({
                         exceptions: new Map(),
                     },
                 };
-                updateActivityDefinitions({
-                    queryClient,
-                    categoryId: category.id,
-                    activityDefinition: newActivityDefinition,
-                });
             }
 
             updateActivityDefinition(newActivityDefinition)
@@ -357,58 +345,46 @@ export function ActivityDefinitionOverview({
                         categoryId: category.id,
                         activityDefinition: newActivityDefinition,
                     });
-                    setEditActivityDefinition(newActivityDefinition);
-                    setDisplayRepeatingSetting(repeatSetting.repeatSetting);
                 })
                 .catch(() => {
-                    setEditActivityDefinition(activityDefinition);
-                    setDisplayRepeatingSetting(
-                        extractRepeatSetting(activityDefinition)
-                    );
+                    return;
                 });
         },
-        [
-            activityDefinition,
-            category.id,
-            displayActivityDefinition.data,
-            displayActivityDefinition.id,
-            queryClient,
-            updateActivityDefinition,
-        ]
+        [activityDefinition, category.id, queryClient, updateActivityDefinition]
     );
 
     const activitySettings: ActivitySetting[] = useMemo(() => {
-        const data = displayActivityDefinition.data;
+        const data = activityDefinition.data;
         if (data.type === 'single') {
             return [data.activitySetting];
         } else {
-            const g = generateVirtualActivities(100, data);
+            const g = generateVirtualActivities(10, data);
             console.log(g);
             return g;
         }
-    }, [displayActivityDefinition]);
+    }, [activityDefinition]);
 
     let inner;
 
-    if (displayActivityDefinition.data.type === 'single') {
+    if (activityDefinition.data.type === 'single') {
         inner = (
             <ActivityOverview
                 index={0}
-                activitySetting={displayActivityDefinition.data.activitySetting}
-                repeatSetting={displayRepeatingSetting}
+                activitySetting={activityDefinition.data.activitySetting}
+                repeatSetting={repeatSetting}
                 onSubmit={submitChange}
             />
         );
     } else {
         inner = (
-            <div className="space-y-1 border-y-4 border-gray-800 bg-gray-400 p-1">
+            <div className="max-h-96 space-y-1 overflow-y-scroll border-y-4 border-gray-800 bg-gray-400 p-1">
                 {activitySettings.map(
                     (activitySetting: ActivitySetting, index: number) => (
                         <ActivityOverview
                             key={index}
                             index={index}
                             activitySetting={activitySetting}
-                            repeatSetting={displayRepeatingSetting}
+                            repeatSetting={repeatSetting}
                             onSubmit={submitChange}
                         />
                     )
@@ -420,7 +396,7 @@ export function ActivityDefinitionOverview({
     return (
         <ActivityDefinitionContext.Provider
             value={{
-                activityDefinition: displayActivityDefinition,
+                activityDefinition: activityDefinition,
             }}
         >
             <div className="min-h-24 w-full select-none">{inner}</div>

@@ -196,6 +196,7 @@ model GeneratedEvent {
   activityId String
   date       DateTime
   hours      Int
+  completed  Boolean  @default(false)
   activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([activityId])

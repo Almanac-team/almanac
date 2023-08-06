@@ -1,4 +1,8 @@
 import { useCallback, useState } from 'react';
+import {
+    type TimeConfig,
+    type TimeConfigUnit,
+} from '~/components/time_picker/models';
 
 export function LocalDateInput({
     value,
@@ -64,19 +68,6 @@ export function LocalTimeInput({
             disabled={disabled}
         />
     );
-}
-
-export type TimeConfigUnit =
-    | 'minute'
-    | 'hour'
-    | 'day'
-    | 'week'
-    | 'month'
-    | 'year';
-
-export interface TimeConfig {
-    value: number;
-    unit: TimeConfigUnit;
 }
 
 export function TimeConfigInput(props: {

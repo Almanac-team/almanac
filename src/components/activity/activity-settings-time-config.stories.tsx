@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import {
-    TimeConfigInput,
-    type TimeConfigUnit,
-} from '~/components/time_picker/date';
+import { TimeConfigInput } from '~/components/time_picker/date';
+import { type TimeConfigUnit } from '~/components/time_picker/models';
 
 const meta: Meta<typeof TimeConfigInput> = {
     title: 'Time Config',

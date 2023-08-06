@@ -335,39 +335,6 @@ const getEventSchema = (setting: z.infer<typeof EventSchema>) => {
     };
 };
 
-// const getEventActivitySchema = (
-//     activitySetting: z.infer<typeof EventActivitySchema>
-// ) => {
-//     return {
-//         ...getEventSchema(activitySetting.setting),
-//         type: 'event' as ActivityType,
-//         name: activitySetting.name,
-//     };
-// };
-//
-// const getTaskActivitySchema = (
-//     activitySetting: z.infer<typeof TaskActivitySchema>
-// ) => {
-//     return {
-//         ...getTaskSchema(activitySetting.setting),
-//         type: 'task' as ActivityType,
-//         name: activitySetting.name,
-//     };
-// };
-//
-// const getActivitySchema = (
-//     activitySetting:
-//         | z.infer<typeof TaskActivitySchema>
-//         | z.infer<typeof EventActivitySchema>
-// ) => {
-//     switch (activitySetting.activityType) {
-//         case 'task':
-//             return getTaskActivitySchema(activitySetting);
-//         case 'event':
-//             return getEventActivitySchema(activitySetting);
-//     }
-// };
-
 const getRepeatConfigSchema = (
     repeatConfig: z.infer<typeof RepeatConfigZodSchema>
 ) => {

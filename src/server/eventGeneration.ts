@@ -1,6 +1,7 @@
 import { type ZoneInfo } from '~/components/zone/models';
 import { type ActivitySetting } from '~/components/activity/models';
 import { convertTimeConfigToMinutes } from '~/components/time_picker/models';
+import { type ScheduledBlock } from '~/components/timeline/models';
 
 function getNextWeekStart(weekStart: Date): Date {
     const weekEnd = new Date(weekStart);
@@ -73,7 +74,7 @@ function createSleepEvents(startDate: Date): ScheduledEvent[] {
     for (let i = 0; i < 7; i++) {
         const start = new Date(startDate);
         start.setDate(startDate.getDate() + i);
-        start.setHours(21);
+        start.setHours(22);
         start.setMinutes(0);
         start.setSeconds(0);
         start.setMilliseconds(0);
@@ -85,7 +86,7 @@ function createSleepEvents(startDate: Date): ScheduledEvent[] {
             end.setMinutes(59);
         } else {
             end.setDate(start.getDate() + 1);
-            end.setHours(9);
+            end.setHours(6);
             end.setMinutes(0);
         }
 
@@ -126,7 +127,7 @@ function createScheduledEventFromEvent(
         id: '',
         activityId: eventActivity.id,
         start: event.at,
-        end: new Date(),
+        end: new Date(event.at),
     };
 
     activity.end.setMinutes(
@@ -257,14 +258,10 @@ export function convertActivitiesToAbsActivities(
 }
 
 export function generateEvents(
-    activities: AbsActivitySetting[]
+    activities: AbsActivitySetting[],
+    startDate: Date
 ): ScheduledEvent[] {
-    let scheduledEvents: ScheduledEvent[] = [];
-
-    const currentDate = new Date();
-
-    scheduledEvents.push(...createSleepEvents(currentDate));
-    sortScheduledEventsByStart(scheduledEvents);
+    const scheduledEvents: ScheduledEvent[] = [];
 
     const { events, tasks } = splitActivities(activities);
 
@@ -281,6 +278,9 @@ export function generateEvents(
             console.log('event conflict');
         }
     }
+
+    scheduledEvents.push(...createSleepEvents(startDate));
+    sortScheduledEventsByStart(scheduledEvents);
 
     const busyTasks: [number, AbsTaskActivitySetting][] = [];
     for (const taskActivity of tasks) {
@@ -300,7 +300,11 @@ export function generateEvents(
             const nextActivity = scheduledEvents[i + 1];
             if (!currActivity || !nextActivity) break;
             if (
-                currActivity.end <= task.earliestStart &&
+                currActivity.end <=
+                    new Date(
+                        task.at.getTime() -
+                            task.estimatedRequiredTime * 60 * 1000
+                    ) &&
                 task.at <= nextActivity.start
             ) {
                 const start: Date = new Date(currActivity.end.getTime());
@@ -324,8 +328,45 @@ export function generateEvents(
             console.log('task conflict');
         }
     }
-    scheduledEvents = scheduledEvents.filter(
-        (activity) => activity.id !== 'sleep'
-    );
-    return scheduledEvents;
+    return scheduledEvents.filter((activity) => activity.id !== 'sleep');
+}
+
+function idToColor(input: string): string {
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+        const charCode = input.charCodeAt(i);
+        hash = (hash << 5) - hash + charCode;
+        hash |= 0; // Convert to 32-bit integer (bitwise OR with 0)
+    }
+
+    const hexCode = (hash >>> 0).toString(16).slice(0, 6);
+    return `#${hexCode.padStart(6, '0')}`;
+}
+
+export function scheduledBlocksFromScheduledEvents(
+    scheduledEvents: ScheduledEvent[],
+    activitiesMap: Map<string, ActivitySetting>
+): ScheduledBlock[] {
+    const scheduledBlocks: ScheduledBlock[] = [];
+    for (const scheduledEvent of scheduledEvents) {
+        const a = activitiesMap.get(scheduledEvent.activityId)?.name;
+        scheduledBlocks.push({
+            id: scheduledEvent.id,
+            color: idToColor(scheduledEvent.activityId),
+            name:
+                a !== undefined
+                    ? a
+                    : scheduledEvent.id === 'sleep'
+                    ? 'Sleep'
+                    : 'Unknown',
+            date: scheduledEvent.start,
+            hours:
+                (scheduledEvent.end.getTime() -
+                    scheduledEvent.start.getTime()) /
+                1000 /
+                60 /
+                60,
+        });
+    }
+    return scheduledBlocks;
 }

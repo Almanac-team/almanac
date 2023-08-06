@@ -17,7 +17,7 @@ import {
     type ActivitySetting,
 } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
-import { useQueryActivityDefinitions } from '~/data/activityDefinitions/query';
+import { useQueryActivityDefinitionsByCategory } from '~/data/activityDefinitions/query';
 import { appendActivityDefinitions } from '~/data/activityDefinitions/mutate';
 
 function ActivityCreateModal({
@@ -165,9 +165,11 @@ export function ActivityColumn({
 }) {
     const queryClient = useQueryClient();
     const router = useRouter();
-    const { data: activityDefinitions } = useQueryActivityDefinitions({
-        categoryId: categoryInfo.id,
-    });
+    const { data: activityDefinitions } = useQueryActivityDefinitionsByCategory(
+        {
+            categoryId: categoryInfo.id,
+        }
+    );
     const { mutateAsync: createActivityDefinition } =
         api.activityDefinitions.createActivityDefinition.useMutation();
     const [isOpen, setIsOpen] = useState(false);

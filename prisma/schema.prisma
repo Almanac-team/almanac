@@ -153,11 +153,11 @@ model EndConfig {
 }
 
 model Activity {
-  id                   String             @id @default(cuid())
+  id                   String             @id
   activityDefinitionId String
   name                 String
   activityDefinition   ActivityDefinition @relation(fields: [activityDefinitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  type                 ActivityType       @default(task)
+  type                 ActivityType
   task                 Task?
   event                Event?
   GeneratedEvent       GeneratedEvent[]

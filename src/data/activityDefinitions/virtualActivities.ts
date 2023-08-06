@@ -33,6 +33,7 @@ function checkGenerationViolation(
 export function generateVirtualActivities(
     repeatingActivity: RepeatingActivity,
     maxCount: number,
+    latestDate?: Date,
     startShift = 0
 ): ActivitySetting[] {
     const activitySettings: ActivitySetting[] = [];
@@ -87,11 +88,13 @@ export function generateVirtualActivities(
         );
 
         if (
-            checkGenerationViolation(
-                activitySetting,
-                activitySettings.length + 1,
-                endConfig
-            )
+            latestDate
+                ? latestDate < activitySetting.setting.value.at
+                : checkGenerationViolation(
+                      activitySetting,
+                      activitySettings.length + 1,
+                      endConfig
+                  )
         ) {
             return activitySettings;
         } else {

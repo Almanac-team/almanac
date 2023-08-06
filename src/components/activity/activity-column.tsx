@@ -7,23 +7,22 @@ import { useRouter } from 'next/router';
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
 import {
     EventSettingConfig,
+    isEvent,
+    isTask,
     TaskSettingConfig,
 } from '~/components/activity/activity-settings';
 import { Tab, Tabs } from '~/components/generic/tab';
 import {
     type ActivitySetting,
-    type ActivitySettingUnion,
     type ActivityType,
     type CategoryInfo,
     type EventSetting,
     type TaskSetting,
+    type ActivitySettingUnion,
 } from '~/components/activity/models';
-import {
-    useQueryActivities,
-    useQueryActivityDefinitions,
-} from '~/data/activities/query';
 import { useQueryClient } from '@tanstack/react-query';
-import { appendActivities } from '~/data/activities/mutate';
+import { useQueryActivityDefinitions } from '~/data/activityDefinitions/query';
+import { appendActivityDefinitions } from '~/data/activityDefinitions/mutate';
 
 function ActivityCreateModal({
     onSubmit,
@@ -124,7 +123,7 @@ function ActivityCreateModal({
                     if (activitySetting.name.trim() === '') {
                         setError(true);
                     } else if (onSubmit) {
-                        const setting =
+                        const setting: TaskSetting | EventSetting =
                             activitySetting.activityType === 'task'
                                 ? (unionSetting as TaskSetting)
                                 : (unionSetting as EventSetting);
@@ -169,9 +168,10 @@ export function ActivityColumn({
     const { data: activityDefinitions } = useQueryActivityDefinitions({
         categoryId: categoryInfo.id,
     });
-    const { mutateAsync: createTask } = api.activities.createTask.useMutation();
-    const { mutateAsync: createEvent } =
-        api.activities.createEvent.useMutation();
+    const { mutateAsync: createTaskDefinition } =
+        api.activityDefinitions.createTaskDefinition.useMutation();
+    const { mutateAsync: createEventDefinition } =
+        api.activityDefinitions.createEventDefinition.useMutation();
     const [isOpen, setIsOpen] = useState(false);
     const [updating, setUpdating] = useState(false);
 
@@ -241,22 +241,25 @@ export function ActivityColumn({
                         onSubmit={(activitySetting: ActivitySettingUnion) => {
                             setUpdating(true);
 
-                            if (activitySetting.activityType === 'task') {
-                                const setting =
-                                    activitySetting.setting as TaskSetting;
-                                createTask({
+                            if (isTask(activitySetting)) {
+                                createTaskDefinition({
                                     categoryId: categoryInfo.id,
-                                    name: activitySetting.name,
-                                    setting,
+                                    data: {
+                                        type: 'single',
+                                        activitySetting,
+                                    },
                                 })
-                                    .then((activityId: string) => {
-                                        appendActivities({
+                                    .then((activityDefinitionId: string) => {
+                                        appendActivityDefinitions({
                                             queryClient,
                                             categoryId: categoryInfo.id,
-                                            activity: {
-                                                ...activitySetting,
-                                                id: activityId,
-                                            } as ActivitySetting<TaskSetting>,
+                                            activityDefinition: {
+                                                id: activityDefinitionId,
+                                                data: {
+                                                    type: 'single',
+                                                    activitySetting,
+                                                },
+                                            },
                                         });
 
                                         setIsOpen(false);
@@ -266,24 +269,43 @@ export function ActivityColumn({
                                         setIsOpen(false);
                                         setUpdating(false);
                                     });
-                            } else if (
-                                activitySetting.activityType === 'event'
-                            ) {
-                                const setting =
-                                    activitySetting.setting as EventSetting;
-                                void createEvent({
+                            } else if (isEvent(activitySetting)) {
+                                void createEventDefinition({
                                     categoryId: categoryInfo.id,
-                                    name: activitySetting.name,
-                                    setting,
+                                    data: {
+                                        type: 'single',
+                                        activitySetting,
+                                    },
                                 })
-                                    .then((activityId: string) => {
-                                        appendActivities({
+                                    .then((activityDefinitionId: string) => {
+                                        appendActivityDefinitions({
                                             queryClient,
                                             categoryId: categoryInfo.id,
-                                            activity: {
-                                                ...activitySetting,
-                                                id: activityId,
-                                            } as ActivitySetting<EventSetting>,
+                                            activityDefinition: {
+                                                id: activityDefinitionId,
+                                                data: {
+                                                    type: 'single',
+                                                    activitySetting: {
+                                                        ...activitySetting,
+                                                        setting: {
+                                                            at: activitySetting
+                                                                .setting.at,
+                                                            estimatedRequiredTime:
+                                                                activitySetting
+                                                                    .setting
+                                                                    .estimatedRequiredTime,
+                                                            reminderMod:
+                                                                activitySetting
+                                                                    .setting
+                                                                    .reminderMod,
+                                                            startMod:
+                                                                activitySetting
+                                                                    .setting
+                                                                    .startMod,
+                                                        },
+                                                    },
+                                                },
+                                            },
                                         });
 
                                         setIsOpen(false);

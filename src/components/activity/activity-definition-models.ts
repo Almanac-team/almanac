@@ -82,7 +82,7 @@ export interface RepeatingActivity<T extends TaskSetting | EventSetting> {
     type: 'repeating';
     activitySetting: ActivitySetting<T>;
     repeatConfig: RepeatConfig;
-    end: EndConfig;
+    endConfig: EndConfig;
     exceptions: Map<number, RepeatingActivityException<T>>;
 }
 
@@ -120,7 +120,7 @@ export function generateVirtualActivities<T extends TaskSetting | EventSetting>(
     const activitySettings: ActivitySetting<T>[] = [];
 
     const repeatConfig = repeatingActivity.repeatConfig;
-    const end = repeatingActivity.end;
+    const end = repeatingActivity.endConfig;
 
     for (let i = 0; i < count; i++) {
         const activitySetting: ActivitySetting<T> = {

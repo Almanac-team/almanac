@@ -31,13 +31,22 @@ declare module 'next-auth' {
  */
 export const authOptions: NextAuthOptions = {
     callbacks: {
-        session: ({ session, user }) => ({
-            ...session,
-            user: {
-                ...session.user,
-                id: user.id,
-            },
-        }),
+        jwt({ token, account, profile }: any) {
+            if (account) {
+              console.log("token", token);
+              token.accessToken = account.access_token;
+              token.id = profile.id;
+            }
+            return token;
+        },
+        session({ session, token }: any) {
+            session.accessToken = token.accessToken;
+            session.id = token.sub;
+            return session;
+        },
+        redirect({baseUrl}) {
+            return baseUrl;
+        }
     },
     adapter: PrismaAdapter(prisma),
     providers: [
@@ -57,6 +66,12 @@ export const authOptions: NextAuthOptions = {
          * @see https://next-auth.js.org/providers/github
          */
     ],
+    session: {
+        strategy: "jwt",
+    },
+    pages: {
+        signIn: "/login",
+    },
 };
 
 /**

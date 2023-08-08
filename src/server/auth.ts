@@ -4,6 +4,7 @@ import {
     type DefaultSession,
     getServerSession,
     type NextAuthOptions,
+    Session,
 } from 'next-auth';
 import { prisma } from '~/server/db';
 import Auth0Provider from 'next-auth/providers/auth0';
@@ -31,22 +32,15 @@ declare module 'next-auth' {
  */
 export const authOptions: NextAuthOptions = {
     callbacks: {
-        jwt({ token, account, profile }: any) {
+        async jwt({ token, user, account }) {
+            if (user) {
+              token.id = user.id;
+            }
             if (account) {
-              console.log("token", token);
               token.accessToken = account.access_token;
-              token.id = profile.id;
             }
             return token;
-        },
-        session({ session, token }: any) {
-            session.accessToken = token.accessToken;
-            session.id = token.sub;
-            return session;
-        },
-        redirect({baseUrl}) {
-            return baseUrl;
-        }
+          },
     },
     adapter: PrismaAdapter(prisma),
     providers: [

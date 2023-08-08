@@ -32,15 +32,15 @@ declare module 'next-auth' {
  */
 export const authOptions: NextAuthOptions = {
     callbacks: {
-        async jwt({ token, user, account }) {
+        jwt({ token, user, account }) {
             if (user) {
-              token.id = user.id;
+                token.id = user.id;
             }
             if (account) {
-              token.accessToken = account.access_token;
+                token.accessToken = account.access_token;
             }
             return token;
-          },
+        },
     },
     adapter: PrismaAdapter(prisma),
     providers: [
@@ -61,7 +61,7 @@ export const authOptions: NextAuthOptions = {
          */
     ],
     session: {
-        strategy: "jwt",
+        strategy: 'jwt',
     },
 };
 

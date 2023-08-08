@@ -16,7 +16,7 @@ const regionsRouter = createTRPCRouter({
             })
         )
         .mutation(({ ctx, input }) => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
             input.regions.map(async (region) => {
                 return await ctx.prisma.region.update({
                     where: {
@@ -86,4 +86,4 @@ const regionsRouter = createTRPCRouter({
         }),
 });
 
-export default regionsRouter;
+export default regionsRouter

@@ -357,7 +357,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                 | null
                 | undefined
             > => {
-                const userId = ctx.session.user.id;
+                const userId = ctx.session.user.id ?? null;
                 const activityDefinitionInfo =
                     await ctx.prisma.activityDefinition.findUnique({
                         where: {
@@ -427,7 +427,7 @@ const activityDefinitionsRouter = createTRPCRouter({
             })
         )
         .query(async ({ ctx, input }): Promise<ActivityDefinition[]> => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
             const activityDefinitionInfos =
                 await ctx.prisma.activityDefinition.findMany({
                     where: {
@@ -544,7 +544,7 @@ const activityDefinitionsRouter = createTRPCRouter({
      */
     internalGetAll: protectedProcedure.query(
         async ({ ctx }): Promise<ActivityDefinition[]> => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
             const activityDefinitionInfos =
                 await ctx.prisma.activityDefinition.findMany({
                     where: {
@@ -675,7 +675,7 @@ const activityDefinitionsRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }): Promise<string> => {
-            const userId = ctx?.session?.user?.id;
+            const userId = ctx.session.user.id ?? null;
 
             if (input.data.type === 'single') {
                 const activitySetting = input.data.activitySetting;
@@ -799,7 +799,7 @@ const activityDefinitionsRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }): Promise<string> => {
-            const userId = ctx?.session?.user?.id;
+            const userId = ctx.session.user.id ?? null;
 
             if (input.data.type === 'single') {
                 const activitySetting = input.data.activitySetting;
@@ -934,7 +934,7 @@ const activityDefinitionsRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }): Promise<boolean> => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
 
             const [, upsert] = await ctx.prisma.$transaction([
                 ctx.prisma.activityCompletionExceptions.deleteMany({
@@ -989,4 +989,4 @@ const activityDefinitionsRouter = createTRPCRouter({
         }),
 });
 
-export default activityDefinitionsRouter;
+export default activityDefinitionsRouter

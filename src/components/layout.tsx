@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import {
     Card,
     List,
@@ -19,12 +19,49 @@ import {
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 
+const StateContext = createContext(true);
+
+function Content({
+    icon,
+    title,
+}: {
+    icon: React.ReactNode;
+    title: string;
+    state: boolean;
+}) {
+    const router = useRouter();
+    const open = useContext(StateContext);
+
+    return (
+        <>
+            {open ? (
+                <ListItem
+                    onClick={() => void router.push(`/${title.toLowerCase()}`)}
+                >
+                    <ListItemPrefix>{icon}</ListItemPrefix>
+                    {title}
+                </ListItem>
+            ) : (
+                <ListItem
+                    onClick={() => void router.push(`/${title.toLowerCase()}`)}
+                >
+                    <ListItemPrefix>{icon}</ListItemPrefix>
+                </ListItem>
+            )}
+        </>
+    );
+}
+
 function Sidebar() {
     const router = useRouter();
     const [open, setOpen] = useState(true);
 
     return (
-        <Card className={`transition-all ${open ? "max-w-[20rem]" : "max-w-[6rem]"} p-4 shadow-blue-gray-900/5 transition-all duration-100 ease-in-out`}>
+        <Card
+            className={`h-full ${
+                open ? 'max-w-[20rem]' : 'max-w-[5rem]'
+            } p-4 shadow-blue-gray-900/5 transition-all duration-100 ease-in-out`}
+        >
             <div className="mb-2 flex select-none items-center gap-4 p-4">
                 <button onClick={() => setOpen(!open)}>
                     <Bars3Icon className="h-7 w-7" />
@@ -37,107 +74,53 @@ function Sidebar() {
                     Sidebar
                 </Typography>
             </div>
-            <List className={`select-none ${open ? "min-w-[15rem]" : "min-w-[3rem]"} transition-all duration-100 ease-in-out`}>
-                <hr className={`my-2 border-blue-gray-50 ${open ? "max-w-[20rem]" : "max-w-[3rem]"}`}/>
-                {open ? (
-                    <ListItem onClick={() => void router.push('/track')} >
-                        <ListItemPrefix>
-                            <PencilIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                        Track
-                    </ListItem>
-                ) : (
-                    <ListItem onClick={() => void router.push('/track')}>
-                        <ListItemPrefix>
-                            <PencilIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                    </ListItem>
-                )}
-                {open ? (
-                    <ListItem onClick={() => void router.push('/sprint')}>
-                        <ListItemPrefix>
-                            <FlagIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                        Sprint
-                    </ListItem>
-                ) : (
-                    <ListItem onClick={() => void router.push('/sprint')}>
-                        <ListItemPrefix>
-                            <FlagIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                    </ListItem>
-                )}
-                {open ? (
-                    <ListItem onClick={() => void router.push('/calendar')}>
-                        <ListItemPrefix>
-                            <CalendarIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                        Calendar
-                    </ListItem>
-                ) : (
-                    <ListItem onClick={() => void router.push('/calendar')}>
-                        <ListItemPrefix>
-                            <CalendarIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                    </ListItem>
-                )}
-                {open ? (
-                    <ListItem onClick={() => void router.push('/definitions')}>
-                        <ListItemPrefix>
-                            <BookOpenIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                        Definitions
-                    </ListItem>
-                ) : (
-                    <ListItem onClick={() => void router.push('/definitions')}>
-                        <ListItemPrefix>
-                            <BookOpenIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                    </ListItem>
-                )}
-                {open ? (
-                    <ListItem onClick={() => void router.push('/zones')}>
-                        <ListItemPrefix>
-                            <TableCellsIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                        Zones
-                    </ListItem>
-                ) : (
-                    <ListItem onClick={() => void router.push('/zones')}>
-                        <ListItemPrefix>
-                            <TableCellsIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                    </ListItem>
-                )}
-                <hr className={`my-2 border-blue-gray-50 ${open ? "max-w-[20rem]" : "max-w-[3rem]"}`}/>
-                {open ? (
-                    <ListItem onClick={() => void router.push('/settings')}>
-                        <ListItemPrefix>
-                            <Cog6ToothIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                        Settings
-                    </ListItem>
-                ) : (
-                    <ListItem onClick={() => void router.push('/settings')}>
-                        <ListItemPrefix>
-                            <Cog6ToothIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                    </ListItem>
-                )}
-                {open ? (
-                    <ListItem onClick={() => void router.push('/account')}>
-                        <ListItemPrefix>
-                            <UserCircleIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                        Account
-                    </ListItem>
-                ) : (
-                    <ListItem onClick={() => void router.push('/account')}>
-                        <ListItemPrefix>
-                            <UserCircleIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                    </ListItem>
-                )}
+            <List
+                className={`select-none ${
+                    open ? 'min-w-[15rem]' : 'min-w-[3.8rem]'
+                } transition-all duration-100 ease-in-out`}
+            >
+                <hr
+                    className={`my-2 border-blue-gray-50 ${
+                        open ? 'max-w-[20rem]' : 'max-w-[3rem]'
+                    }`}
+                />
+                <StateContext.Provider value={open}>
+                    <Content
+                        icon={<PencilIcon className="h-5 w-5" />}
+                        title={'Track'}
+                        state={open}
+                    />
+                    <Content
+                        icon={<CalendarIcon className="h-5 w-5" />}
+                        title={'Calendar'}
+                        state={open}
+                    />
+                    <Content
+                        icon={<BookOpenIcon className="h-5 w-5" />}
+                        title={'Definitions'}
+                        state={open}
+                    />
+                    <Content
+                        icon={<TableCellsIcon className="h-5 w-5" />}
+                        title={'Zones'}
+                        state={open}
+                    />
+                    <hr
+                        className={`my-2 border-blue-gray-50 ${
+                            open ? 'max-w-[20rem]' : 'max-w-[3rem]'
+                        }`}
+                    />
+                    <Content
+                        icon={<Cog6ToothIcon className="h-5 w-5" />}
+                        title={'Settings'}
+                        state={open}
+                    />
+                    <Content
+                        icon={<UserCircleIcon className="h-5 w-5" />}
+                        title={'Account'}
+                        state={open}
+                    />
+                </StateContext.Provider>
             </List>
         </Card>
     );

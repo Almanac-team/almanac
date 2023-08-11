@@ -11,56 +11,49 @@ import {
     BookOpenIcon,
     CalendarIcon,
     Cog6ToothIcon,
-    FlagIcon,
     PencilIcon,
     TableCellsIcon,
     UserCircleIcon,
 } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
+import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
 
 const StateContext = createContext(true);
 
-function Content({
-    icon,
-    title,
-}: {
-    icon: React.ReactNode;
-    title: string;
-    state: boolean;
-}) {
+function Item({ icon, title }: { icon: React.ReactNode; title: string }) {
     const router = useRouter();
+
+    return (
+        <ListItem onClick={() => void router.push(`/${title.toLowerCase()}`)}>
+            <ListItemPrefix>{icon}</ListItemPrefix>
+            {title}
+        </ListItem>
+    );
+}
+
+function Content({ icon, title }: { icon: React.ReactNode; title: string }) {
     const open = useContext(StateContext);
 
     return (
         <>
             {open ? (
-                <ListItem
-                    onClick={() => void router.push(`/${title.toLowerCase()}`)}
-                >
-                    <ListItemPrefix>{icon}</ListItemPrefix>
-                    {title}
-                </ListItem>
+                <Item icon={icon} title={title} />
             ) : (
-                <ListItem
-                    onClick={() => void router.push(`/${title.toLowerCase()}`)}
-                >
-                    <ListItemPrefix>{icon}</ListItemPrefix>
-                </ListItem>
+                <Item icon={icon} title="" />
             )}
         </>
     );
 }
 
 function Sidebar() {
-    const router = useRouter();
     const [open, setOpen] = useState(true);
 
     return (
         <Card
             className={`h-full ${
-                open ? 'max-w-[20rem]' : 'max-w-[5rem]'
-            } p-4 shadow-blue-gray-900/5 transition-all duration-100 ease-in-out`}
+                open ? 'max-w-[20rem]' : 'max-w-[3.8rem]'
+            } pt-4 shadow-blue-gray-900/5 transition-all duration-100 ease-in-out`}
         >
             <div className="mb-2 flex select-none items-center gap-4 p-4">
                 <button onClick={() => setOpen(!open)}>
@@ -69,14 +62,14 @@ function Sidebar() {
                 <Typography
                     variant="h5"
                     color="blue-gray"
-                    className={open ? '' : 'hidden'}
+                    className={clsx({["hidden"]: open === false})}
                 >
                     Sidebar
                 </Typography>
             </div>
             <List
                 className={`select-none ${
-                    open ? 'min-w-[15rem]' : 'min-w-[3.8rem]'
+                    open ? 'min-w-[15rem]' : 'w-full min-w-[3rem]'
                 } transition-all duration-100 ease-in-out`}
             >
                 <hr
@@ -88,22 +81,18 @@ function Sidebar() {
                     <Content
                         icon={<PencilIcon className="h-5 w-5" />}
                         title={'Track'}
-                        state={open}
                     />
                     <Content
                         icon={<CalendarIcon className="h-5 w-5" />}
                         title={'Calendar'}
-                        state={open}
                     />
                     <Content
                         icon={<BookOpenIcon className="h-5 w-5" />}
                         title={'Definitions'}
-                        state={open}
                     />
                     <Content
                         icon={<TableCellsIcon className="h-5 w-5" />}
                         title={'Zones'}
-                        state={open}
                     />
                     <hr
                         className={`my-2 border-blue-gray-50 ${
@@ -113,12 +102,10 @@ function Sidebar() {
                     <Content
                         icon={<Cog6ToothIcon className="h-5 w-5" />}
                         title={'Settings'}
-                        state={open}
                     />
                     <Content
                         icon={<UserCircleIcon className="h-5 w-5" />}
                         title={'Account'}
-                        state={open}
                     />
                 </StateContext.Provider>
             </List>
@@ -128,7 +115,7 @@ function Sidebar() {
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const { data: sessionData } = useSession();
-    
+
     return (
         <div className="flex max-h-screen min-h-screen w-screen flex-row overflow-hidden">
             <div className={sessionData ? "" : "hidden"}>

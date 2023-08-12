@@ -15,8 +15,8 @@ export default function Home() {
 
                 <div>
                     <button
-                        className="rounded-s border-2 border-black px-2 py-1 font-semibold"
-                        onClick={() => void signOut()}
+                        className="rounded-sm border-2 border-black px-2 py-1 font-semibold"
+                        onClick={() => void signOut({ callbackUrl: '/' })}
                     >
                         Sign out
                     </button>

@@ -1,7 +1,5 @@
-import { signOut, useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { type Session } from 'next-auth';
 
 function LoggedIn() {
     return (
@@ -19,8 +17,6 @@ function LoggedIn() {
 }
 
 function LoggedOut() {
-    const router = useRouter();
-
     return (
         <>
             <Head>
@@ -31,8 +27,10 @@ function LoggedOut() {
             <main className="absolute right-0 top-0 flex h-full flex-col">
                 <div>
                     <button
-                        className="rounded-s border-2 border-black px-2 py-1 font-semibold"
-                        onClick={() => void router.push('/login')}
+                        className="rounded-m border-2 border-black px-2 py-1 font-semibold"
+                        onClick={() =>
+                            void signIn('auth0', { callbackUrl: '/' })
+                        }
                     >
                         Sign in
                     </button>

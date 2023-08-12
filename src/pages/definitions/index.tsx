@@ -6,6 +6,7 @@ import { Button, Input, Typography } from '@material-tailwind/react';
 import React, { useState } from 'react';
 
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
+import {withAuthServerSideProps} from "~/components/generic/withAuthServerSide";
 
 interface CategorySetting {
     id: string | undefined;
@@ -175,3 +176,5 @@ export default function Home() {
         </>
     );
 }
+
+export const getServerSideProps = withAuthServerSideProps();

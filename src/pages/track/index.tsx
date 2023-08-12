@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { TimelineView } from '~/components/timeline/timeline-view';
+import { withAuthServerSideProps } from "~/components/generic/withAuthServerSide";
 
 export default function Home() {
     const today = new Date();
@@ -33,3 +34,5 @@ export default function Home() {
         </>
     );
 }
+
+export const getServerSideProps = withAuthServerSideProps();

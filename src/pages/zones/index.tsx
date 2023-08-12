@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { api } from '~/utils/api';
 import { ZoneColumn } from '~/components/zone/zone-column';
 import { ZoneView } from '~/components/zone/zone-view';
+import {withAuthServerSideProps} from "~/components/generic/withAuthServerSide";
 
 export function getWeekStart(date: Date) {
     const today = date;
@@ -50,3 +51,5 @@ export default function Home() {
         </>
     );
 }
+
+export const getServerSideProps = withAuthServerSideProps();

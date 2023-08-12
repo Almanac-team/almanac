@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import {withAuthServerSideProps} from "~/components/generic/withAuthServerSide";
 
 export default function Home() {
     return (
@@ -14,3 +15,5 @@ export default function Home() {
         </>
     );
 }
+
+export const getServerSideProps = withAuthServerSideProps();

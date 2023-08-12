@@ -8,6 +8,7 @@ import {
 import SelectField from '~/components/forms/SelectField';
 import { useState } from 'react';
 import { api } from '~/utils/api';
+import {withAuthServerSideProps} from "~/components/generic/withAuthServerSide";
 
 const tzOptions = [
     { value: 'test', label: 'test' },
@@ -107,3 +108,5 @@ export default function Page() {
         </ThemeProvider>
     );
 }
+
+export const getServerSideProps = withAuthServerSideProps();

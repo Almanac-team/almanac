@@ -15,6 +15,7 @@ import {
     getActivitiesFromDefinition,
 } from '~/data/activityDefinitions/virtualActivities';
 import { type ActivitySetting } from '~/components/activity/models';
+import {withAuthServerSideProps} from "~/components/generic/withAuthServerSide";
 
 export function getWeekStart(date: Date) {
     const today = date;
@@ -103,3 +104,5 @@ export default function Home() {
         </>
     );
 }
+
+export const getServerSideProps = withAuthServerSideProps();

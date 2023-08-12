@@ -86,4 +86,4 @@ const regionsRouter = createTRPCRouter({
         }),
 });
 
-export default regionsRouter;
+export default regionsRouter

@@ -12,7 +12,7 @@ const categoriesRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const userId = ctx?.session?.user.id;
+            const userId = ctx.session.user.id;
             const { name, color } = input;
 
             return ctx.prisma.category
@@ -53,7 +53,7 @@ const categoriesRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const userId = ctx?.session?.user.id;
+            const userId = ctx.session.user.id;
             const { id, name, color } = input;
 
             return ctx.prisma.category
@@ -106,7 +106,7 @@ const categoriesRouter = createTRPCRouter({
 
     getCategories: protectedProcedure.query(
         async ({ ctx }): Promise<CategoryInfo[]> => {
-            const userId = ctx?.session?.user?.id;
+            const userId = ctx.session.user.id;
             return (
                 await ctx.prisma.category.findMany({
                     where: {
@@ -130,7 +130,7 @@ const categoriesRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const userId = ctx?.session?.user.id;
+            const userId = ctx.session.user.id;
             const { id } = input;
 
             return ctx.prisma.category

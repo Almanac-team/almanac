@@ -675,7 +675,7 @@ const activityDefinitionsRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }): Promise<string> => {
-            const userId = ctx?.session?.user?.id;
+            const userId = ctx.session.user.id;
 
             if (input.data.type === 'single') {
                 const activitySetting = input.data.activitySetting;
@@ -799,7 +799,7 @@ const activityDefinitionsRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }): Promise<string> => {
-            const userId = ctx?.session?.user?.id;
+            const userId = ctx.session.user.id;
 
             if (input.data.type === 'single') {
                 const activitySetting = input.data.activitySetting;
@@ -989,4 +989,4 @@ const activityDefinitionsRouter = createTRPCRouter({
         }),
 });
 
-export default activityDefinitionsRouter;
+export default activityDefinitionsRouter

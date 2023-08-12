@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { TimelineView, WeekView } from './timeline-view';
-import { getWeekStart } from '~/pages/sprint';
+import { getWeekStart } from 'src/pages/calendar';
 import { type ScheduledBlock } from '~/components/timeline/models';
 
 const meta: Meta<typeof TimelineView> = {

@@ -9,7 +9,7 @@ export default function Home() {
         <>
             <Head>
                 <title>Account</title>
-                <meta name="description" content="Sprint" />
+                <meta name="description" content="Account" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main className="max-h-screen">

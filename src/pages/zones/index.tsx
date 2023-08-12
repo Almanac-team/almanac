@@ -36,8 +36,8 @@ export default function Home() {
     return (
         <>
             <Head>
-                <title>Calendar</title>
-                <meta name="description" content="Sprint" />
+                <title>Zones</title>
+                <meta name="description" content="Zones" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main className="flex h-screen max-h-screen flex-row">

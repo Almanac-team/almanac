@@ -51,7 +51,7 @@ export default function Home() {
     return (
         <>
             <Head>
-                <title>Calendar</title>
+                <title>Settings</title>
                 <meta name="description" content="Settings" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>

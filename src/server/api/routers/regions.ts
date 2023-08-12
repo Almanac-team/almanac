@@ -16,7 +16,7 @@ const regionsRouter = createTRPCRouter({
             })
         )
         .mutation(({ ctx, input }) => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
             input.regions.map(async (region) => {
                 return await ctx.prisma.region.update({
                     where: {
@@ -45,7 +45,7 @@ const regionsRouter = createTRPCRouter({
             })
         )
         .mutation(({ ctx, input }) => {
-            const userId: string = ctx.session.user.id;
+            const userId: string = ctx.session.user.id ?? null;
             return ctx.prisma.zone.update({
                 where: {
                     id: input.zoneId,
@@ -72,7 +72,7 @@ const regionsRouter = createTRPCRouter({
             })
         )
         .mutation(({ ctx, input }) => {
-            const userId: string = ctx.session.user.id;
+            const userId: string = ctx.session.user.id ?? null;
             return ctx.prisma.region.deleteMany({
                 where: {
                     id: {
@@ -86,4 +86,4 @@ const regionsRouter = createTRPCRouter({
         }),
 });
 
-export default regionsRouter
+export default regionsRouter;

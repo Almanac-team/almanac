@@ -5,7 +5,7 @@ import { type Region, type ZoneInfo } from '~/components/zone/models';
 
 const zonesRouter = createTRPCRouter({
     getZones: protectedProcedure.query(async ({ ctx }): Promise<ZoneInfo[]> => {
-        const userId = ctx.session.user.id;
+        const userId = ctx.session.user.id ?? null;
         return (
             await ctx.prisma.zone.findMany({
                 where: {
@@ -39,7 +39,7 @@ const zonesRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }): Promise<ZoneInfo> => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
             const zone = await ctx.prisma.zone.create({
                 data: {
                     name: input.name,
@@ -64,7 +64,7 @@ const zonesRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }): Promise<ZoneInfo> => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
             const zone = await ctx.prisma.zone.update({
                 where: {
                     id: input.id,
@@ -89,7 +89,7 @@ const zonesRouter = createTRPCRouter({
             })
         )
         .query(async ({ ctx, input }): Promise<ZoneInfo[] | undefined> => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
             const activity = await ctx.prisma.activity.findUnique({
                 where: {
                     id: input.activityId,
@@ -129,4 +129,4 @@ const zonesRouter = createTRPCRouter({
         }),
 });
 
-export default zonesRouter
+export default zonesRouter;

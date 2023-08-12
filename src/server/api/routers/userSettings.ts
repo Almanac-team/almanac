@@ -3,7 +3,7 @@ import { createTRPCRouter, protectedProcedure } from '~/server/api/trpc';
 
 const userSettingsRouter = createTRPCRouter({
     getUserSettings: protectedProcedure.query(({ ctx }) => {
-        const userId = ctx.session.user.id;
+        const userId = ctx.session.user.id ?? null;
         return { userId };
     }),
     updateUserSettings: protectedProcedure
@@ -15,7 +15,7 @@ const userSettingsRouter = createTRPCRouter({
             })
         )
         .mutation(({ ctx, input }) => {
-            const userId = ctx.session.user.id;
+            const userId = ctx.session.user.id ?? null;
             const { timezone, timeFormat, dateFormat } = input;
             console.dir(timezone);
             console.dir(timeFormat);

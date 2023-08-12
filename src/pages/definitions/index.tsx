@@ -3,10 +3,11 @@ import { api } from '~/utils/api';
 import { ActivityColumn } from '~/components/activity/activity-column';
 
 import { Button, Input, Typography } from '@material-tailwind/react';
-import React, { useState } from 'react';
+import React, { type ReactElement, useState } from 'react';
 
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
-import {withAuthServerSideProps} from "~/components/generic/withAuthServerSide";
+import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
+import { Layout } from '~/components/layout';
 
 interface CategorySetting {
     id: string | undefined;
@@ -176,5 +177,7 @@ export default function Home() {
         </>
     );
 }
-
-export const getServerSideProps = withAuthServerSideProps();
+Home.getLayout = function getLayout(page: ReactElement) {
+    return <Layout>{page}</Layout>
+}
+export const getServerSideProps = withAuthServerSideProps()

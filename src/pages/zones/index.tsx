@@ -1,9 +1,10 @@
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { type ReactElement, useEffect, useState } from 'react';
 import { api } from '~/utils/api';
 import { ZoneColumn } from '~/components/zone/zone-column';
 import { ZoneView } from '~/components/zone/zone-view';
-import {withAuthServerSideProps} from "~/components/generic/withAuthServerSide";
+import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
+import { Layout } from '~/components/layout';
 
 export function getWeekStart(date: Date) {
     const today = date;
@@ -51,5 +52,7 @@ export default function Home() {
         </>
     );
 }
-
+Home.getLayout = function getLayout(page: ReactElement) {
+    return <Layout>{page}</Layout>;
+};
 export const getServerSideProps = withAuthServerSideProps();

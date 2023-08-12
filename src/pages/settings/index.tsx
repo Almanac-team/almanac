@@ -1,14 +1,10 @@
 import Head from 'next/head';
-import {
-    Button,
-    Card,
-    ThemeProvider,
-    Typography,
-} from '@material-tailwind/react';
+import { Button, Card, Typography } from '@material-tailwind/react';
 import SelectField from '~/components/forms/SelectField';
-import { useState } from 'react';
+import { type ReactElement, useState } from 'react';
 import { api } from '~/utils/api';
-import {withAuthServerSideProps} from "~/components/generic/withAuthServerSide";
+import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
+import { Layout } from '~/components/layout';
 
 const tzOptions = [
     { value: 'test', label: 'test' },
@@ -25,7 +21,7 @@ const timeFormatOptions = [
     { value: 'Military', label: 'Military' },
 ];
 
-function Home() {
+export default function Home() {
     const [dateFormat, setDateFormat] = useState<string>('');
     const [timeFormat, setTimeFormat] = useState<string>('');
     const updateDateFormat = (value?: string) => {
@@ -101,12 +97,7 @@ function Home() {
     );
 }
 
-export default function Page() {
-    return (
-        <ThemeProvider>
-            <Home />
-        </ThemeProvider>
-    );
-}
-
+Home.getLayout = function getLayout(page: ReactElement) {
+    return <Layout>{page}</Layout>;
+};
 export const getServerSideProps = withAuthServerSideProps();

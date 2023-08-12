@@ -91,8 +91,9 @@ const categoriesRouter = createTRPCRouter({
             })
         )
         .query(async ({ ctx, input }) => {
+            const userId = ctx.session.user.id;
             const category = await ctx.prisma.category.findUnique({
-                where: { id: input.id },
+                where: { id: input.id, userId: userId },
             });
             if (category) {
                 return {
@@ -157,4 +158,4 @@ const categoriesRouter = createTRPCRouter({
         }),
 });
 
-export default categoriesRouter;
+export default categoriesRouter

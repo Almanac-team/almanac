@@ -125,7 +125,7 @@ export default function Home() {
     return (
         <>
             <Head>
-                <title>Activity Definitions</title>
+                <title>Definitions</title>
                 <meta name="description" content="Activity Definitions" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
@@ -178,6 +178,6 @@ export default function Home() {
     );
 }
 Home.getLayout = function getLayout(page: ReactElement) {
-    return <Layout>{page}</Layout>
-}
-export const getServerSideProps = withAuthServerSideProps()
+    return <Layout>{page}</Layout>;
+};
+export const getServerSideProps = withAuthServerSideProps();

@@ -1,10 +1,12 @@
 import { useRouter } from 'next/router';
 import { ActivityColumn } from '~/components/activity/activity-column';
 import { api } from '~/utils/api';
+import { type ReactElement } from 'react';
+import { Layout } from '~/components/layout';
 
-export default function Category() {
+export default function Home() {
     const router = useRouter();
-    const { data, isError, isLoading } = api.categories.getCategory.useQuery({
+    const { data, isLoading } = api.categories.getCategory.useQuery({
         id: String(router.query.categoryId),
     });
 
@@ -26,3 +28,6 @@ export default function Category() {
         );
     }
 }
+Home.getLayout = function getLayout(page: ReactElement) {
+    return <Layout>{page}</Layout>;
+};

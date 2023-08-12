@@ -1,5 +1,7 @@
 import { signIn, useSession } from 'next-auth/react';
 import Head from 'next/head';
+import { Layout } from '~/components/layout';
+import { type ReactElement } from 'react';
 
 function LoggedIn() {
     return (
@@ -39,6 +41,10 @@ function LoggedOut() {
         </>
     );
 }
+
+Home.getLayout = function getLayout(page: ReactElement) {
+    return <Layout>{page}</Layout>;
+};
 
 export default function Home() {
     const { data: sessionData } = useSession();

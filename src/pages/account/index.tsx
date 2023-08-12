@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
 import Link from 'next/link';
+import { type ReactElement } from 'react';
+import { Layout } from '~/components/layout';
 
 export default function Home() {
     return (
@@ -25,5 +27,7 @@ export default function Home() {
         </>
     );
 }
-
+Home.getLayout = function getLayout(page: ReactElement) {
+    return <Layout>{page}</Layout>;
+};
 export const getServerSideProps = withAuthServerSideProps();

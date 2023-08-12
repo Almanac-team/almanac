@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import { TimelineView } from '~/components/timeline/timeline-view';
-import { withAuthServerSideProps } from "~/components/generic/withAuthServerSide";
+import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
+import { type ReactElement } from 'react';
+import { Layout } from '~/components/layout';
 
 export default function Home() {
     const today = new Date();
@@ -34,5 +36,7 @@ export default function Home() {
         </>
     );
 }
-
+Home.getLayout = function getLayout(page: ReactElement) {
+    return <Layout>{page}</Layout>;
+};
 export const getServerSideProps = withAuthServerSideProps();

@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { WeekView } from '~/components/timeline/timeline-view';
-import { useEffect, useMemo, useState } from 'react';
+import { type ReactElement, useMemo, useState } from 'react';
 import { Button } from '@material-tailwind/react';
 import { type ScheduledBlock } from '~/components/timeline/models';
 import {
@@ -9,13 +9,13 @@ import {
     scheduledBlocksFromScheduledEvents,
 } from '~/server/eventGeneration';
 import { useQueryActivityDefinitions } from '~/data/activityDefinitions/query';
-import { api } from '~/utils/api';
 import {
     type ActivitySettingWithCompletion,
     getActivitiesFromDefinition,
 } from '~/data/activityDefinitions/virtualActivities';
 import { type ActivitySetting } from '~/components/activity/models';
 import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
+import { Layout } from '~/components/layout';
 
 export function getWeekStart(date: Date) {
     const today = date;
@@ -104,5 +104,7 @@ export default function Home() {
         </>
     );
 }
-
+Home.getLayout = function getLayout(page: ReactElement) {
+    return <Layout>{page}</Layout>;
+};
 export const getServerSideProps = withAuthServerSideProps();

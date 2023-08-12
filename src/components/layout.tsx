@@ -1,5 +1,6 @@
 import React, { useState, createContext, useContext } from 'react';
 import {
+    Button,
     Card,
     List,
     ListItem,
@@ -68,9 +69,11 @@ function Sidebar() {
                         !open && 'max-w-0'
                     )}
                 >
-                    <Typography variant="h5" color="blue-gray">
-                        Almanac
-                    </Typography>
+                    <Link href="/">
+                        <Typography variant="h5" color="blue-gray">
+                            Almanac
+                        </Typography>
+                    </Link>
                 </span>
             </div>
             <List

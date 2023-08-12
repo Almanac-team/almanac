@@ -14,7 +14,6 @@ import {
     PencilIcon,
     TableCellsIcon,
     UserCircleIcon,
-    FlagIcon,
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
@@ -89,11 +88,6 @@ function Sidebar() {
                         icon={<PencilIcon className="h-5 w-5" />}
                         title="Track"
                         route="track"
-                    />
-                    <Content
-                        icon={<FlagIcon className="h-5 w-5" />}
-                        title="Sprint"
-                        route="sprint"
                     />
                     <Content
                         icon={<CalendarIcon className="h-5 w-5" />}

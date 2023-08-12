@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
-import { signOut } from 'next-auth/react';
+import Link from 'next/link';
 
 export default function Home() {
     return (
@@ -14,12 +14,12 @@ export default function Home() {
                 <div className="flex max-h-screen w-full overflow-y-hidden"></div>
 
                 <div>
-                    <button
+                    <Link
+                        href="/logout"
                         className="rounded-sm border-2 border-black px-2 py-1 font-semibold"
-                        onClick={() => void signOut({ callbackUrl: '/' })}
                     >
                         Sign out
-                    </button>
+                    </Link>
                 </div>
             </main>
         </>

@@ -14,6 +14,7 @@ import {
     PencilIcon,
     TableCellsIcon,
     UserCircleIcon,
+    FlagIcon,
 } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/router';
 import clsx from 'clsx';
@@ -21,28 +22,23 @@ import { useSession } from 'next-auth/react';
 
 const StateContext = createContext(true);
 
-function Item({ icon, title }: { icon: React.ReactNode; title: string }) {
+function Content({
+    icon,
+    title,
+    route,
+}: {
+    icon: React.ReactNode;
+    title: string;
+    route: string;
+}) {
+    const open = useContext(StateContext);
     const router = useRouter();
 
     return (
-        <ListItem onClick={() => void router.push(`/${title.toLowerCase()}`)}>
+        <ListItem onClick={() => void router.push(`/${route}`)}>
             <ListItemPrefix>{icon}</ListItemPrefix>
-            {title}
+            {open ? title : null}
         </ListItem>
-    );
-}
-
-function Content({ icon, title }: { icon: React.ReactNode; title: string }) {
-    const open = useContext(StateContext);
-
-    return (
-        <>
-            {open ? (
-                <Item icon={icon} title={title} />
-            ) : (
-                <Item icon={icon} title="" />
-            )}
-        </>
     );
 }
 
@@ -62,9 +58,9 @@ function Sidebar() {
                 <Typography
                     variant="h5"
                     color="blue-gray"
-                    className={clsx({["hidden"]: open === false})}
+                    className={clsx(!open && 'hidden')}
                 >
-                    Sidebar
+                    Almanac
                 </Typography>
             </div>
             <List
@@ -80,19 +76,28 @@ function Sidebar() {
                 <StateContext.Provider value={open}>
                     <Content
                         icon={<PencilIcon className="h-5 w-5" />}
-                        title={'Track'}
+                        title="Track"
+                        route="track"
+                    />
+                    <Content
+                        icon={<FlagIcon className="h-5 w-5" />}
+                        title="Sprint"
+                        route="sprint"
                     />
                     <Content
                         icon={<CalendarIcon className="h-5 w-5" />}
-                        title={'Calendar'}
+                        title="Calendar"
+                        route="calendar"
                     />
                     <Content
                         icon={<BookOpenIcon className="h-5 w-5" />}
-                        title={'Definitions'}
+                        title="Definitions"
+                        route="definitions"
                     />
                     <Content
                         icon={<TableCellsIcon className="h-5 w-5" />}
-                        title={'Zones'}
+                        title="Zones"
+                        route="zones"
                     />
                     <hr
                         className={`my-2 border-blue-gray-50 ${
@@ -101,11 +106,13 @@ function Sidebar() {
                     />
                     <Content
                         icon={<Cog6ToothIcon className="h-5 w-5" />}
-                        title={'Settings'}
+                        title="Settings"
+                        route="settings"
                     />
                     <Content
                         icon={<UserCircleIcon className="h-5 w-5" />}
-                        title={'Account'}
+                        title="Account"
+                        route="account"
                     />
                 </StateContext.Provider>
             </List>

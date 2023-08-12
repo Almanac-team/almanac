@@ -37,7 +37,14 @@ function Content({
     return (
         <ListItem onClick={() => void router.push(`/${route}`)}>
             <ListItemPrefix>{icon}</ListItemPrefix>
-            {open ? title : null}
+            <span
+                className={clsx(
+                    'w-auto max-w-fit overflow-hidden transition-all ease-in-out',
+                    !open && 'max-w-0'
+                )}
+            >
+                {title}
+            </span>
         </ListItem>
     );
 }
@@ -55,13 +62,16 @@ function Sidebar() {
                 <button onClick={() => setOpen(!open)}>
                     <Bars3Icon className="h-7 w-7" />
                 </button>
-                <Typography
-                    variant="h5"
-                    color="blue-gray"
-                    className={clsx(!open && 'hidden')}
+                <span
+                    className={clsx(
+                        'w-auto max-w-fit overflow-hidden transition-all ease-in-out',
+                        !open && 'max-w-0'
+                    )}
                 >
-                    Almanac
-                </Typography>
+                    <Typography variant="h5" color="blue-gray">
+                        Almanac
+                    </Typography>
+                </span>
             </div>
             <List
                 className={`select-none ${
@@ -125,7 +135,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="flex max-h-screen min-h-screen w-screen flex-row overflow-hidden">
-            <div className={sessionData ? "" : "hidden"}>
+            <div className={sessionData ? '' : 'hidden'}>
                 <Sidebar />
             </div>
             <div className="w-full overflow-hidden">{children}</div>

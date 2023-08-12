@@ -44,8 +44,9 @@ function CategorySettings({
                         setCategoryName(e.target.value);
                         setError(false);
                     }}
-                    type="email"
+                    type="text"
                     label="Category Name"
+                    crossOrigin="true"
                 />
 
                 <Typography

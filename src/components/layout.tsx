@@ -16,9 +16,9 @@ import {
     UserCircleIcon,
     FlagIcon,
 } from '@heroicons/react/24/solid';
-import { useRouter } from 'next/router';
 import clsx from 'clsx';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 const StateContext = createContext(true);
 
@@ -32,20 +32,21 @@ function Content({
     route: string;
 }) {
     const open = useContext(StateContext);
-    const router = useRouter();
 
     return (
-        <ListItem onClick={() => void router.push(`/${route}`)}>
-            <ListItemPrefix>{icon}</ListItemPrefix>
-            <span
-                className={clsx(
-                    'w-auto max-w-fit overflow-hidden transition-all ease-in-out',
-                    !open && 'max-w-0'
-                )}
-            >
-                {title}
-            </span>
-        </ListItem>
+        <Link href={`/${route}`}>
+            <ListItem>
+                <ListItemPrefix>{icon}</ListItemPrefix>
+                <span
+                    className={clsx(
+                        'w-auto max-w-fit overflow-hidden transition-all ease-in-out',
+                        !open && 'max-w-0'
+                    )}
+                >
+                    {title}
+                </span>
+            </ListItem>
+        </Link>
     );
 }
 

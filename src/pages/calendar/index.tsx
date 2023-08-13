@@ -1,9 +1,9 @@
 import Head from 'next/head';
-import { WeekView } from '~/components/timeline/timeline-view';
+import { WeekView } from '~/components/calendar-timeline/timeline-view';
 import React, { type ReactElement, useMemo, useState } from 'react';
 import { Button, IconButton } from '@material-tailwind/react';
 
-import { type ScheduledBlock } from '~/components/timeline/models';
+import { type ScheduledBlock } from '~/components/calendar-timeline/models';
 import {
     convertActivitiesToAbsActivities,
     generateEvents,
@@ -188,6 +188,6 @@ export default function Home() {
     );
 }
 Home.getLayout = function getLayout(page: ReactElement) {
-    return <Layout>{page}</Layout>
-}
-export const getServerSideProps = withAuthServerSideProps()
+    return <Layout>{page}</Layout>;
+};
+export const getServerSideProps = withAuthServerSideProps();

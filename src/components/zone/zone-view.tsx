@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { type Region, type ZoneInfo } from '~/components/zone/models';
-import { TimelineInteractionContext } from '~/components/timeline/models';
-import { WeekView } from '~/components/timeline/timeline-view';
+import { TimelineInteractionContext } from '~/components/zone-timeline/models';
+import { WeekView } from '~/components/zone-timeline/timeline-view';
 import { api } from '~/utils/api';
 
 interface NotCreatedRegion {

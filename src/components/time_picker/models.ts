@@ -63,3 +63,7 @@ export function convertTimeConfigToMinutes(timeConfig: TimeConfig): number {
             return -1;
     }
 }
+
+export function convertTimeConfigToMillis(timeConfig: TimeConfig): number {
+    return convertTimeConfigToMinutes(timeConfig) * 60 * 1000;
+}

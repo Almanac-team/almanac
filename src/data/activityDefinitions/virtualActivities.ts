@@ -7,6 +7,7 @@ import {
     type ActivityCompletions,
     type ActivityDefinition,
     type EndConfig,
+    getIndexFromStartDate,
 } from '~/components/activity/activity-definition-models';
 
 function checkGenerationViolation(
@@ -50,9 +51,8 @@ export type ActivitySettingWithCompletion = ActivitySetting & {
 
 export function getActivitiesFromDefinition(
     activityDefinition: ActivityDefinition,
-    maxCount: number,
-    latestDate?: Date,
-    startShift = 0
+    end: { type: 'total'; count: number } | { type: 'until'; until: Date },
+    start?: { type: 'skip'; count: number } | { type: 'from'; from: Date }
 ): ActivitySettingWithCompletion[] {
     const activityCompletion = activityDefinition.activityCompletions;
     if (activityDefinition.data.type === 'single') {
@@ -70,7 +70,18 @@ export function getActivitiesFromDefinition(
     const repeatConfig = repeatingActivity.repeatConfig;
     const endConfig = repeatingActivity.endConfig;
 
-    for (let i = startShift; i < maxCount; i++) {
+    const startShift = (() => {
+        if (!start) {
+            return 0;
+        }
+        if (start.type === 'from') {
+            return getIndexFromStartDate(start.from, repeatingActivity);
+        } else {
+            return start.count;
+        }
+    })();
+
+    for (let i = startShift; true; i++) {
         const setting:
             | { type: 'task'; value: TaskSetting }
             | { type: 'event'; value: EventSetting } =
@@ -118,18 +129,18 @@ export function getActivitiesFromDefinition(
         );
 
         if (
-            latestDate
-                ? latestDate < activitySetting.setting.value.at
-                : checkGenerationViolation(
-                      activitySetting,
-                      activitySettings.length + 1,
-                      endConfig
-                  )
+            (end.type === 'total' && activitySettings.length >= end.count) ||
+            (end.type === 'until' &&
+                activitySetting.setting.value.at >= end.until) ||
+            checkGenerationViolation(
+                activitySetting,
+                activitySettings.length + 1,
+                endConfig
+            )
         ) {
             return activitySettings;
         } else {
             activitySettings.push(activitySetting);
         }
     }
-    return activitySettings;
 }

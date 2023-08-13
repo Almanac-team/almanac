@@ -460,7 +460,10 @@ export function ActivityDefinitionOverview({
     );
 
     const activitySettings: ActivitySettingWithCompletion[] = useMemo(() => {
-        return getActivitiesFromDefinition(activityDefinition, 10);
+        return getActivitiesFromDefinition(activityDefinition, {
+            type: 'total',
+            count: 10,
+        });
     }, [activityDefinition]);
 
     let inner;

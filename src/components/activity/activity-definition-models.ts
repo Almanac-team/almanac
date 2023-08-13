@@ -1,4 +1,5 @@
 import { type ActivitySetting } from '~/components/activity/models';
+import { convertTimeConfigToMillis } from '~/components/time_picker/models';
 
 export type RepeatSetting =
     | { type: 'single' }
@@ -30,6 +31,13 @@ export interface RepeatConfig {
           };
 }
 
+function repeatConfigToMillis(repeatConfig: RepeatConfig) {
+    return convertTimeConfigToMillis({
+        value: repeatConfig.every,
+        unit: repeatConfig.unit.type,
+    });
+}
+
 export type EndConfig =
     | { type: 'count'; count: number }
     | { type: 'until'; until: Date }
@@ -59,6 +67,74 @@ export interface ActivityDefinition {
     id: string;
     data: SingleActivity | RepeatingActivity;
     activityCompletions?: ActivityCompletions;
+}
+
+export function getIndexFromStartDate(
+    startDate: Date,
+    repeatingActivity: RepeatingActivity
+) {
+    if (
+        repeatingActivity.endConfig.type === 'until' &&
+        startDate > repeatingActivity.endConfig.until
+    ) {
+        return -1;
+    }
+
+    const index = Math.ceil(
+        (startDate.getTime() -
+            repeatingActivity.activitySetting.setting.value.at.getTime()) /
+            repeatConfigToMillis(repeatingActivity.repeatConfig)
+    );
+
+    if (index < 0) {
+        return 0;
+    } else if (
+        repeatingActivity.endConfig.type === 'count' &&
+        index >= repeatingActivity.endConfig.count
+    ) {
+        return -1;
+    } else {
+        return index;
+    }
+}
+
+export function getActivityDefinitionRange(
+    activityDefinition: ActivityDefinition
+): { startDate: Date; endDate: Date | null } {
+    // TODO: should return the earliest date this activity definition can be seen, and the latest date this activity definition can be seen
+
+    // TODO: for now returns the first ever date and last ever date, but should be changed to improve indexing for pagination.
+
+    // let startDate: Date;
+    // let endDate: Date | null;
+    //
+    // const activitySetting = activityDefinition.data.activitySetting;
+    //
+    // let startDateTime =
+    //     activitySetting.setting.value.at.getTime() -
+    //     convertTimeConfigToMillis(activitySetting.setting.value.reminderMod);
+    //
+    // if (activitySetting.setting.type === 'task') {
+    //     startDateTime -= convertTimeConfigToMillis(
+    //         activitySetting.setting.value.deadlineMod
+    //     );
+    // }
+    // startDate = new Date(startDateTime);
+    //
+    // if (activityDefinition.data.type === 'single') {
+    // } else {
+    //     if (activityDefinition.data.endConfig.type === 'count') {
+    //         if (activitySetting.setting.type === 'task') {
+    //         }
+    //     } else if (activityDefinition.data.endConfig.type === 'until') {
+    //         endDate = activityDefinition.data.endConfig.until;
+    //     } else {
+    //         endDate = null;
+    //     }
+    // }
+    // return { startDate, endDate };
+
+    return { startDate: new Date(0), endDate: null };
 }
 
 export interface ActivityCompletions {

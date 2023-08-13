@@ -1,6 +1,10 @@
-name: build
+name: Build
 
-on: [ pull_request ]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -14,7 +18,7 @@ jobs:
           node-version: "16"
       - name: Clean node install
         run: npm ci
-      - name: Npm build
+      - name: NPM build
         run: npm run build
         env:
           DATABASE_URL: ${{secrets.DATABASE_URL}}
@@ -23,7 +27,7 @@ jobs:
           AUTH0_CLIENT_ID: ${{secrets.AUTH0_CLIENT_ID}}
           AUTH0_CLIENT_SECRET: ${{secrets.AUTH0_CLIENT_SECRET}}
 
-      - name: Npm test
+      - name: NPM test
         run: npm run test
         env:
           DATABASE_URL: ${{secrets.DATABASE_URL}}

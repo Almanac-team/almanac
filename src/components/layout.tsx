@@ -53,9 +53,10 @@ function Sidebar() {
 
     return (
         <Card
-            className={`h-full ${
+            className={clsx(
+                `h-full pt-4 shadow-blue-gray-900/5 transition-all duration-100 ease-in-out`,
                 open ? 'max-w-[20rem]' : 'max-w-[3.8rem]'
-            } pt-4 shadow-blue-gray-900/5 transition-all duration-100 ease-in-out`}
+            )}
         >
             <div className="mb-2 flex select-none items-center gap-4 p-4">
                 <button onClick={() => setOpen(!open)}>
@@ -129,7 +130,9 @@ function Sidebar() {
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex max-h-screen min-h-screen w-screen flex-row overflow-hidden">
-            <Sidebar />
+            <div>
+                <Sidebar />
+            </div>
             <div className="w-full overflow-hidden">{children}</div>
         </div>
     );

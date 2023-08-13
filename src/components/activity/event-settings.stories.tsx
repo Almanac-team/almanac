@@ -12,7 +12,7 @@ const meta: Meta<typeof EventSettingConfig> = {
 export default meta;
 type Story = StoryObj<typeof EventSettingConfig>;
 
-function TaskSettingWrapper() {
+function EventSettingWrapper() {
     const [setting, setSetting] = useState<EventSetting>({
         at: (() => {
             const date = new Date();
@@ -28,5 +28,5 @@ function TaskSettingWrapper() {
 }
 
 export const Default: Story = {
-    render: () => <TaskSettingWrapper />,
+    render: () => <EventSettingWrapper />,
 };

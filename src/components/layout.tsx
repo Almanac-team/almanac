@@ -16,7 +16,6 @@ import {
     UserCircleIcon,
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 const StateContext = createContext(true);
@@ -128,13 +127,9 @@ function Sidebar() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-    const { data: sessionData } = useSession();
-
     return (
         <div className="flex max-h-screen min-h-screen w-screen flex-row overflow-hidden">
-            <div className={sessionData ? '' : 'hidden'}>
-                <Sidebar />
-            </div>
+            <Sidebar />
             <div className="w-full overflow-hidden">{children}</div>
         </div>
     );

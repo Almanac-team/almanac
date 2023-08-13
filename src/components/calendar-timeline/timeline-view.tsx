@@ -3,7 +3,7 @@ import {
     type DayViewProps,
     type ScheduledBlock,
     TimelineInteractionContext,
-} from '~/components/timeline/models';
+} from '~/components/zone-timeline/models';
 import { useContext, useMemo, useRef } from 'react';
 
 function ViewInner({

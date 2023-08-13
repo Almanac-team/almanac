@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { TimelineView } from '~/components/timeline/timeline-view';
+import { TimelineView } from '~/components/calendar-timeline/timeline-view';
 import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
 import { type ReactElement } from 'react';
 import { Layout } from '~/components/layout';

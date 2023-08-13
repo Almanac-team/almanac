@@ -1,7 +1,7 @@
 import { type ZoneInfo } from '~/components/zone/models';
 import { type ActivitySetting } from '~/components/activity/models';
 import { convertTimeConfigToMinutes } from '~/components/time_picker/models';
-import { type ScheduledBlock } from '~/components/timeline/models';
+import { type ScheduledBlock } from '~/components/zone-timeline/models';
 
 function getNextWeekStart(weekStart: Date): Date {
     const weekEnd = new Date(weekStart);

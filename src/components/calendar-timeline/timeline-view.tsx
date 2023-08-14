@@ -339,53 +339,51 @@ export function WeekView({
     );
 
     const dayViewList = useMemo(() => {
+        const startDates: Date[] = [
+            firstDayMidnight,
+            new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000),
+            new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 2),
+            new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 3),
+            new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 4),
+            new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 5),
+            new Date(firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 6),
+        ];
+
         return [
             {
-                dayLabel: 'Monday',
+                dayLabel: `Monday ${(startDates[0] as Date).getDate()}`,
                 blockList,
-                startDay: firstDayMidnight,
+                startDay: startDates[0] as Date,
             },
             {
-                dayLabel: 'Tuesday',
+                dayLabel: `Tuesday ${(startDates[1] as Date).getDate()}`,
                 blockList,
-                startDay: new Date(
-                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000
-                ),
+                startDay: startDates[1] as Date,
             },
             {
-                dayLabel: 'Wednesday',
+                dayLabel: `Wednesday ${(startDates[2] as Date).getDate()}`,
                 blockList,
-                startDay: new Date(
-                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 2
-                ),
+                startDay: startDates[2] as Date,
             },
             {
-                dayLabel: 'Thursday',
+                dayLabel: `Thursday ${(startDates[3] as Date).getDate()}`,
                 blockList,
-                startDay: new Date(
-                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 3
-                ),
+                startDay: startDates[3] as Date,
             },
             {
-                dayLabel: 'Friday',
+                dayLabel: `Friday ${(startDates[4] as Date).getDate()}`,
                 blockList,
-                startDay: new Date(
-                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 4
-                ),
+                startDay: startDates[4] as Date,
             },
             {
-                dayLabel: 'Saturday',
+                dayLabel: `Saturday ${(startDates[5] as Date).getDate()}`,
                 blockList,
-                startDay: new Date(
-                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 5
-                ),
+                startDay: startDates[5] as Date,
             },
             {
-                dayLabel: 'Sunday',
+                dayLabel: `Sunday ${(startDates[6] as Date).getDate()}`,
                 blockList,
-                startDay: new Date(
-                    firstDayMidnight.getTime() + 24 * 60 * 60 * 1000 * 6
-                ),
+                startDay: startDates[6] as Date,
             },
         ];
     }, [blockList, firstDayMidnight]);

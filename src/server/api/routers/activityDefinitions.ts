@@ -69,7 +69,7 @@ export type PrismaRepeatConfigType = Prisma.RepeatConfigGetPayload<
     typeof repeatConfig
 >;
 
-function decodeRepeatConfig(
+function parseRawRepeatConfig(
     repeatConfig: PrismaRepeatConfigType
 ): RepeatConfig {
     switch (repeatConfig.unit) {
@@ -107,7 +107,7 @@ const endConfig = Prisma.validator<Prisma.EndConfigArgs>()({
 
 export type PrismaEndConfigType = Prisma.EndConfigGetPayload<typeof endConfig>;
 
-function decodeEndConfig(endConfig: PrismaEndConfigType): EndConfig {
+function parseRawEndConfig(endConfig: PrismaEndConfigType): EndConfig {
     switch (endConfig.endType) {
         case 'count':
             return { type: 'count', count: endConfig.endCount };
@@ -368,7 +368,7 @@ export type PrismaActivityDefinitionType = Prisma.ActivityDefinitionGetPayload<
     typeof activityDefinitionsWithDetail
 >;
 
-function parseRawActivityDefinition(
+export function parseRawActivityDefinition(
     rawActivityDefinition: PrismaActivityDefinitionType
 ): ActivityDefinition | null | undefined {
     const rawActivitySettings = rawActivityDefinition.activities;
@@ -407,10 +407,10 @@ function parseRawActivityDefinition(
             data: {
                 type: 'repeating',
                 activitySetting: activity,
-                repeatConfig: decodeRepeatConfig(
+                repeatConfig: parseRawRepeatConfig(
                     rawActivityDefinition.repeatConfig
                 ),
-                endConfig: decodeEndConfig(rawActivityDefinition.endConfig),
+                endConfig: parseRawEndConfig(rawActivityDefinition.endConfig),
                 exceptions: new Map(),
             },
             activityCompletions,

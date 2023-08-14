@@ -30,7 +30,7 @@ function ActivityCreateModal({
     const [activitySetting, setActivitySetting] = useState<
         Omit<ActivitySetting, 'setting'>
     >({
-        activityDefinitionId: '-1',
+        id: '-1',
         name: '',
     });
 

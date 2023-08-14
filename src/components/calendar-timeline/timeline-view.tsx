@@ -5,14 +5,26 @@ import {
     TimelineInteractionContext,
 } from '~/components/zone-timeline/models';
 import { useContext, useMemo, useRef } from 'react';
+import { useQueryActivityDefinitions } from '~/data/activityDefinitions/query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getQueryKey } from '@trpc/react-query';
+import { api } from '~/utils/api';
+import {
+    type ActivityDefinition,
+    getActivityDefinitionRange,
+} from '~/components/activity/activity-definition-models';
+import { type ActivitySetting } from '~/components/activity/models';
+import { getActivitiesFromDefinition } from '~/data/activityDefinitions/virtualActivities';
 
 function ViewInner({
     blockList,
     startDay,
     index,
+    activitySettings,
 }: {
     blockList: ScheduledBlock[];
     startDay: Date;
+    activitySettings: ActivitySetting[];
     index?: number;
 }) {
     const {
@@ -58,6 +70,31 @@ function ViewInner({
                     draggable={false}
                 ></div>
             ))}
+
+            {activitySettings.map((activitySetting, i) => {
+                if (activitySetting.setting.type === 'task')
+                    return (
+                        <div
+                            className="absolute flex h-0.5 w-full bg-red-400"
+                            key={i}
+                            style={{
+                                top:
+                                    Math.max(
+                                        (activitySetting.setting.value.at.getTime() -
+                                            startDay.getTime()) /
+                                            1000 /
+                                            60 /
+                                            60,
+                                        0
+                                    ) * 40,
+                            }}
+                        ></div>
+                    );
+                else if (activitySetting.setting.type === 'event') {
+                    return null;
+                }
+            })}
+
             {blockList.map((block, i) => {
                 const startTimeRelative =
                     (block.date.getTime() - startDay.getTime()) /
@@ -106,9 +143,11 @@ function ViewInner({
 export function TimelineView({
     className,
     dayViewList,
+    activitySettings,
 }: {
     className?: string;
     dayViewList: DayViewProps[];
+    activitySettings: ActivitySetting[];
 }) {
     return (
         <div
@@ -146,6 +185,7 @@ export function TimelineView({
                                     blockList={dayView.blockList}
                                     startDay={dayView.startDay}
                                     index={i}
+                                    activitySettings={activitySettings}
                                 />
                             </div>
                         ))}
@@ -165,6 +205,43 @@ export function WeekView({
     blockList: ScheduledBlock[];
     firstDayMidnight: Date;
 }) {
+    const lastDayMidnightMinPrior = useMemo(
+        () =>
+            new Date(
+                firstDayMidnight.getTime() + 7 * 24 * 60 * 60 * 1000 - 60 * 1000
+            ),
+        [firstDayMidnight]
+    );
+
+    const { data: activityDefinitions } = useQueryActivityDefinitions();
+
+    const { data: activitySettings } = useQuery(
+        ['paginatedActivitySettings', firstDayMidnight.getTime()],
+        () => {
+            const activitySettings: ActivitySetting[] = [];
+
+            for (const activityDefinition of activityDefinitions ?? []) {
+                const { startDate, endDate } =
+                    getActivityDefinitionRange(activityDefinition);
+                if (
+                    startDate > lastDayMidnightMinPrior ||
+                    (endDate !== null && endDate < firstDayMidnight)
+                )
+                    continue;
+
+                activitySettings.push(
+                    ...getActivitiesFromDefinition(
+                        activityDefinition,
+                        { type: 'until', until: lastDayMidnightMinPrior },
+                        { type: 'from', from: firstDayMidnight }
+                    )
+                );
+            }
+            return activitySettings;
+        },
+        { enabled: !!activityDefinitions }
+    );
+
     const dayViewList = useMemo(() => {
         return [
             {
@@ -217,5 +294,11 @@ export function WeekView({
         ];
     }, [blockList, firstDayMidnight]);
 
-    return <TimelineView className={className} dayViewList={dayViewList} />;
+    return (
+        <TimelineView
+            className={className}
+            dayViewList={dayViewList}
+            activitySettings={activitySettings ?? []}
+        />
+    );
 }

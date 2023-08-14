@@ -17,6 +17,10 @@ import {
 import { type ActivitySetting } from '~/components/activity/models';
 import { withAuthServerSideProps } from '~/components/generic/withAuthServerSide';
 import { Layout } from '~/components/layout';
+import {
+    ActivityDefinition,
+    getActivityDefinitionRange,
+} from '~/components/activity/activity-definition-models';
 
 export function getWeekStart(date: Date) {
     const today = date;
@@ -102,51 +106,17 @@ export default function Home() {
     );
     const [weekShift, setWeekShift] = useState<number>(0);
 
-    const { data: activityDefinitions } = useQueryActivityDefinitions();
-
     const { firstDayMidnight, lastDayMidnightMinPrior } = useMemo(() => {
         const firstDayMidnight = new Date(
             firstDayMidnightFirstWeek.getTime() +
                 weekShift * 7 * 24 * 60 * 60 * 1000
         );
         const lastDayMidnightMinPrior = new Date(
-            firstDayMidnight.getTime() - 60 * 1000
+            firstDayMidnight.getTime() + 7 * 24 * 60 * 60 * 1000 - 60 * 1000
         );
         return { firstDayMidnight, lastDayMidnightMinPrior };
     }, [weekShift, firstDayMidnightFirstWeek]);
 
-    const {
-        activities,
-        activitiesMap,
-    }: {
-        activities: ActivitySetting[];
-        activitiesMap: Map<string, ActivitySetting>;
-    } = useMemo(() => {
-        if (activityDefinitions) {
-            const activities: ActivitySetting[] = [];
-            const activitiesMap: Map<string, ActivitySetting> = new Map();
-
-            for (const activityDefinition of activityDefinitions) {
-                const newActivities: ActivitySettingWithCompletion[] = [
-                    ...getActivitiesFromDefinition(
-                        activityDefinition,
-                        1000,
-                        lastDayMidnightMinPrior
-                    ),
-                ];
-
-                newActivities.forEach((activity) => {
-                    if (!activity.completed) {
-                        activities.push(activity);
-                        activitiesMap.set(activity.id, activity);
-                    }
-                });
-            }
-
-            return { activities, activitiesMap };
-        }
-        return { activities: [], activitiesMap: new Map() };
-    }, [activityDefinitions, lastDayMidnightMinPrior]);
     return (
         <>
             <Head>
@@ -156,23 +126,6 @@ export default function Home() {
             </Head>
             <main className="flex max-h-screen flex-col">
                 <div className="flex flex-col">
-                    <Button
-                        color="blue"
-                        onClick={() => {
-                            const blocks = scheduledBlocksFromScheduledEvents(
-                                generateEvents(
-                                    convertActivitiesToAbsActivities(
-                                        activities
-                                    ),
-                                    firstDayMidnight
-                                ),
-                                activitiesMap
-                            );
-                            setScheduledBlocks(blocks);
-                        }}
-                    >
-                        Generate Greedy
-                    </Button>
                     <SprintNav
                         weekShift={weekShift}
                         setWeekShift={setWeekShift}

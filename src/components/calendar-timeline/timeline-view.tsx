@@ -4,17 +4,132 @@ import {
     type ScheduledBlock,
     TimelineInteractionContext,
 } from '~/components/zone-timeline/models';
-import { useContext, useMemo, useRef } from 'react';
+import { useContext, useMemo, useRef, useState } from 'react';
 import { useQueryActivityDefinitions } from '~/data/activityDefinitions/query';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getQueryKey } from '@trpc/react-query';
-import { api } from '~/utils/api';
-import {
-    type ActivityDefinition,
-    getActivityDefinitionRange,
-} from '~/components/activity/activity-definition-models';
+import { useQuery } from '@tanstack/react-query';
+import { getActivityDefinitionRange } from '~/components/activity/activity-definition-models';
 import { type ActivitySetting } from '~/components/activity/models';
 import { getActivitiesFromDefinition } from '~/data/activityDefinitions/virtualActivities';
+import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
+
+function withinDay(date: Date, startDay: Date) {
+    return (
+        date.getTime() >= startDay.getTime() &&
+        date.getTime() < startDay.getTime() + 1000 * 60 * 60 * 24
+    );
+}
+
+interface Deadline {
+    time: number;
+    activities: ActivitySetting[];
+}
+
+function DeadlineView({
+    deadline,
+    startDay,
+}: {
+    deadline: Deadline;
+    startDay: Date;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <div
+            className="absolute -mt-2 flex h-0.5 w-full cursor-pointer select-none flex-row"
+            style={{
+                top:
+                    Math.max(
+                        (deadline.time - startDay.getTime()) / 1000 / 60 / 60,
+                        0
+                    ) * 40,
+            }}
+        >
+            <Menu open={isOpen} handler={setIsOpen}>
+                <MenuHandler className="flex h-4 w-full cursor-pointer select-none flex-row">
+                    <div className="mt-2 h-0.5 w-full bg-red-400 hover:contrast-200" />
+                </MenuHandler>
+                <MenuBody>
+                    {deadline.activities.map((activity, i) => (
+                        <div key={i}>
+                            Deadline: {activity.name} at{' '}
+                            {activity.setting.value.at.toString()}
+                        </div>
+                    ))}
+                </MenuBody>
+            </Menu>
+        </div>
+    );
+}
+
+function DeadlineViews({
+    activitySettings,
+    startDay,
+}: {
+    activitySettings: ActivitySetting[];
+    startDay: Date;
+}) {
+    const deadlines: Deadline[] = useMemo(() => {
+        const deadlines = [];
+
+        const filteredSortedActivitySettings = activitySettings
+            .filter(
+                (activitySetting) => activitySetting.setting.type === 'task'
+            )
+            .filter((activitySetting) =>
+                withinDay(activitySetting.setting.value.at, startDay)
+            )
+            .sort(
+                (a, b) =>
+                    a.setting.value.at.getTime() - b.setting.value.at.getTime()
+            );
+
+        let last = null;
+        for (let i = 0; i < filteredSortedActivitySettings.length; i++) {
+            const activitySetting: ActivitySetting =
+                filteredSortedActivitySettings[i] as ActivitySetting;
+            if (
+                last !== null &&
+                activitySetting.setting.value.at.getTime() - last.time <
+                    1000 * 60 * 10
+            ) {
+                last.activities.push(activitySetting);
+            } else {
+                last = {
+                    time: activitySetting.setting.value.at.getTime(),
+                    activities: [activitySetting],
+                };
+                deadlines.push(last);
+            }
+        }
+
+        return deadlines;
+    }, [activitySettings, startDay]);
+
+    return (
+        <>
+            {deadlines.map((deadline, i) => (
+                <DeadlineView deadline={deadline} startDay={startDay} key={i} />
+            ))}
+        </>
+    );
+}
+
+function TaskDates({
+    activitySettings,
+    startDay,
+}: {
+    activitySettings: ActivitySetting[];
+    startDay: Date;
+}) {
+    return (
+        <>
+            <DeadlineViews
+                activitySettings={activitySettings}
+                startDay={startDay}
+            />
+        </>
+    );
+}
 
 function ViewInner({
     blockList,
@@ -71,29 +186,10 @@ function ViewInner({
                 ></div>
             ))}
 
-            {activitySettings.map((activitySetting, i) => {
-                if (activitySetting.setting.type === 'task')
-                    return (
-                        <div
-                            className="absolute flex h-0.5 w-full bg-red-400"
-                            key={i}
-                            style={{
-                                top:
-                                    Math.max(
-                                        (activitySetting.setting.value.at.getTime() -
-                                            startDay.getTime()) /
-                                            1000 /
-                                            60 /
-                                            60,
-                                        0
-                                    ) * 40,
-                            }}
-                        ></div>
-                    );
-                else if (activitySetting.setting.type === 'event') {
-                    return null;
-                }
-            })}
+            <TaskDates
+                activitySettings={activitySettings}
+                startDay={startDay}
+            />
 
             {blockList.map((block, i) => {
                 const startTimeRelative =

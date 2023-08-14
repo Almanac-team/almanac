@@ -24,10 +24,20 @@ const MenuContext = createContext<MenuContextValue>({
     handlerRef: undefined,
 });
 
-export function MenuHandler({ children }: { children: ReactNode }) {
+export function MenuHandler({
+    className,
+    children,
+}: {
+    className?: string;
+    children?: ReactNode;
+}) {
     const { open, handler, handlerRef } = useContext(MenuContext);
     return (
-        <div ref={handlerRef} onClick={() => (handler ? handler(!open) : null)}>
+        <div
+            className={className}
+            ref={handlerRef}
+            onClick={() => (handler ? handler(!open) : null)}
+        >
             {children}
         </div>
     );

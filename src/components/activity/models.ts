@@ -17,7 +17,7 @@ export type EventActivitySetting = Omit<ActivitySetting, 'setting'> & {
 };
 
 export interface ActivitySetting {
-    id: string;
+    activityDefinitionId: string;
     name: string;
     zones?: {
         include: ZoneInfo[];

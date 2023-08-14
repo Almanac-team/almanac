@@ -11,7 +11,7 @@ function getNextWeekStart(weekStart: Date): Date {
 
 export interface ScheduledEvent {
     id: string;
-    activityId: string;
+    activityDefinitionId: string;
     start: Date;
     end: Date;
 }
@@ -25,7 +25,7 @@ export type AbsTaskActivitySetting = Omit<AbsActivitySetting, 'setting'> & {
 };
 
 export interface AbsActivitySetting {
-    id: string;
+    activityDefinitionId: string;
     zones?: {
         include: ZoneInfo[];
         exclude: ZoneInfo[];
@@ -92,7 +92,7 @@ function createSleepEvents(startDate: Date): ScheduledEvent[] {
 
         const sleep: ScheduledEvent = {
             id: 'sleep',
-            activityId: 'sleep',
+            activityDefinitionId: 'sleep',
             start: start,
             end: end,
         };
@@ -125,7 +125,7 @@ function createScheduledEventFromEvent(
 
     const activity: ScheduledEvent = {
         id: '',
-        activityId: eventActivity.id,
+        activityDefinitionId: eventActivity.activityDefinitionId,
         start: event.at,
         end: new Date(event.at),
     };
@@ -249,7 +249,7 @@ export function convertActivitiesToAbsActivities(
         }
 
         absActivities.push({
-            id: activity.id,
+            activityDefinitionId: activity.activityDefinitionId,
             setting: absSetting,
         });
     }
@@ -314,7 +314,7 @@ export function generateEvents(
                 end.setMinutes(end.getMinutes() + task.estimatedRequiredTime);
                 const activity: ScheduledEvent = {
                     id: '',
-                    activityId: activityTuple[1].id,
+                    activityDefinitionId: activityTuple[1].activityDefinitionId,
                     start: start,
                     end: end,
                 };
@@ -349,10 +349,10 @@ export function scheduledBlocksFromScheduledEvents(
 ): ScheduledBlock[] {
     const scheduledBlocks: ScheduledBlock[] = [];
     for (const scheduledEvent of scheduledEvents) {
-        const a = activitiesMap.get(scheduledEvent.activityId)?.name;
+        const a = activitiesMap.get(scheduledEvent.activityDefinitionId)?.name;
         scheduledBlocks.push({
             id: scheduledEvent.id,
-            color: idToColor(scheduledEvent.activityId),
+            color: idToColor(scheduledEvent.activityDefinitionId),
             name:
                 a !== undefined
                     ? a

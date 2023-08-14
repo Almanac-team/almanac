@@ -64,17 +64,17 @@ model VerificationToken {
 }
 
 model User {
-  id             String           @id @default(cuid())
-  name           String?
-  email          String?          @unique
-  emailVerified  DateTime?
-  image          String?
-  accounts       Account[]
-  sessions       Session[]
-  categories     Category[]
-  settings       UserSettings? // in the case this is null, just give defaults
-  zoneInfo       Zone[]
-  generatedEvent GeneratedEvent[]
+  id                String              @id @default(cuid())
+  name              String?
+  email             String?             @unique
+  emailVerified     DateTime?
+  image             String?
+  accounts          Account[]
+  sessions          Session[]
+  categories        Category[]
+  settings          UserSettings? // in the case this is null, just give defaults
+  zoneInfo          Zone[]
+  scheduleableEvent ScheduleableEvent[]
 }
 
 enum DateFormat {
@@ -122,7 +122,7 @@ model ActivityDefinition {
   endConfigId         String?
   category            Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   activityCompletions ActivityCompletions?
-  generatedEvent      GeneratedEvent[]
+  schedulableEvent    ScheduleableEvent[]
 
   @@index([categoryId])
 }
@@ -210,7 +210,7 @@ model Event {
   @@index([activityId])
 }
 
-model GeneratedEvent {
+model ScheduleableEvent {
   id                      String             @id @default(cuid())
   hours                   Int
   completed               Boolean            @default(false)
@@ -226,11 +226,11 @@ model GeneratedEvent {
 }
 
 model Schedule {
-  generatedEventId String         @id
-  GeneratedEvent   GeneratedEvent @relation(fields: [generatedEventId], references: [id])
-  date             DateTime
+  schedulableEventId String            @id
+  schedulableEvent   ScheduleableEvent @relation(fields: [schedulableEventId], references: [id])
+  date               DateTime
 
-  @@index([generatedEventId])
+  @@index([schedulableEventId])
 }
 
 enum ZoneType {

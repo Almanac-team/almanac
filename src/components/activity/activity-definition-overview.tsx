@@ -6,6 +6,7 @@ import React, {
     useMemo,
     useRef,
     useState,
+    useEffect,
 } from 'react';
 import clsx from 'clsx';
 import { CategoryContext } from '~/components/activity/activity-column';
@@ -16,8 +17,7 @@ import {
     ClockIcon,
     FlagIcon,
 } from '@heroicons/react/24/outline';
-import { TimeContext } from '~/pages/_app';
-import { Checkbox, IconButton } from '@material-tailwind/react';
+import { IconButton } from '@material-tailwind/react';
 import { api } from '~/utils/api';
 import { Menu, MenuBody, MenuHandler } from '~/components/generic/menu';
 import { type ActivitySetting } from '~/components/activity/models';
@@ -38,9 +38,16 @@ const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 const MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
 
 function TimeBubble({ deadline }: { deadline: Date }) {
-    const currentTime = useContext(TimeContext);
+    const [time, setTime] = useState(new Date());
 
-    const remainingTime = deadline.getTime() - currentTime.getTime();
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTime(new Date());
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const remainingTime = deadline.getTime() - time.getTime();
     const remainingDays = remainingTime / MILLISECONDS_IN_DAY;
 
     if (remainingDays >= 14) {

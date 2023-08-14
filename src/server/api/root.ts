@@ -1,7 +1,7 @@
 import { createTRPCRouter } from '~/server/api/trpc';
 import userSettingsRouter from './routers/userSettings';
 import categoriesRouter from '~/server/api/routers/categories';
-import generatedEventsRouter from '~/server/api/routers/generateEvents';
+import schedulableEventsRouter from '~/server/api/routers/scheduleEvents';
 import zonesRouter from '~/server/api/routers/zones';
 import regionsRouter from '~/server/api/routers/regions';
 import activityDefinitionsRouter from '~/server/api/routers/activityDefinitions';
@@ -15,7 +15,7 @@ export const appRouter = createTRPCRouter({
     settings: userSettingsRouter,
     categories: categoriesRouter,
     activityDefinitions: activityDefinitionsRouter,
-    generatedEvents: generatedEventsRouter,
+    generatedEvents: schedulableEventsRouter,
     zones: zonesRouter,
     regions: regionsRouter,
 });

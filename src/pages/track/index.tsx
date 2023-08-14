@@ -17,20 +17,20 @@ export default function Home() {
             </Head>
             <main className="max-h-screen">
                 <div className="flex h-screen w-full">
-                    <TimelineView
-                        dayViewList={[
-                            {
-                                dayLabel: 'Planned',
-                                blockList: [],
-                                startDay: today,
-                            },
-                            {
-                                dayLabel: 'Reality',
-                                blockList: [],
-                                startDay: today,
-                            },
-                        ]}
-                    />
+                    {/*<TimelineView*/}
+                    {/*    dayViewList={[*/}
+                    {/*        {*/}
+                    {/*            dayLabel: 'Planned',*/}
+                    {/*            blockList: [],*/}
+                    {/*            startDay: today,*/}
+                    {/*        },*/}
+                    {/*        {*/}
+                    {/*            dayLabel: 'Reality',*/}
+                    {/*            blockList: [],*/}
+                    {/*            startDay: today,*/}
+                    {/*        },*/}
+                    {/*    ]}*/}
+                    {/*/>*/}
                 </div>
             </main>
         </>

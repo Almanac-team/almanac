@@ -215,7 +215,7 @@ export function ConvertActivity(
     }
 
     return {
-        activityDefinitionId: activity.activityDefinitionId,
+        id: activity.id,
         name: activity.name,
         zones: {
             include,
@@ -989,4 +989,4 @@ const activityDefinitionsRouter = createTRPCRouter({
         }),
 });
 
-export default activityDefinitionsRouter
+export default activityDefinitionsRouter;

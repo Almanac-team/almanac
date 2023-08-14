@@ -102,7 +102,7 @@ export function getActivitiesFromDefinition(
         const activitySetting: ActivitySettingWithCompletion = {
             ...repeatingActivity.activitySetting,
             setting,
-            activityDefinitionId: activityDefinition.id,
+            id: `${activityDefinition.id}-${activitySettings.length}`,
             completed: checkIfComplete(i, activityCompletion),
         };
 

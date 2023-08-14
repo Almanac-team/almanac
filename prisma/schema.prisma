@@ -64,16 +64,17 @@ model VerificationToken {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  name          String?
-  email         String?       @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  categories    Category[]
-  settings      UserSettings? // in the case this is null, just give defaults
-  zoneInfo      Zone[]
+  id             String           @id @default(cuid())
+  name           String?
+  email          String?          @unique
+  emailVerified  DateTime?
+  image          String?
+  accounts       Account[]
+  sessions       Session[]
+  categories     Category[]
+  settings       UserSettings? // in the case this is null, just give defaults
+  zoneInfo       Zone[]
+  generatedEvent GeneratedEvent[]
 }
 
 enum DateFormat {
@@ -121,6 +122,7 @@ model ActivityDefinition {
   endConfigId         String?
   category            Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   activityCompletions ActivityCompletions?
+  generatedEvent      GeneratedEvent[]
 
   @@index([categoryId])
 }
@@ -178,7 +180,6 @@ model Activity {
   type                 ActivityType
   task                 Task?
   event                Event?
-  generatedEvent       GeneratedEvent[]
   activityZonePair     ActivityZonePair[]
 
   @@index([activityDefinitionId])
@@ -210,14 +211,26 @@ model Event {
 }
 
 model GeneratedEvent {
-  id         String   @id @default(cuid())
-  activityId String
-  date       DateTime
-  hours      Int
-  completed  Boolean  @default(false)
-  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id                      String             @id @default(cuid())
+  hours                   Int
+  completed               Boolean            @default(false)
+  activityDefinitionId    String
+  activityDefinitionIndex Int
+  activityDefinition      ActivityDefinition @relation(fields: [activityDefinitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user                    User               @relation(fields: [userId], references: [id])
+  userId                  String
+  scheduled               Schedule?
 
-  @@index([activityId])
+  @@index([activityDefinitionId])
+  @@index([userId])
+}
+
+model Schedule {
+  generatedEventId String         @id
+  GeneratedEvent   GeneratedEvent @relation(fields: [generatedEventId], references: [id])
+  date             DateTime
+
+  @@index([generatedEventId])
 }
 
 enum ZoneType {

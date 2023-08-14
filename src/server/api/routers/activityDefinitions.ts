@@ -176,7 +176,8 @@ export type PrismaActivityType = Prisma.ActivityGetPayload<
 >;
 
 export function ConvertActivity(
-    activity: PrismaActivityType
+    activity: PrismaActivityType,
+    activityId: string
 ): ActivitySetting | undefined {
     let setting:
         | { type: 'task'; value: TaskSetting }
@@ -215,7 +216,7 @@ export function ConvertActivity(
     }
 
     return {
-        id: activity.id,
+        id: activityId,
         name: activity.name,
         zones: {
             include,
@@ -395,7 +396,10 @@ const activityDefinitionsRouter = createTRPCRouter({
                 const rawActivitySetting = rawActivitySettings[0];
                 if (rawActivitySetting === undefined) return undefined;
 
-                const activity = ConvertActivity(rawActivitySetting);
+                const activity = ConvertActivity(
+                    rawActivitySetting,
+                    activityDefinitionInfo.id
+                );
                 if (!activity) return undefined;
 
                 const activityCompletions =
@@ -478,8 +482,10 @@ const activityDefinitionsRouter = createTRPCRouter({
                             if (rawActivitySetting === undefined)
                                 return undefined;
 
-                            const activity =
-                                ConvertActivity(rawActivitySetting);
+                            const activity = ConvertActivity(
+                                rawActivitySetting,
+                                activityDefinitionInfo.id
+                            );
                             if (!activity) return undefined;
 
                             const activityCompletions =
@@ -507,8 +513,10 @@ const activityDefinitionsRouter = createTRPCRouter({
                             if (rawActivitySetting === undefined)
                                 return undefined;
 
-                            const activity =
-                                ConvertActivity(rawActivitySetting);
+                            const activity = ConvertActivity(
+                                rawActivitySetting,
+                                activityDefinitionInfo.id
+                            );
                             if (!activity) return undefined;
 
                             const activityCompletions =
@@ -594,8 +602,10 @@ const activityDefinitionsRouter = createTRPCRouter({
                             if (rawActivitySetting === undefined)
                                 return undefined;
 
-                            const activity =
-                                ConvertActivity(rawActivitySetting);
+                            const activity = ConvertActivity(
+                                rawActivitySetting,
+                                activityDefinitionInfo.id
+                            );
                             if (!activity) return undefined;
 
                             const activityCompletions =
@@ -623,8 +633,10 @@ const activityDefinitionsRouter = createTRPCRouter({
                             if (rawActivitySetting === undefined)
                                 return undefined;
 
-                            const activity =
-                                ConvertActivity(rawActivitySetting);
+                            const activity = ConvertActivity(
+                                rawActivitySetting,
+                                activityDefinitionInfo.id
+                            );
                             if (!activity) return undefined;
 
                             const activityCompletions =

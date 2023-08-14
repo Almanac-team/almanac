@@ -11,7 +11,11 @@ import {
     type EventSetting,
     type TaskSetting,
 } from '~/components/activity/models';
-import { ActivityType as PrismaActivityEnum, Prisma } from '@prisma/client';
+import {
+    ActivityType as PrismaActivityEnum,
+    Prisma,
+    type PrismaClient,
+} from '@prisma/client';
 import { type ZoneInfo } from '~/components/zone/models';
 import {
     convertMinutesToTimeConfig,
@@ -337,6 +341,83 @@ export function ConvertActivityCompletion(
     };
 }
 
+const activityDefinitionsWithDetail =
+    Prisma.validator<Prisma.ActivityDefinitionDefaultArgs>()({
+        include: {
+            activities: {
+                include: {
+                    task: true,
+                    event: true,
+                    activityZonePair: {
+                        include: {
+                            zone: true,
+                        },
+                    },
+                },
+            },
+            repeatConfig: true,
+            endConfig: true,
+            activityCompletions: {
+                include: {
+                    exceptions: true,
+                },
+            },
+        },
+    });
+export type PrismaActivityDefinitionType = Prisma.ActivityDefinitionGetPayload<
+    typeof activityDefinitionsWithDetail
+>;
+
+function parseRawActivityDefinition(
+    rawActivityDefinition: PrismaActivityDefinitionType
+): ActivityDefinition | null | undefined {
+    const rawActivitySettings = rawActivityDefinition.activities;
+    if (rawActivitySettings === undefined) return undefined;
+
+    const rawActivitySetting = rawActivitySettings[0];
+    if (rawActivitySetting === undefined) return undefined;
+
+    const activity = ConvertActivity(
+        rawActivitySetting,
+        rawActivityDefinition.id
+    );
+    if (!activity) return undefined;
+
+    const activityCompletions = rawActivityDefinition.activityCompletions
+        ? ConvertActivityCompletion(
+              rawActivityDefinition.activityCompletions
+          ) ?? undefined
+        : undefined;
+
+    if (
+        !rawActivityDefinition.repeatConfig ||
+        !rawActivityDefinition.endConfig
+    ) {
+        return {
+            id: rawActivityDefinition.id,
+            data: {
+                type: 'single',
+                activitySetting: activity,
+            },
+            activityCompletions,
+        };
+    } else {
+        return {
+            id: rawActivityDefinition.id,
+            data: {
+                type: 'repeating',
+                activitySetting: activity,
+                repeatConfig: decodeRepeatConfig(
+                    rawActivityDefinition.repeatConfig
+                ),
+                endConfig: decodeEndConfig(rawActivityDefinition.endConfig),
+                exceptions: new Map(),
+            },
+            activityCompletions,
+        };
+    }
+}
+
 const activityDefinitionsRouter = createTRPCRouter({
     /**
      * This is an internal hook, don't use it. Use useQueryActivity from the data folder instead.
@@ -359,7 +440,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                 | undefined
             > => {
                 const userId = ctx.session.user.id ?? null;
-                const activityDefinitionInfo =
+                const rawActivityDefinitionInfo =
                     await ctx.prisma.activityDefinition.findUnique({
                         where: {
                             id: input.activityDefinitionId,
@@ -388,35 +469,16 @@ const activityDefinitionsRouter = createTRPCRouter({
                             },
                         },
                     });
-                if (!activityDefinitionInfo) return null;
 
-                const rawActivitySettings = activityDefinitionInfo.activities;
-                if (rawActivitySettings === undefined) return undefined;
-
-                const rawActivitySetting = rawActivitySettings[0];
-                if (rawActivitySetting === undefined) return undefined;
-
-                const activity = ConvertActivity(
-                    rawActivitySetting,
-                    activityDefinitionInfo.id
+                if (!rawActivityDefinitionInfo) return null;
+                const parsedActivityDefinition = parseRawActivityDefinition(
+                    rawActivityDefinitionInfo
                 );
-                if (!activity) return undefined;
-
-                const activityCompletions =
-                    activityDefinitionInfo.activityCompletions
-                        ? ConvertActivityCompletion(
-                              activityDefinitionInfo.activityCompletions
-                          ) ?? undefined
-                        : undefined;
+                if (!parsedActivityDefinition) return undefined;
 
                 return {
-                    id: activityDefinitionInfo.id,
-                    data: {
-                        type: 'single',
-                        activitySetting: activity,
-                    },
-                    activityCompletions,
-                    categoryId: activityDefinitionInfo.categoryId,
+                    ...parsedActivityDefinition,
+                    categoryId: rawActivityDefinitionInfo.categoryId,
                 };
             }
         ),
@@ -432,7 +494,7 @@ const activityDefinitionsRouter = createTRPCRouter({
         )
         .query(async ({ ctx, input }): Promise<ActivityDefinition[]> => {
             const userId = ctx.session.user.id ?? null;
-            const activityDefinitionInfos =
+            const rawActivityDefinitions =
                 await ctx.prisma.activityDefinition.findMany({
                     where: {
                         category: {
@@ -462,86 +524,14 @@ const activityDefinitionsRouter = createTRPCRouter({
                     },
                 });
 
-            return activityDefinitionInfos
+            return rawActivityDefinitions
                 .map(
-                    (
-                        activityDefinitionInfo
-                    ): ActivityDefinition | undefined => {
-                        if (!activityDefinitionInfo) return undefined;
-
-                        if (
-                            !activityDefinitionInfo.repeatConfig ||
-                            !activityDefinitionInfo.endConfig
-                        ) {
-                            const rawActivitySettings =
-                                activityDefinitionInfo.activities;
-                            if (rawActivitySettings === undefined)
-                                return undefined;
-
-                            const rawActivitySetting = rawActivitySettings[0];
-                            if (rawActivitySetting === undefined)
-                                return undefined;
-
-                            const activity = ConvertActivity(
-                                rawActivitySetting,
-                                activityDefinitionInfo.id
-                            );
-                            if (!activity) return undefined;
-
-                            const activityCompletions =
-                                activityDefinitionInfo.activityCompletions
-                                    ? ConvertActivityCompletion(
-                                          activityDefinitionInfo.activityCompletions
-                                      ) ?? undefined
-                                    : undefined;
-
-                            return {
-                                id: activityDefinitionInfo.id,
-                                data: {
-                                    type: 'single',
-                                    activitySetting: activity,
-                                },
-                                activityCompletions,
-                            };
-                        } else {
-                            const rawActivitySettings =
-                                activityDefinitionInfo.activities;
-                            if (rawActivitySettings === undefined)
-                                return undefined;
-
-                            const rawActivitySetting = rawActivitySettings[0];
-                            if (rawActivitySetting === undefined)
-                                return undefined;
-
-                            const activity = ConvertActivity(
-                                rawActivitySetting,
-                                activityDefinitionInfo.id
-                            );
-                            if (!activity) return undefined;
-
-                            const activityCompletions =
-                                activityDefinitionInfo.activityCompletions
-                                    ? ConvertActivityCompletion(
-                                          activityDefinitionInfo.activityCompletions
-                                      ) ?? undefined
-                                    : undefined;
-
-                            return {
-                                id: activityDefinitionInfo.id,
-                                data: {
-                                    type: 'repeating',
-                                    activitySetting: activity,
-                                    repeatConfig: decodeRepeatConfig(
-                                        activityDefinitionInfo.repeatConfig
-                                    ),
-                                    endConfig: decodeEndConfig(
-                                        activityDefinitionInfo.endConfig
-                                    ),
-                                    exceptions: new Map(),
-                                },
-                                activityCompletions,
-                            };
-                        }
+                    (rawActivityDefinition): ActivityDefinition | undefined => {
+                        if (!rawActivityDefinition) return undefined;
+                        return (
+                            parseRawActivityDefinition(rawActivityDefinition) ??
+                            undefined
+                        );
                     }
                 )
                 .filter((x) => x !== undefined) as ActivityDefinition[];
@@ -584,84 +574,12 @@ const activityDefinitionsRouter = createTRPCRouter({
 
             return activityDefinitionInfos
                 .map(
-                    (
-                        activityDefinitionInfo
-                    ): ActivityDefinition | undefined => {
-                        if (!activityDefinitionInfo) return undefined;
-
-                        if (
-                            !activityDefinitionInfo.repeatConfig ||
-                            !activityDefinitionInfo.endConfig
-                        ) {
-                            const rawActivitySettings =
-                                activityDefinitionInfo.activities;
-                            if (rawActivitySettings === undefined)
-                                return undefined;
-
-                            const rawActivitySetting = rawActivitySettings[0];
-                            if (rawActivitySetting === undefined)
-                                return undefined;
-
-                            const activity = ConvertActivity(
-                                rawActivitySetting,
-                                activityDefinitionInfo.id
-                            );
-                            if (!activity) return undefined;
-
-                            const activityCompletions =
-                                activityDefinitionInfo.activityCompletions
-                                    ? ConvertActivityCompletion(
-                                          activityDefinitionInfo.activityCompletions
-                                      ) ?? undefined
-                                    : undefined;
-
-                            return {
-                                id: activityDefinitionInfo.id,
-                                data: {
-                                    type: 'single',
-                                    activitySetting: activity,
-                                },
-                                activityCompletions,
-                            };
-                        } else {
-                            const rawActivitySettings =
-                                activityDefinitionInfo.activities;
-                            if (rawActivitySettings === undefined)
-                                return undefined;
-
-                            const rawActivitySetting = rawActivitySettings[0];
-                            if (rawActivitySetting === undefined)
-                                return undefined;
-
-                            const activity = ConvertActivity(
-                                rawActivitySetting,
-                                activityDefinitionInfo.id
-                            );
-                            if (!activity) return undefined;
-
-                            const activityCompletions =
-                                activityDefinitionInfo.activityCompletions
-                                    ? ConvertActivityCompletion(
-                                          activityDefinitionInfo.activityCompletions
-                                      ) ?? undefined
-                                    : undefined;
-
-                            return {
-                                id: activityDefinitionInfo.id,
-                                data: {
-                                    type: 'repeating',
-                                    activitySetting: activity,
-                                    repeatConfig: decodeRepeatConfig(
-                                        activityDefinitionInfo.repeatConfig
-                                    ),
-                                    endConfig: decodeEndConfig(
-                                        activityDefinitionInfo.endConfig
-                                    ),
-                                    exceptions: new Map(),
-                                },
-                                activityCompletions,
-                            };
-                        }
+                    (rawActivityDefinition): ActivityDefinition | undefined => {
+                        if (!rawActivityDefinition) return undefined;
+                        return (
+                            parseRawActivityDefinition(rawActivityDefinition) ??
+                            undefined
+                        );
                     }
                 )
                 .filter((x) => x !== undefined) as ActivityDefinition[];

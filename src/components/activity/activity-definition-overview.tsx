@@ -160,7 +160,7 @@ function ActivityTag() {
             <div className="relative top-24">
                 <div className="absolute inset-0">
                     <div
-                        className="w-24 origin-top-left -rotate-90 overflow-hidden rounded-tl-lg rounded-tr-lg px-2 transition-all"
+                        className="w-24 origin-top-left -rotate-90 overflow-hidden rounded-tl-md rounded-tr-md px-2 transition-all"
                         style={{
                             minHeight: sW,
                             maxHeight: sW,
@@ -245,7 +245,8 @@ function ActivityOverview({
         <div
             className={clsx(
                 'relative flex flex-row items-center rounded-lg bg-gray-200',
-                completed && 'contrast-50'
+                completed && 'contrast-50',
+                (deadline.getTime() - Date.now() < 0) && 'border-red-800 border-2 '
             )}
         >
             <ActivityTag />

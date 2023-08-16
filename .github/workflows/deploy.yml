@@ -10,7 +10,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - uses: superfly/flyctl-actions/setup-flyctl@master
-            - run: flyctl secrets set --app autoplanner \
+            - run: flyctl secrets set --app "autoplanner" \
                 NEXTAUTH_SECRET=${{secrets.NEXTAUTH_SECRET}} \ 
                 NEXTAUTH_URL=${{secrets.NEXTAUTH_URL}} \ 
                 NODE_ENV=${{secrets.NODE_ENV}} \ 

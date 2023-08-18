@@ -3,7 +3,6 @@ on:
     push
 
 jobs:
-
     deploy:
         name: Deploy app
         runs-on: ubuntu-latest

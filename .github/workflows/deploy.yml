@@ -19,6 +19,7 @@ jobs:
                 NEXT_PUBLIC_AUTH0_ISSUER_BASE_URL=${{secrets.NEXT_PUBLIC_AUTH0_ISSUER_BASE_URL}} 
                 NEXT_PUBLIC_AUTH0_CLIENT_ID=${{secrets.NEXT_PUBLIC_AUTH0_CLIENT_ID}}
                 NEXT_PUBLIC_URL=${{secrets.NEXT_PUBLIC_URL}}
+                DATABASE_URL=${{secrets.DATABASE_URL}}
               env: 
                 FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 

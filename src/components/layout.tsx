@@ -57,13 +57,13 @@ function Content({
 
 function Definition({ category }: { category: CategoryInfo }) {
     return (
-        <Link href={`/definitions/${category.id}`}> 
-        <ListItem>
-            <ListItemPrefix>
-                <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-            </ListItemPrefix>
-            {category.categoryName}
-        </ListItem>
+        <Link href={`/definitions/${category.id}`}>
+            <ListItem>
+                <ListItemPrefix>
+                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                </ListItemPrefix>
+                {category.categoryName}
+            </ListItem>
         </Link>
     );
 }
@@ -111,10 +111,11 @@ function Definitions({
                         onClick={(e) => {
                             handleAccordion(1);
                             e.preventDefault();
-                        }}
-                        className="flex w-0 items-center justify-center border-b-0 p-0"
-                        children={undefined}
-                    />
+                        } }
+                        className="flex w-0 items-center justify-center border-b-0 p-0" 
+                    >
+                        {null}
+                    </AccordionHeader>
                 </ListItem>
             </Link>
             <AccordionBody className="py-1">
@@ -123,10 +124,7 @@ function Definitions({
                         <div>
                             {categoryList.data?.map((category, i) => {
                                 return (
-                                    <Definition
-                                        key={i}
-                                        category={category}
-                                    />
+                                    <Definition key={i} category={category} />
                                 );
                             })}
                         </div>

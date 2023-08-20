@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const StateContext = createContext(true);
 
@@ -30,10 +31,17 @@ function Content({
     route: string;
 }) {
     const open = useContext(StateContext);
+    const router = useRouter();
 
     return (
         <Link href={`/${route}`}>
-            <ListItem>
+            <ListItem
+                className={clsx(
+                    router.pathname === `/${route}`
+                        ? `bg-blue-gray-100 hover:bg-blue-gray-200 hover:bg-opacity-80 focus:bg-blue-gray-200 focus:bg-opacity-80 active:bg-blue-gray-200 active:bg-opacity-80`
+                        : 'hover:bg-blue-gray-50 hover:bg-opacity-80 focus:bg-blue-gray-50 focus:bg-opacity-80 active:bg-blue-gray-50 active:bg-opacity-80'
+                )}
+            >
                 <ListItemPrefix>{icon}</ListItemPrefix>
                 <span
                     className={clsx(

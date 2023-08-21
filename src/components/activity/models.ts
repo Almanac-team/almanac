@@ -29,6 +29,7 @@ export interface ActivityTemplate {
 export interface ActivitySetting {
     id: string;
     name: string;
+    at: Date;
     zones?: {
         include: ZoneInfo[];
         exclude: ZoneInfo[];
@@ -37,7 +38,6 @@ export interface ActivitySetting {
 }
 
 export interface TaskSetting {
-    at: Date;
     estimatedRequiredTime: number;
     deadlineMod: TimeConfig;
     reminderMod: TimeConfig;
@@ -45,7 +45,6 @@ export interface TaskSetting {
 }
 
 export interface EventSetting {
-    at: Date;
     estimatedRequiredTime: number;
     reminderMod: TimeConfig;
     startMod: TimeConfig;

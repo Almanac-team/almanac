@@ -14,11 +14,6 @@ type Story = StoryObj<typeof EventSettingConfig>;
 
 function EventSettingWrapper() {
     const [setting, setSetting] = useState<EventSetting>({
-        at: (() => {
-            const date = new Date();
-            date.setHours(23, 59, 0, 0);
-            return date;
-        })(),
         estimatedRequiredTime: 1,
         reminderMod: { value: 0, unit: 'minute' },
         startMod: { value: 0, unit: 'minute' },

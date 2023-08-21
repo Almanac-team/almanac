@@ -7,16 +7,12 @@ import {
     type RepeatConfig,
 } from '~/components/activity/activity-definition-models';
 import {
-    type ActivitySetting,
+    type ActivityTemplate,
     type EventSetting,
+    type InnerSetting,
     type TaskSetting,
 } from '~/components/activity/models';
-import {
-    ActivityType as PrismaActivityEnum,
-    Prisma,
-    type PrismaClient,
-} from '@prisma/client';
-import { type ZoneInfo } from '~/components/zone/models';
+import { ActivityType as PrismaActivityEnum, Prisma } from '@prisma/client';
 import {
     convertMinutesToTimeConfig,
     convertTimeConfigToMinutes,
@@ -137,20 +133,19 @@ export const TimeConfig = z.object({
     value: z.number(),
 });
 export const TaskSchema = z.object({
-    at: z.date(),
     estimatedRequiredTime: z.number(),
     deadlineMod: TimeConfig,
     reminderMod: TimeConfig,
     startMod: TimeConfig,
 });
 export const EventSchema = z.object({
-    at: z.date(),
     estimatedRequiredTime: z.number(),
     reminderMod: TimeConfig,
     startMod: TimeConfig,
 });
 export const ActivitySchema = z.object({
     name: z.string(),
+    at: z.date(),
     setting: z.discriminatedUnion('type', [
         z.object({
             type: z.literal('task'),
@@ -163,38 +158,38 @@ export const ActivitySchema = z.object({
     ]),
 });
 
-const activityWithDetails = Prisma.validator<Prisma.ActivityArgs>()({
-    include: {
-        task: true,
-        event: true,
-
-        activityZonePair: {
-            include: {
-                zone: true,
+const activityTemplate = Prisma.validator<Prisma.ActivityTemplateDefaultArgs>()(
+    {
+        include: {
+            activityInner: {
+                include: {
+                    task: true,
+                    event: true,
+                },
             },
         },
-    },
-});
-export type PrismaActivityType = Prisma.ActivityGetPayload<
-    typeof activityWithDetails
+    }
+);
+export type PrismaActivityTemplateType = Prisma.ActivityGetPayload<
+    typeof activityTemplate
 >;
 
-export function ConvertActivity(
-    activity: PrismaActivityType,
-    activityId: string
-): ActivitySetting | undefined {
-    let setting:
-        | { type: 'task'; value: TaskSetting }
-        | { type: 'event'; value: EventSetting };
+export function ConvertActivityTemplate(
+    rawActivityTemplate: PrismaActivityTemplateType,
+    activityTemplateId: string
+): ActivityTemplate | undefined {
+    let setting: InnerSetting;
 
-    if (activity.type === PrismaActivityEnum.task) {
-        if (!activity.task) return undefined;
-        const value = ConvertTask(activity.task);
+    const rawActivityInner = rawActivityTemplate.activityInner;
+
+    if (rawActivityInner.type === PrismaActivityEnum.task) {
+        if (!rawActivityInner.task) return undefined;
+        const value = ConvertTask(rawActivityInner.task);
         if (!value) return undefined;
         setting = { type: 'task', value };
     } else {
-        if (!activity.event) return undefined;
-        const value = ConvertEvent(activity.event);
+        if (!rawActivityInner.event) return undefined;
+        const value = ConvertEvent(rawActivityInner.event);
         if (!value) return undefined;
         setting = { type: 'event', value };
     }
@@ -203,37 +198,31 @@ export function ConvertActivity(
         return undefined;
     }
 
-    const include: ZoneInfo[] = [];
-    const exclude: ZoneInfo[] = [];
+    // const include: ZoneInfo[] = [];
+    // const exclude: ZoneInfo[] = [];
 
-    for (const pair of activity.activityZonePair) {
-        const zone = {
-            id: pair.zone.id,
-            name: pair.zone.name,
-            color: pair.zone.color,
-        };
-        if (pair.zoneType === 'include') {
-            include.push(zone);
-        } else if (pair.zoneType === 'exclude') {
-            exclude.push(zone);
-        }
-    }
+    // for (const pair of rawActivityTemplate.activityZonePair) {
+    //     const zone = {
+    //         id: pair.zone.id,
+    //         name: pair.zone.name,
+    //         color: pair.zone.color,
+    //     };
+    //     if (pair.zoneType === 'include') {
+    //         include.push(zone);
+    //     } else if (pair.zoneType === 'exclude') {
+    //         exclude.push(zone);
+    //     }
+    // }
 
     return {
-        id: activityId,
-        name: activity.name,
-        zones: {
-            include,
-            exclude,
-        },
+        name: rawActivityInner.name,
+        at: rawActivityTemplate.at,
         setting,
     };
 }
 
-const taskWithDetails = Prisma.validator<Prisma.TaskArgs>()({
+const taskWithDetails = Prisma.validator<Prisma.TaskDefaultArgs>()({
     select: {
-        activityId: true,
-        dueDate: true,
         estimatedTime: true,
         deadlineMod: true,
         reminderMod: true,
@@ -245,7 +234,6 @@ export type PrismaTaskType = Prisma.TaskGetPayload<typeof taskWithDetails>;
 export function ConvertTask(task: PrismaTaskType): TaskSetting | null {
     if (task === null || task === undefined) return null;
     return {
-        at: task.dueDate,
         estimatedRequiredTime: task.estimatedTime,
         deadlineMod: convertMinutesToTimeConfig(task.deadlineMod),
         reminderMod: convertMinutesToTimeConfig(task.reminderMod),
@@ -253,10 +241,8 @@ export function ConvertTask(task: PrismaTaskType): TaskSetting | null {
     };
 }
 
-const eventWithDetails = Prisma.validator<Prisma.EventArgs>()({
+const eventWithDetails = Prisma.validator<Prisma.EventDefaultArgs>()({
     select: {
-        activityId: true,
-        startDate: true,
         estimatedTime: true,
         reminderMod: true,
         startMod: true,
@@ -267,7 +253,6 @@ export type PrismaEventType = Prisma.EventGetPayload<typeof eventWithDetails>;
 export function ConvertEvent(event: PrismaEventType): EventSetting | null {
     if (event === null || event === undefined) return null;
     return {
-        at: event.startDate,
         estimatedRequiredTime: event.estimatedTime,
         reminderMod: convertMinutesToTimeConfig(event.reminderMod),
         startMod: convertMinutesToTimeConfig(event.startMod),
@@ -276,7 +261,6 @@ export function ConvertEvent(event: PrismaEventType): EventSetting | null {
 
 const getTaskSchema = (setting: z.infer<typeof TaskSchema>) => {
     return {
-        dueDate: setting.at,
         estimatedTime: setting.estimatedRequiredTime,
         deadlineMod: convertTimeConfigToMinutes(setting.deadlineMod),
         reminderMod: convertTimeConfigToMinutes(setting.reminderMod),
@@ -286,7 +270,6 @@ const getTaskSchema = (setting: z.infer<typeof TaskSchema>) => {
 
 const getEventSchema = (setting: z.infer<typeof EventSchema>) => {
     return {
-        startDate: setting.at,
         estimatedTime: setting.estimatedRequiredTime,
         reminderMod: convertTimeConfigToMinutes(setting.reminderMod),
         startMod: convertTimeConfigToMinutes(setting.startMod),
@@ -344,13 +327,12 @@ export function ConvertActivityCompletion(
 const activityDefinitionsWithDetail =
     Prisma.validator<Prisma.ActivityDefinitionDefaultArgs>()({
         include: {
-            activities: {
+            activityTemplates: {
                 include: {
-                    task: true,
-                    event: true,
-                    activityZonePair: {
+                    activityInner: {
                         include: {
-                            zone: true,
+                            task: true,
+                            event: true,
                         },
                     },
                 },
@@ -371,17 +353,17 @@ export type PrismaActivityDefinitionType = Prisma.ActivityDefinitionGetPayload<
 export function parseRawActivityDefinition(
     rawActivityDefinition: PrismaActivityDefinitionType
 ): ActivityDefinition | null | undefined {
-    const rawActivitySettings = rawActivityDefinition.activities;
-    if (rawActivitySettings === undefined) return undefined;
+    const rawActivityTemplates = rawActivityDefinition.activityTemplates;
+    if (rawActivityTemplates === undefined) return undefined;
 
-    const rawActivitySetting = rawActivitySettings[0];
-    if (rawActivitySetting === undefined) return undefined;
+    const rawActivityTemplate = rawActivityTemplates[0];
+    if (rawActivityTemplate === undefined) return undefined;
 
-    const activity = ConvertActivity(
-        rawActivitySetting,
+    const activityTemplate = ConvertActivityTemplate(
+        rawActivityTemplate,
         rawActivityDefinition.id
     );
-    if (!activity) return undefined;
+    if (!activityTemplate) return undefined;
 
     const activityCompletions = rawActivityDefinition.activityCompletions
         ? ConvertActivityCompletion(
@@ -397,7 +379,7 @@ export function parseRawActivityDefinition(
             id: rawActivityDefinition.id,
             data: {
                 type: 'single',
-                activitySetting: activity,
+                activityTemplate,
             },
             activityCompletions,
         };
@@ -406,7 +388,7 @@ export function parseRawActivityDefinition(
             id: rawActivityDefinition.id,
             data: {
                 type: 'repeating',
-                activitySetting: activity,
+                activityTemplate,
                 repeatConfig: parseRawRepeatConfig(
                     rawActivityDefinition.repeatConfig
                 ),
@@ -449,13 +431,12 @@ const activityDefinitionsRouter = createTRPCRouter({
                             },
                         },
                         include: {
-                            activities: {
+                            activityTemplates: {
                                 include: {
-                                    task: true,
-                                    event: true,
-                                    activityZonePair: {
+                                    activityInner: {
                                         include: {
-                                            zone: true,
+                                            task: true,
+                                            event: true,
                                         },
                                     },
                                 },
@@ -503,13 +484,12 @@ const activityDefinitionsRouter = createTRPCRouter({
                         },
                     },
                     include: {
-                        activities: {
+                        activityTemplates: {
                             include: {
-                                task: true,
-                                event: true,
-                                activityZonePair: {
+                                activityInner: {
                                     include: {
-                                        zone: true,
+                                        task: true,
+                                        event: true,
                                     },
                                 },
                             },
@@ -551,13 +531,12 @@ const activityDefinitionsRouter = createTRPCRouter({
                         },
                     },
                     include: {
-                        activities: {
+                        activityTemplates: {
                             include: {
-                                task: true,
-                                event: true,
-                                activityZonePair: {
+                                activityInner: {
                                     include: {
-                                        zone: true,
+                                        task: true,
+                                        event: true,
                                     },
                                 },
                             },
@@ -593,11 +572,11 @@ const activityDefinitionsRouter = createTRPCRouter({
                 data: z.discriminatedUnion('type', [
                     z.object({
                         type: z.literal('single'),
-                        activitySetting: ActivitySchema,
+                        activityTemplate: ActivitySchema,
                     }),
                     z.object({
                         type: z.literal('repeating'),
-                        activitySetting: ActivitySchema,
+                        activityTemplate: ActivitySchema,
                         repeatConfig: RepeatConfigZodSchema,
                         endConfig: EndConfigSchema,
                     }),
@@ -608,7 +587,7 @@ const activityDefinitionsRouter = createTRPCRouter({
             const userId = ctx.session.user.id ?? null;
 
             if (input.data.type === 'single') {
-                const activitySetting = input.data.activitySetting;
+                const activityTemplate = input.data.activityTemplate;
 
                 return ctx.prisma.activityDefinition
                     .create({
@@ -619,35 +598,44 @@ const activityDefinitionsRouter = createTRPCRouter({
                                     userId: userId,
                                 },
                             },
-                            activities: {
+                            activityTemplates: {
                                 create: {
-                                    name: activitySetting.name,
-                                    type: activitySetting.setting.type,
-                                    task:
-                                        activitySetting.setting.type === 'task'
-                                            ? {
-                                                  create: getTaskSchema(
-                                                      activitySetting.setting
-                                                          .value
-                                                  ),
-                                              }
-                                            : undefined,
-                                    event:
-                                        activitySetting.setting.type === 'event'
-                                            ? {
-                                                  create: getEventSchema(
-                                                      activitySetting.setting
-                                                          .value
-                                                  ),
-                                              }
-                                            : undefined,
+                                    index: 0,
+                                    at: activityTemplate.at,
+                                    repeatType: 'this',
+                                    activityInner: {
+                                        create: {
+                                            name: activityTemplate.name,
+                                            type: activityTemplate.setting.type,
+                                            task:
+                                                activityTemplate.setting
+                                                    .type === 'task'
+                                                    ? {
+                                                          create: getTaskSchema(
+                                                              activityTemplate
+                                                                  .setting.value
+                                                          ),
+                                                      }
+                                                    : undefined,
+                                            event:
+                                                activityTemplate.setting
+                                                    .type === 'event'
+                                                    ? {
+                                                          create: getEventSchema(
+                                                              activityTemplate
+                                                                  .setting.value
+                                                          ),
+                                                      }
+                                                    : undefined,
+                                        },
+                                    },
                                 },
                             },
                         },
                     })
                     .then((activity) => activity.id);
             } else {
-                const activitySetting = input.data.activitySetting;
+                const activityTemplate = input.data.activityTemplate;
 
                 return ctx.prisma.activityDefinition
                     .create({
@@ -658,28 +646,37 @@ const activityDefinitionsRouter = createTRPCRouter({
                                     userId: userId,
                                 },
                             },
-                            activities: {
+                            activityTemplates: {
                                 create: {
-                                    name: activitySetting.name,
-                                    type: activitySetting.setting.type,
-                                    task:
-                                        activitySetting.setting.type === 'task'
-                                            ? {
-                                                  create: getTaskSchema(
-                                                      activitySetting.setting
-                                                          .value
-                                                  ),
-                                              }
-                                            : undefined,
-                                    event:
-                                        activitySetting.setting.type === 'event'
-                                            ? {
-                                                  create: getEventSchema(
-                                                      activitySetting.setting
-                                                          .value
-                                                  ),
-                                              }
-                                            : undefined,
+                                    index: 0,
+                                    at: activityTemplate.at,
+                                    repeatType: 'this',
+                                    activityInner: {
+                                        create: {
+                                            name: activityTemplate.name,
+                                            type: activityTemplate.setting.type,
+                                            task:
+                                                activityTemplate.setting
+                                                    .type === 'task'
+                                                    ? {
+                                                          create: getTaskSchema(
+                                                              activityTemplate
+                                                                  .setting.value
+                                                          ),
+                                                      }
+                                                    : undefined,
+                                            event:
+                                                activityTemplate.setting
+                                                    .type === 'event'
+                                                    ? {
+                                                          create: getEventSchema(
+                                                              activityTemplate
+                                                                  .setting.value
+                                                          ),
+                                                      }
+                                                    : undefined,
+                                        },
+                                    },
                                 },
                             },
                             repeatConfig: {
@@ -717,11 +714,11 @@ const activityDefinitionsRouter = createTRPCRouter({
                 data: z.discriminatedUnion('type', [
                     z.object({
                         type: z.literal('single'),
-                        activitySetting: ActivitySchema,
+                        activityTemplate: ActivitySchema,
                     }),
                     z.object({
                         type: z.literal('repeating'),
-                        activitySetting: ActivitySchema,
+                        activityTemplate: ActivitySchema,
                         repeatConfig: RepeatConfigZodSchema,
                         endConfig: EndConfigSchema,
                     }),
@@ -732,7 +729,7 @@ const activityDefinitionsRouter = createTRPCRouter({
             const userId = ctx.session.user.id ?? null;
 
             if (input.data.type === 'single') {
-                const activitySetting = input.data.activitySetting;
+                const activityTemplate = input.data.activityTemplate;
 
                 const [, , createResult] = await ctx.prisma.$transaction([
                     ctx.prisma.repeatConfig.deleteMany({
@@ -763,29 +760,37 @@ const activityDefinitionsRouter = createTRPCRouter({
                             },
                         },
                         data: {
-                            activities: {
-                                deleteMany: {},
+                            activityTemplates: {
                                 create: {
-                                    name: activitySetting.name,
-                                    type: activitySetting.setting.type,
-                                    task:
-                                        activitySetting.setting.type === 'task'
-                                            ? {
-                                                  create: getTaskSchema(
-                                                      activitySetting.setting
-                                                          .value
-                                                  ),
-                                              }
-                                            : undefined,
-                                    event:
-                                        activitySetting.setting.type === 'event'
-                                            ? {
-                                                  create: getEventSchema(
-                                                      activitySetting.setting
-                                                          .value
-                                                  ),
-                                              }
-                                            : undefined,
+                                    index: 0,
+                                    at: activityTemplate.at,
+                                    repeatType: 'this',
+                                    activityInner: {
+                                        create: {
+                                            name: activityTemplate.name,
+                                            type: activityTemplate.setting.type,
+                                            task:
+                                                activityTemplate.setting
+                                                    .type === 'task'
+                                                    ? {
+                                                          create: getTaskSchema(
+                                                              activityTemplate
+                                                                  .setting.value
+                                                          ),
+                                                      }
+                                                    : undefined,
+                                            event:
+                                                activityTemplate.setting
+                                                    .type === 'event'
+                                                    ? {
+                                                          create: getEventSchema(
+                                                              activityTemplate
+                                                                  .setting.value
+                                                          ),
+                                                      }
+                                                    : undefined,
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -793,7 +798,7 @@ const activityDefinitionsRouter = createTRPCRouter({
                 ]);
                 return createResult.id;
             } else {
-                const activitySetting = input.data.activitySetting;
+                const activityTemplate = input.data.activityTemplate;
 
                 return ctx.prisma.activityDefinition
                     .update({
@@ -804,29 +809,37 @@ const activityDefinitionsRouter = createTRPCRouter({
                             },
                         },
                         data: {
-                            activities: {
-                                deleteMany: {},
+                            activityTemplates: {
                                 create: {
-                                    name: activitySetting.name,
-                                    type: activitySetting.setting.type,
-                                    task:
-                                        activitySetting.setting.type === 'task'
-                                            ? {
-                                                  create: getTaskSchema(
-                                                      activitySetting.setting
-                                                          .value
-                                                  ),
-                                              }
-                                            : undefined,
-                                    event:
-                                        activitySetting.setting.type === 'event'
-                                            ? {
-                                                  create: getEventSchema(
-                                                      activitySetting.setting
-                                                          .value
-                                                  ),
-                                              }
-                                            : undefined,
+                                    index: 0,
+                                    at: activityTemplate.at,
+                                    repeatType: 'this',
+                                    activityInner: {
+                                        create: {
+                                            name: activityTemplate.name,
+                                            type: activityTemplate.setting.type,
+                                            task:
+                                                activityTemplate.setting
+                                                    .type === 'task'
+                                                    ? {
+                                                          create: getTaskSchema(
+                                                              activityTemplate
+                                                                  .setting.value
+                                                          ),
+                                                      }
+                                                    : undefined,
+                                            event:
+                                                activityTemplate.setting
+                                                    .type === 'event'
+                                                    ? {
+                                                          create: getEventSchema(
+                                                              activityTemplate
+                                                                  .setting.value
+                                                          ),
+                                                      }
+                                                    : undefined,
+                                        },
+                                    },
                                 },
                             },
                             repeatConfig: {

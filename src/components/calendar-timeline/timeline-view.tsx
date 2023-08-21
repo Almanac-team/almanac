@@ -52,7 +52,7 @@ function DeadlineView({
                     {deadline.activities.map((activity, i) => (
                         <div key={i}>
                             Deadline: {activity.name} at{' '}
-                            {activity.setting.value.at.toString()}
+                            {activity.at.toString()}
                         </div>
                     ))}
                 </MenuBody>
@@ -76,12 +76,9 @@ function DeadlineViews({
                 (activitySetting) => activitySetting.setting.type === 'task'
             )
             .filter((activitySetting) =>
-                withinDay(activitySetting.setting.value.at, startDay)
+                withinDay(activitySetting.at, startDay)
             )
-            .sort(
-                (a, b) =>
-                    a.setting.value.at.getTime() - b.setting.value.at.getTime()
-            );
+            .sort((a, b) => a.at.getTime() - b.at.getTime());
 
         let last = null;
         for (let i = 0; i < filteredSortedActivitySettings.length; i++) {
@@ -89,13 +86,12 @@ function DeadlineViews({
                 filteredSortedActivitySettings[i] as ActivitySetting;
             if (
                 last !== null &&
-                activitySetting.setting.value.at.getTime() - last.time <
-                    1000 * 60 * 10
+                activitySetting.at.getTime() - last.time < 1000 * 60 * 10
             ) {
                 last.activities.push(activitySetting);
             } else {
                 last = {
-                    time: activitySetting.setting.value.at.getTime(),
+                    time: activitySetting.at.getTime(),
                     activities: [activitySetting],
                 };
                 deadlines.push(last);

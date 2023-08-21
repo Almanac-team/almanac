@@ -1,4 +1,4 @@
-import { type ActivitySetting } from '~/components/activity/models';
+import { type ActivityTemplate } from '~/components/activity/models';
 import { convertTimeConfigToMillis } from '~/components/time_picker/models';
 
 export type RepeatSetting =
@@ -47,17 +47,17 @@ interface RepeatingActivityException {
     id: string;
     data:
         | { type: 'skip' }
-        | { type: 'override'; activitySetting: ActivitySetting };
+        | { type: 'override'; activityTemplate: ActivityTemplate };
 }
 
 export interface SingleActivity {
     type: 'single';
-    activitySetting: ActivitySetting;
+    activityTemplate: ActivityTemplate;
 }
 
 export interface RepeatingActivity {
     type: 'repeating';
-    activitySetting: ActivitySetting;
+    activityTemplate: ActivityTemplate;
     repeatConfig: RepeatConfig;
     endConfig: EndConfig;
     exceptions: Map<number, RepeatingActivityException>;
@@ -82,7 +82,7 @@ export function getIndexFromStartDate(
 
     const index = Math.ceil(
         (startDate.getTime() -
-            repeatingActivity.activitySetting.setting.value.at.getTime()) /
+            repeatingActivity.activityTemplate.at.getTime()) /
             repeatConfigToMillis(repeatingActivity.repeatConfig)
     );
 
@@ -108,15 +108,15 @@ export function getActivityDefinitionRange(
     // let startDate: Date;
     // let endDate: Date | null;
     //
-    // const activitySetting = activityDefinition.data.activitySetting;
+    // const activityTemplate = activityDefinition.data.activityTemplate;
     //
     // let startDateTime =
-    //     activitySetting.setting.value.at.getTime() -
-    //     convertTimeConfigToMillis(activitySetting.setting.value.reminderMod);
+    //     activityTemplate.setting.value.at.getTime() -
+    //     convertTimeConfigToMillis(activityTemplate.setting.value.reminderMod);
     //
-    // if (activitySetting.setting.type === 'task') {
+    // if (activityTemplate.setting.type === 'task') {
     //     startDateTime -= convertTimeConfigToMillis(
-    //         activitySetting.setting.value.deadlineMod
+    //         activityTemplate.setting.value.deadlineMod
     //     );
     // }
     // startDate = new Date(startDateTime);
@@ -124,7 +124,7 @@ export function getActivityDefinitionRange(
     // if (activityDefinition.data.type === 'single') {
     // } else {
     //     if (activityDefinition.data.endConfig.type === 'count') {
-    //         if (activitySetting.setting.type === 'task') {
+    //         if (activityTemplate.setting.type === 'task') {
     //         }
     //     } else if (activityDefinition.data.endConfig.type === 'until') {
     //         endDate = activityDefinition.data.endConfig.until;

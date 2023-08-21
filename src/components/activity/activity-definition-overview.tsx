@@ -230,16 +230,15 @@ function ActivityOverview({
     const [isOpen, setIsOpen] = useState(false);
     const [updating, isUpdating] = useState(false);
 
-    let deadline: Date;
-    let icon;
     const activity = activitySetting;
-    if (activity.setting.type === 'task') {
-        deadline = activity.setting.value.at;
-        icon = <FlagIcon className="h-8 w-6" />;
-    } else {
-        deadline = activity.setting.value.at;
-        icon = <ClockIcon className="h-8 w-6" />;
-    }
+    const deadline = activity.at;
+
+    const icon =
+        activity.setting.type === 'task' ? (
+            <FlagIcon className="h-8 w-6" />
+        ) : (
+            <ClockIcon className="h-8 w-6" />
+        );
 
     return (
         <div
@@ -377,7 +376,7 @@ export function ActivityDefinitionOverview({
                     data: {
                         ...activityDefinition.data,
                         type: 'single',
-                        activitySetting: activitySetting,
+                        activityTemplate: activitySetting,
                     },
                 };
             } else {
@@ -388,7 +387,7 @@ export function ActivityDefinitionOverview({
                         type: 'repeating',
                         repeatConfig: repeatSetting.repeatSetting.repeatConfig,
                         endConfig: repeatSetting.repeatSetting.endConfig,
-                        activitySetting,
+                        activityTemplate: activitySetting,
                         exceptions: new Map(),
                     },
                 };

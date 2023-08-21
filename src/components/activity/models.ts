@@ -16,6 +16,16 @@ export type EventActivitySetting = Omit<ActivitySetting, 'setting'> & {
     setting: { type: 'event'; value: EventSetting };
 };
 
+export type InnerSetting =
+    | { type: 'task'; value: TaskSetting }
+    | { type: 'event'; value: EventSetting };
+
+export interface ActivityTemplate {
+    name: string;
+    at: Date;
+    setting: InnerSetting;
+}
+
 export interface ActivitySetting {
     id: string;
     name: string;
@@ -23,9 +33,7 @@ export interface ActivitySetting {
         include: ZoneInfo[];
         exclude: ZoneInfo[];
     };
-    setting:
-        | { type: 'task'; value: TaskSetting }
-        | { type: 'event'; value: EventSetting };
+    setting: InnerSetting;
 }
 
 export interface TaskSetting {

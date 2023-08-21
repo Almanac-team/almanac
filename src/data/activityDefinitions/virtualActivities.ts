@@ -22,7 +22,7 @@ function checkGenerationViolation(
             }
             break;
         case 'until':
-            if (virtualActivity.setting.value.at >= end.until) {
+            if (virtualActivity.at >= end.until) {
                 return true;
             }
             break;
@@ -58,7 +58,7 @@ export function getActivitiesFromDefinition(
     if (activityDefinition.data.type === 'single') {
         return [
             {
-                ...activityDefinition.data.activitySetting,
+                ...activityDefinition.data.activityTemplate,
                 completed: checkIfComplete(0, activityCompletion),
             },
         ];
@@ -85,24 +85,23 @@ export function getActivitiesFromDefinition(
         const setting:
             | { type: 'task'; value: TaskSetting }
             | { type: 'event'; value: EventSetting } =
-            repeatingActivity.activitySetting.setting.type === 'task'
+            repeatingActivity.activityTemplate.setting.type === 'task'
                 ? {
                       type: 'task',
                       value: {
-                          ...repeatingActivity.activitySetting.setting.value,
+                          ...repeatingActivity.activityTemplate.setting.value,
                       },
                   }
                 : {
                       type: 'event',
                       value: {
-                          ...repeatingActivity.activitySetting.setting.value,
+                          ...repeatingActivity.activityTemplate.setting.value,
                       },
                   };
 
         const activitySetting: ActivitySettingWithCompletion = {
-            ...repeatingActivity.activitySetting,
+            ...repeatingActivity.activityTemplate,
             setting,
-            id: `${activityDefinition.id}-${activitySettings.length}`,
             completed: checkIfComplete(i, activityCompletion),
         };
 
@@ -123,15 +122,14 @@ export function getActivitiesFromDefinition(
                 break;
         }
 
-        activitySetting.setting.value.at = new Date(
-            repeatingActivity.activitySetting.setting.value.at.getTime() +
+        activitySetting.at = new Date(
+            repeatingActivity.activityTemplate.at.getTime() +
                 i * repeatingActivity.repeatConfig.every * multiplier
         );
 
         if (
             (end.type === 'total' && activitySettings.length >= end.count) ||
-            (end.type === 'until' &&
-                activitySetting.setting.value.at >= end.until) ||
+            (end.type === 'until' && activitySetting.at >= end.until) ||
             checkGenerationViolation(
                 activitySetting,
                 activitySettings.length + 1,

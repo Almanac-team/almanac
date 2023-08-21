@@ -14,11 +14,6 @@ type Story = StoryObj<typeof TaskSettingConfig>;
 
 function TaskSettingWrapper() {
     const [setting, setSetting] = useState<TaskSetting>({
-        at: (() => {
-            const date = new Date();
-            date.setHours(23, 59, 0, 0);
-            return date;
-        })(),
         estimatedRequiredTime: 1,
         deadlineMod: { value: 0, unit: 'minute' },
         reminderMod: { value: 0, unit: 'minute' },

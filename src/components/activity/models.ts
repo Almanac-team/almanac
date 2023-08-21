@@ -27,13 +27,13 @@ export interface ActivityTemplate {
 }
 
 export interface ActivitySetting {
-    id: string;
+    // id: string;
     name: string;
     at: Date;
-    zones?: {
-        include: ZoneInfo[];
-        exclude: ZoneInfo[];
-    };
+    // zones?: {
+    //     include: ZoneInfo[];
+    //     exclude: ZoneInfo[];
+    // };
     setting: InnerSetting;
 }
 

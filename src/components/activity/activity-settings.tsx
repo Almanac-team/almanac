@@ -306,7 +306,7 @@ export function ActivityUpdateModal({
                 disabled={updating}
             />
             <RepeatConfigInput
-                start={displayActivitySetting.setting.value.at}
+                start={displayActivitySetting.at}
                 onChange={(repeatSetting: RepeatSetting) => {
                     setConfigRepeatSetting(repeatSetting);
                 }}
@@ -342,29 +342,29 @@ export function TaskSettingConfig(props: {
         <div className="flex select-none flex-col space-y-2">
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Due Date</span>
-                <LocalDateInput
-                    value={props.setting.at}
-                    onChange={(newDate: Date) =>
-                        props.onChange &&
-                        props.onChange({
-                            ...props.setting,
-                            at: newDate,
-                        })
-                    }
-                    disabled={props.disabled}
-                />
+                {/*<LocalDateInput*/}
+                {/*    value={props.setting.at}*/}
+                {/*    onChange={(newDate: Date) =>*/}
+                {/*        props.onChange &&*/}
+                {/*        props.onChange({*/}
+                {/*            ...props.setting,*/}
+                {/*            at: newDate,*/}
+                {/*        })*/}
+                {/*    }*/}
+                {/*    disabled={props.disabled}*/}
+                {/*/>*/}
 
-                <LocalTimeInput
-                    value={props.setting.at}
-                    onChange={(newDate: Date) =>
-                        props.onChange &&
-                        props.onChange({
-                            ...props.setting,
-                            at: newDate,
-                        })
-                    }
-                    disabled={props.disabled}
-                />
+                {/*<LocalTimeInput*/}
+                {/*    value={props.setting.at}*/}
+                {/*    onChange={(newDate: Date) =>*/}
+                {/*        props.onChange &&*/}
+                {/*        props.onChange({*/}
+                {/*            ...props.setting,*/}
+                {/*            at: newDate,*/}
+                {/*        })*/}
+                {/*    }*/}
+                {/*    disabled={props.disabled}*/}
+                {/*/>*/}
             </div>
 
             <div className="flex items-center space-x-2 whitespace-nowrap">
@@ -458,38 +458,33 @@ export function EventSettingConfig(props: {
     onChange?: (eventSetting: EventSetting) => void;
     disabled?: boolean;
 }) {
-    const localTime = new Date(props.setting.at);
-    localTime.setHours(
-        localTime.getHours() - new Date().getTimezoneOffset() / 60
-    );
-
     return (
         <div className="flex select-none flex-col space-y-2">
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>At</span>
-                <LocalDateInput
-                    value={props.setting.at}
-                    onChange={(newDate: Date) =>
-                        props.onChange &&
-                        props.onChange({
-                            ...props.setting,
-                            at: newDate,
-                        })
-                    }
-                    disabled={props.disabled}
-                />
+                {/*<LocalDateInput*/}
+                {/*    value={props.setting.at}*/}
+                {/*    onChange={(newDate: Date) =>*/}
+                {/*        props.onChange &&*/}
+                {/*        props.onChange({*/}
+                {/*            ...props.setting,*/}
+                {/*            at: newDate,*/}
+                {/*        })*/}
+                {/*    }*/}
+                {/*    disabled={props.disabled}*/}
+                {/*/>*/}
 
-                <LocalTimeInput
-                    value={props.setting.at}
-                    onChange={(newDate: Date) =>
-                        props.onChange &&
-                        props.onChange({
-                            ...props.setting,
-                            at: newDate,
-                        })
-                    }
-                    disabled={props.disabled}
-                />
+                {/*<LocalTimeInput*/}
+                {/*    value={props.setting.at}*/}
+                {/*    onChange={(newDate: Date) =>*/}
+                {/*        props.onChange &&*/}
+                {/*        props.onChange({*/}
+                {/*            ...props.setting,*/}
+                {/*            at: newDate,*/}
+                {/*        })*/}
+                {/*    }*/}
+                {/*    disabled={props.disabled}*/}
+                {/*/>*/}
             </div>
 
             <div className="flex items-center space-x-2 whitespace-nowrap">

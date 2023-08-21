@@ -30,19 +30,18 @@ function ActivityCreateModal({
     const [activitySetting, setActivitySetting] = useState<
         Omit<ActivitySetting, 'setting'>
     >({
-        id: '-1',
         name: '',
+        at: (() => {
+            const date = new Date();
+            date.setHours(47, 59, 0, 0);
+            return date;
+        })(),
     });
 
     const [unionSetting, setUnionSetting] = useState<
         TaskSetting & EventSetting & { activityType: 'task' | 'event' }
     >({
         activityType: 'task',
-        at: (() => {
-            const date = new Date();
-            date.setHours(47, 59, 0, 0);
-            return date;
-        })(),
         estimatedRequiredTime: 60,
         deadlineMod: { value: 1, unit: 'day' },
         reminderMod: { value: 30, unit: 'minute' },
@@ -245,7 +244,7 @@ export function ActivityColumn({
                                 categoryId: categoryInfo.id,
                                 data: {
                                     type: 'single',
-                                    activitySetting,
+                                    activityTemplate: activitySetting,
                                 },
                             })
                                 .then((activityDefinitionId: string) => {
@@ -256,7 +255,8 @@ export function ActivityColumn({
                                             id: activityDefinitionId,
                                             data: {
                                                 type: 'single',
-                                                activitySetting,
+                                                activityTemplate:
+                                                    activitySetting,
                                             },
                                         },
                                     });

@@ -15,6 +15,7 @@ import {
     type EventSetting,
     type TaskSetting,
     type ActivitySetting,
+    type ActivityTemplate,
 } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
 import { useQueryActivityDefinitionsByCategory } from '~/data/activityDefinitions/query';
@@ -24,11 +25,11 @@ function ActivityCreateModal({
     onSubmit,
     updating,
 }: {
-    onSubmit?: (activitySetting: ActivitySetting) => void;
+    onSubmit?: (activitySetting: ActivityTemplate) => void;
     updating?: boolean;
 }) {
-    const [activitySetting, setActivitySetting] = useState<
-        Omit<ActivitySetting, 'setting'>
+    const [activityTemplate, setActivityTemplate] = useState<
+        Omit<ActivityTemplate, 'setting'>
     >({
         name: '',
         at: (() => {
@@ -59,7 +60,7 @@ function ActivityCreateModal({
         >
             <input
                 type="text"
-                value={activitySetting.name}
+                value={activityTemplate.name}
                 className={clsx(
                     'mr-2 border-b-2 p-2 text-xl text-gray-700 transition-colors focus:outline-none',
                     !error
@@ -69,8 +70,8 @@ function ActivityCreateModal({
                 placeholder="Activity Name"
                 onChange={(e) => {
                     setError(false);
-                    setActivitySetting({
-                        ...activitySetting,
+                    setActivityTemplate({
+                        ...activityTemplate,
                         name: e.target.value,
                     });
                 }}
@@ -115,11 +116,11 @@ function ActivityCreateModal({
             )}
             <Button
                 onClick={() => {
-                    if (activitySetting.name.trim() === '') {
+                    if (activityTemplate.name.trim() === '') {
                         setError(true);
                     } else if (onSubmit) {
                         onSubmit({
-                            ...activitySetting,
+                            ...activityTemplate,
                             setting:
                                 unionSetting.activityType === 'task'
                                     ? {
@@ -237,14 +238,14 @@ export function ActivityColumn({
                 </MenuHandler>
                 <MenuBody>
                     <ActivityCreateModal
-                        onSubmit={(activitySetting: ActivitySetting) => {
+                        onSubmit={(activityTemplate: ActivityTemplate) => {
                             setUpdating(true);
 
                             createActivityDefinition({
                                 categoryId: categoryInfo.id,
                                 data: {
                                     type: 'single',
-                                    activityTemplate: activitySetting,
+                                    activityTemplate: activityTemplate,
                                 },
                             })
                                 .then((activityDefinitionId: string) => {
@@ -256,7 +257,7 @@ export function ActivityColumn({
                                             data: {
                                                 type: 'single',
                                                 activityTemplate:
-                                                    activitySetting,
+                                                    activityTemplate,
                                             },
                                         },
                                     });

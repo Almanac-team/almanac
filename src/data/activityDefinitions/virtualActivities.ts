@@ -58,6 +58,7 @@ export function getActivitiesFromDefinition(
     if (activityDefinition.data.type === 'single') {
         return [
             {
+                index: 0,
                 ...activityDefinition.data.activityTemplate,
                 completed: checkIfComplete(0, activityCompletion),
             },
@@ -100,6 +101,7 @@ export function getActivitiesFromDefinition(
                   };
 
         const activitySetting: ActivitySettingWithCompletion = {
+            index: i,
             ...repeatingActivity.activityTemplate,
             setting,
             completed: checkIfComplete(i, activityCompletion),

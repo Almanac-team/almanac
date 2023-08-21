@@ -101,7 +101,7 @@ function Definitions({
                     <ListItemPrefix>{icon}</ListItemPrefix>
                     <span
                         className={clsx(
-                            'w-auto max-w-fit overflow-hidden pr-16 transition-all ease-in-out',
+                            'w-auto max-w-fit overflow-hidden transition-all ease-in-out',
                             !open && 'max-w-0'
                         )}
                     >
@@ -111,17 +111,17 @@ function Definitions({
                         onClick={(e) => {
                             handleAccordion(1);
                             e.preventDefault();
-                        } }
-                        className="flex w-0 items-center justify-center border-b-0 p-0" 
+                        }}
+                        className={clsx('flex w-0 items-center justify-center border-b-0 p-0 pl-16', !open && 'hidden')}
                     >
                         {null}
                     </AccordionHeader>
                 </ListItem>
             </Link>
             <AccordionBody className="py-1">
-                <List className="p-0">
+                <List className="max-h-44 overflow-scroll p-0">
                     {categoryList.isLoading ? null : (
-                        <div>
+                        <div className={clsx(!open && 'max-h-0')}>
                             {categoryList.data?.map((category, i) => {
                                 return (
                                     <Definition key={i} category={category} />

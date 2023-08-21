@@ -222,25 +222,25 @@ model ActivityInner {
 
 // Task - something to be finished by a set time
 model Task {
-  activityTemplateId String        @id
-  estimatedTime      Int
-  deadlineMod        Int
-  reminderMod        Int
-  startMod           Int
-  activityTemplate   ActivityInner @relation(fields: [activityTemplateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  activityInnerId String        @id
+  estimatedTime   Int
+  deadlineMod     Int
+  reminderMod     Int
+  startMod        Int
+  activityInner   ActivityInner @relation(fields: [activityInnerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@index([activityTemplateId])
+  @@index([activityInnerId])
 }
 
 // Event - something to do at a set time
 model Event {
-  activityTemplateId String        @id
-  estimatedTime      Int
-  reminderMod        Int
-  startMod           Int
-  activityTemplate   ActivityInner @relation(fields: [activityTemplateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  activityInnerId String        @id
+  estimatedTime   Int
+  reminderMod     Int
+  startMod        Int
+  activityInner   ActivityInner @relation(fields: [activityInnerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@index([activityTemplateId])
+  @@index([activityInnerId])
 }
 
 model ScheduleableEvent {

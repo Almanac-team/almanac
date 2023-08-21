@@ -89,43 +89,44 @@ const zonesRouter = createTRPCRouter({
             })
         )
         .query(async ({ ctx, input }): Promise<ZoneInfo[] | undefined> => {
-            const userId = ctx.session.user.id ?? null;
-            const activity = await ctx.prisma.activity.findUnique({
-                where: {
-                    id: input.activityId,
-                    activityDefinition: {
-                        category: {
-                            userId: userId,
-                        },
-                    },
-                },
-                include: {
-                    activityZonePair: {
-                        include: {
-                            zone: {
-                                include: {
-                                    regions: true,
-                                },
-                            },
-                        },
-                    },
-                },
-            });
-
-            return activity?.activityZonePair.map((pair) => {
-                return {
-                    id: pair.zone.id,
-                    name: pair.zone.name,
-                    color: pair.zone.color,
-                    regions: pair.zone.regions.map((region): Region => {
-                        return {
-                            id: region.id,
-                            from: region.from,
-                            to: region.to,
-                        };
-                    }),
-                };
-            });
+            // const userId = ctx.session.user.id ?? null;
+            // const activity = await ctx.prisma.activity.findUnique({
+            //     where: {
+            //         id: input.activityId,
+            //         activityDefinition: {
+            //             category: {
+            //                 userId: userId,
+            //             },
+            //         },
+            //     },
+            //     include: {
+            //         activityZonePair: {
+            //             include: {
+            //                 zone: {
+            //                     include: {
+            //                         regions: true,
+            //                     },
+            //                 },
+            //             },
+            //         },
+            //     },
+            // });
+            //
+            // return activity?.activityZonePair.map((pair) => {
+            //     return {
+            //         id: pair.zone.id,
+            //         name: pair.zone.name,
+            //         color: pair.zone.color,
+            //         regions: pair.zone.regions.map((region): Region => {
+            //             return {
+            //                 id: region.id,
+            //                 from: region.from,
+            //                 to: region.to,
+            //             };
+            //         }),
+            //     };
+            // });
+            return undefined;
         }),
 });
 

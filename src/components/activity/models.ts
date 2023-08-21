@@ -27,7 +27,7 @@ export interface ActivityTemplate {
 }
 
 export interface ActivitySetting {
-    // id: string;
+    index: number;
     name: string;
     at: Date;
     // zones?: {

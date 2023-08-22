@@ -259,13 +259,8 @@ function ActivityOverview({
                 </div>
                 <div className="flex space-x-2">
                     <Pill className="bg-gray-400">{icon}</Pill>
-                    <Pill className="bg-gray-400">
-                        {deadline.getHours().toString()}:
-                        {deadline.getMinutes().toString().padStart(2, '0')}
-                    </Pill>
-                    <Pill className="bg-gray-400">
-                        {deadline.toDateString()}
-                    </Pill>
+                    <Pill className = "bg-gray-400">Due {deadline.toLocaleDateString()}</Pill>
+                    <Pill className = "bg-gray-400">Needs {activity.setting.value.estimatedRequiredTime} minutes</Pill>
                 </div>
             </div>
 

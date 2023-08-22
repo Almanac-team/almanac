@@ -23,7 +23,7 @@ import {
 import clsx from 'clsx';
 import Link from 'next/link';
 import { api } from '~/utils/api';
-import { CategoryInfo } from './activity/models';
+import { type CategoryInfo } from './activity/models';
 import { useRouter } from 'next/router';
 
 const StateContext = createContext(true);
@@ -94,7 +94,7 @@ function Definitions({
 
     return (
         <Accordion
-            open={accordion === 1}
+            open={accordion === 1 && open}
             icon={
                 <ChevronDownIcon
                     strokeWidth={2.5}
@@ -120,7 +120,10 @@ function Definitions({
                             handleAccordion(1);
                             e.preventDefault();
                         }}
-                        className={clsx('flex w-0 items-center justify-center border-b-0 p-0 pl-16', !open && 'hidden')}
+                        className={clsx(
+                            'flex w-0 items-center justify-center border-b-0 p-0 pl-16',
+                            !open && 'hidden'
+                        )}
                     >
                         {null}
                     </AccordionHeader>
@@ -129,13 +132,13 @@ function Definitions({
             <AccordionBody className="py-1">
                 <List className="max-h-44 overflow-scroll p-0">
                     {categoryList.isLoading ? null : (
-                        <div className={clsx(!open && 'max-h-0')}>
+                        <>
                             {categoryList.data?.map((category, i) => {
                                 return (
                                     <Definition key={i} category={category} />
                                 );
                             })}
-                        </div>
+                        </>
                     )}
                 </List>
             </AccordionBody>

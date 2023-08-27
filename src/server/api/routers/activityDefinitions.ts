@@ -8,8 +8,9 @@ import {
 } from '~/components/activity/activity-definition-models';
 import {
     type ActivityTemplate,
+    type EventEnum,
     type EventSetting,
-    type InnerSetting,
+    type TaskEnum,
     type TaskSetting,
 } from '~/components/activity/models';
 import { ActivityType as PrismaActivityEnum, Prisma } from '@prisma/client';
@@ -178,7 +179,7 @@ export function ConvertActivityTemplate(
     rawActivityTemplate: PrismaActivityTemplateType,
     activityTemplateId: string
 ): ActivityTemplate | undefined {
-    let setting: InnerSetting;
+    let setting: TaskEnum | EventEnum;
 
     const rawActivityInner = rawActivityTemplate.activityInner;
 
@@ -761,34 +762,46 @@ const activityDefinitionsRouter = createTRPCRouter({
                         },
                         data: {
                             activityTemplates: {
-                                create: {
-                                    index: 0,
-                                    at: activityTemplate.at,
-                                    repeatType: 'this',
-                                    activityInner: {
-                                        create: {
-                                            name: activityTemplate.name,
-                                            type: activityTemplate.setting.type,
-                                            task:
-                                                activityTemplate.setting
-                                                    .type === 'task'
-                                                    ? {
-                                                          create: getTaskSchema(
-                                                              activityTemplate
-                                                                  .setting.value
-                                                          ),
-                                                      }
-                                                    : undefined,
-                                            event:
-                                                activityTemplate.setting
-                                                    .type === 'event'
-                                                    ? {
-                                                          create: getEventSchema(
-                                                              activityTemplate
-                                                                  .setting.value
-                                                          ),
-                                                      }
-                                                    : undefined,
+                                update: {
+                                    where: {
+                                        activityDefinitionId_index: {
+                                            activityDefinitionId: input.id,
+                                            index: 0,
+                                        },
+                                    },
+                                    data: {
+                                        at: activityTemplate.at,
+                                        repeatType: 'this',
+                                        activityInner: {
+                                            update: {
+                                                data: {
+                                                    name: activityTemplate.name,
+                                                    type: activityTemplate
+                                                        .setting.type,
+                                                    task:
+                                                        activityTemplate.setting
+                                                            .type === 'task'
+                                                            ? {
+                                                                  create: getTaskSchema(
+                                                                      activityTemplate
+                                                                          .setting
+                                                                          .value
+                                                                  ),
+                                                              }
+                                                            : undefined,
+                                                    event:
+                                                        activityTemplate.setting
+                                                            .type === 'event'
+                                                            ? {
+                                                                  create: getEventSchema(
+                                                                      activityTemplate
+                                                                          .setting
+                                                                          .value
+                                                                  ),
+                                                              }
+                                                            : undefined,
+                                                },
+                                            },
                                         },
                                     },
                                 },
@@ -810,34 +823,45 @@ const activityDefinitionsRouter = createTRPCRouter({
                         },
                         data: {
                             activityTemplates: {
-                                create: {
-                                    index: 0,
-                                    at: activityTemplate.at,
-                                    repeatType: 'this',
-                                    activityInner: {
-                                        create: {
-                                            name: activityTemplate.name,
-                                            type: activityTemplate.setting.type,
-                                            task:
-                                                activityTemplate.setting
-                                                    .type === 'task'
-                                                    ? {
-                                                          create: getTaskSchema(
-                                                              activityTemplate
-                                                                  .setting.value
-                                                          ),
-                                                      }
-                                                    : undefined,
-                                            event:
-                                                activityTemplate.setting
-                                                    .type === 'event'
-                                                    ? {
-                                                          create: getEventSchema(
-                                                              activityTemplate
-                                                                  .setting.value
-                                                          ),
-                                                      }
-                                                    : undefined,
+                                update: {
+                                    where: {
+                                        activityDefinitionId_index: {
+                                            activityDefinitionId: input.id,
+                                            index: 0,
+                                        },
+                                    },
+                                    data: {
+                                        repeatType: 'this',
+                                        activityInner: {
+                                            update: {
+                                                data: {
+                                                    name: activityTemplate.name,
+                                                    type: activityTemplate
+                                                        .setting.type,
+                                                    task:
+                                                        activityTemplate.setting
+                                                            .type === 'task'
+                                                            ? {
+                                                                  create: getTaskSchema(
+                                                                      activityTemplate
+                                                                          .setting
+                                                                          .value
+                                                                  ),
+                                                              }
+                                                            : undefined,
+                                                    event:
+                                                        activityTemplate.setting
+                                                            .type === 'event'
+                                                            ? {
+                                                                  create: getEventSchema(
+                                                                      activityTemplate
+                                                                          .setting
+                                                                          .value
+                                                                  ),
+                                                              }
+                                                            : undefined,
+                                                },
+                                            },
                                         },
                                     },
                                 },

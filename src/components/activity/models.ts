@@ -8,34 +8,50 @@ export interface CategoryInfo {
     textColor?: string;
 }
 
-export type TaskActivitySetting = Omit<ActivitySetting, 'setting'> & {
-    setting: { type: 'task'; value: TaskSetting };
-};
-
-export type EventActivitySetting = Omit<ActivitySetting, 'setting'> & {
-    setting: { type: 'event'; value: EventSetting };
-};
-
-export type InnerSetting =
-    | { type: 'task'; value: TaskSetting }
-    | { type: 'event'; value: EventSetting };
-
-export interface ActivityTemplate {
-    name: string;
-    at: Date;
-    setting: InnerSetting;
-}
-
-export interface ActivitySetting {
+export interface BaseActivity {
     index: number;
     name: string;
     at: Date;
-    // zones?: {
-    //     include: ZoneInfo[];
-    //     exclude: ZoneInfo[];
-    // };
-    setting: InnerSetting;
 }
+
+export interface TaskEnum {
+    type: 'task';
+    value: TaskSetting;
+}
+
+export interface EventEnum {
+    type: 'event';
+    value: EventSetting;
+}
+
+export type TaskActivitySetting = BaseActivity & {
+    setting: TaskEnum;
+};
+
+export type EventActivitySetting = BaseActivity & {
+    setting: EventEnum;
+};
+
+export type ActivitySetting = BaseActivity & {
+    setting: TaskEnum | EventEnum;
+};
+
+export interface BaseActivityTemplate {
+    name: string;
+    at: Date;
+}
+
+export type TaskActivityTemplate = BaseActivityTemplate & {
+    setting: TaskEnum;
+};
+
+export type EventActivityTemplate = BaseActivityTemplate & {
+    setting: EventEnum;
+};
+
+export type ActivityTemplate = BaseActivityTemplate & {
+    setting: TaskEnum | EventEnum;
+};
 
 export interface TaskSetting {
     estimatedRequiredTime: number;

@@ -9,7 +9,9 @@ import React, { useMemo, useState } from 'react';
 import { Button } from '@material-tailwind/react';
 import {
     type ActivitySetting,
+    type EventActivitySetting,
     type EventSetting,
+    type TaskActivitySetting,
     type TaskSetting,
 } from '~/components/activity/models';
 import { type RepeatSetting } from '~/components/activity/activity-definition-models';
@@ -26,11 +28,15 @@ export function isEventSetting(
     return setting !== undefined && !isTaskSetting(setting);
 }
 
-export function isTask(activity: ActivitySetting): boolean {
+export function isTask(
+    activity: ActivitySetting
+): activity is TaskActivitySetting {
     return activity.setting.type === 'task';
 }
 
-export function isEvent(activity: ActivitySetting): boolean {
+export function isEvent(
+    activity: ActivitySetting
+): activity is EventActivitySetting {
     return activity.setting.type === 'event';
 }
 
@@ -251,28 +257,22 @@ export function ActivityUpdateModal({
 
     let innerConfig;
 
-    if (isTaskSetting(displayActivitySetting.setting.value)) {
+    if (isTask(displayActivitySetting)) {
         innerConfig = (
             <TaskSettingConfig
-                setting={displayActivitySetting.setting.value}
-                onChange={(setting: TaskSetting) => {
-                    setConfigActivitySetting({
-                        ...displayActivitySetting,
-                        setting: { type: 'task', value: setting },
-                    });
+                taskActivitySetting={displayActivitySetting}
+                onChange={(setting: TaskActivitySetting) => {
+                    setConfigActivitySetting(setting);
                 }}
                 disabled={updating}
             />
         );
-    } else {
+    } else if (isEvent(displayActivitySetting)) {
         innerConfig = (
             <EventSettingConfig
-                setting={displayActivitySetting.setting.value}
-                onChange={(setting: EventSetting) => {
-                    setConfigActivitySetting({
-                        ...displayActivitySetting,
-                        setting: { type: 'event', value: setting },
-                    });
+                eventActivitySetting={displayActivitySetting}
+                onChange={(setting: EventActivitySetting) => {
+                    setConfigActivitySetting(setting);
                 }}
                 disabled={updating}
             />
@@ -334,48 +334,59 @@ export function ActivityUpdateModal({
 }
 
 export function TaskSettingConfig(props: {
-    setting: TaskSetting;
-    onChange?: (taskSetting: TaskSetting) => void;
+    taskActivitySetting: TaskActivitySetting;
+    onChange?: (taskActivitySetting: TaskActivitySetting) => void;
     disabled?: boolean;
 }) {
+    const setting = props.taskActivitySetting.setting.value;
+
     return (
         <div className="flex select-none flex-col space-y-2">
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Due Date</span>
-                {/*<LocalDateInput*/}
-                {/*    value={props.setting.at}*/}
-                {/*    onChange={(newDate: Date) =>*/}
-                {/*        props.onChange &&*/}
-                {/*        props.onChange({*/}
-                {/*            ...props.setting,*/}
-                {/*            at: newDate,*/}
-                {/*        })*/}
-                {/*    }*/}
-                {/*    disabled={props.disabled}*/}
-                {/*/>*/}
+                <LocalDateInput
+                    value={props.taskActivitySetting.at}
+                    onChange={(newDate: Date) =>
+                        props.onChange &&
+                        props.onChange({
+                            ...props.taskActivitySetting,
+                            at: newDate,
+                        })
+                    }
+                    disabled={props.disabled}
+                />
 
-                {/*<LocalTimeInput*/}
-                {/*    value={props.setting.at}*/}
-                {/*    onChange={(newDate: Date) =>*/}
-                {/*        props.onChange &&*/}
-                {/*        props.onChange({*/}
-                {/*            ...props.setting,*/}
-                {/*            at: newDate,*/}
-                {/*        })*/}
-                {/*    }*/}
-                {/*    disabled={props.disabled}*/}
-                {/*/>*/}
+                <LocalTimeInput
+                    value={props.taskActivitySetting.at}
+                    onChange={(newDate: Date) =>
+                        props.onChange &&
+                        props.onChange({
+                            ...props.taskActivitySetting,
+                            at: newDate,
+                        })
+                    }
+                    disabled={props.disabled}
+                />
             </div>
 
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Estimated Time Required</span>
                 <HourMinuteInput
-                    minutes={props.setting.estimatedRequiredTime}
+                    minutes={setting.estimatedRequiredTime}
                     onChange={(value) => {
                         props.onChange &&
                             props.onChange({
-                                ...props.setting,
-                                estimatedRequiredTime: Math.max(value, 0),
+                                ...props.taskActivitySetting,
+                                setting: {
+                                    type: 'task',
+                                    value: {
+                                        ...setting,
+                                        estimatedRequiredTime: Math.max(
+                                            value,
+                                            0
+                                        ),
+                                    },
+                                },
                             });
                     }}
                     disabled={props.disabled}
@@ -385,19 +396,26 @@ export function TaskSettingConfig(props: {
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Try and finish</span>
                 <TimeConfigInput
-                    timeConfig={props.setting.deadlineMod}
+                    timeConfig={setting.deadlineMod}
                     onChange={(value, unit) => {
                         props.onChange &&
                             props.onChange({
-                                ...props.setting,
-                                deadlineMod: {
-                                    value: Math.max(
-                                        value ??
-                                            props.setting.deadlineMod.value,
-                                        0
-                                    ),
-                                    unit:
-                                        unit ?? props.setting.deadlineMod.unit,
+                                ...props.taskActivitySetting,
+                                setting: {
+                                    type: 'task',
+                                    value: {
+                                        ...setting,
+                                        deadlineMod: {
+                                            value: Math.max(
+                                                value ??
+                                                    setting.deadlineMod.value,
+                                                0
+                                            ),
+                                            unit:
+                                                unit ??
+                                                setting.deadlineMod.unit,
+                                        },
+                                    },
                                 },
                             });
                     }}
@@ -408,19 +426,26 @@ export function TaskSettingConfig(props: {
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Remind me</span>
                 <TimeConfigInput
-                    timeConfig={props.setting.reminderMod}
+                    timeConfig={setting.reminderMod}
                     onChange={(value, unit) => {
                         props.onChange &&
                             props.onChange({
-                                ...props.setting,
-                                reminderMod: {
-                                    value: Math.max(
-                                        value ??
-                                            props.setting.reminderMod.value,
-                                        0
-                                    ),
-                                    unit:
-                                        unit ?? props.setting.reminderMod.unit,
+                                ...props.taskActivitySetting,
+                                setting: {
+                                    type: 'task',
+                                    value: {
+                                        ...setting,
+                                        reminderMod: {
+                                            value: Math.max(
+                                                value ??
+                                                    setting.reminderMod.value,
+                                                0
+                                            ),
+                                            unit:
+                                                unit ??
+                                                setting.reminderMod.unit,
+                                        },
+                                    },
                                 },
                             });
                     }}
@@ -431,17 +456,23 @@ export function TaskSettingConfig(props: {
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Ignore until</span>
                 <TimeConfigInput
-                    timeConfig={props.setting.startMod}
+                    timeConfig={setting.startMod}
                     onChange={(value, unit) => {
                         props.onChange &&
                             props.onChange({
-                                ...props.setting,
-                                startMod: {
-                                    value: Math.max(
-                                        value ?? props.setting.startMod.value,
-                                        0
-                                    ),
-                                    unit: unit ?? props.setting.startMod.unit,
+                                ...props.taskActivitySetting,
+                                setting: {
+                                    type: 'task',
+                                    value: {
+                                        ...setting,
+                                        startMod: {
+                                            value: Math.max(
+                                                value ?? setting.startMod.value,
+                                                0
+                                            ),
+                                            unit: unit ?? setting.startMod.unit,
+                                        },
+                                    },
                                 },
                             });
                     }}
@@ -454,48 +485,59 @@ export function TaskSettingConfig(props: {
 }
 
 export function EventSettingConfig(props: {
-    setting: EventSetting;
-    onChange?: (eventSetting: EventSetting) => void;
+    eventActivitySetting: EventActivitySetting;
+    onChange?: (eventActivitySetting: EventActivitySetting) => void;
     disabled?: boolean;
 }) {
+    const setting = props.eventActivitySetting.setting.value;
+
     return (
         <div className="flex select-none flex-col space-y-2">
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>At</span>
-                {/*<LocalDateInput*/}
-                {/*    value={props.setting.at}*/}
-                {/*    onChange={(newDate: Date) =>*/}
-                {/*        props.onChange &&*/}
-                {/*        props.onChange({*/}
-                {/*            ...props.setting,*/}
-                {/*            at: newDate,*/}
-                {/*        })*/}
-                {/*    }*/}
-                {/*    disabled={props.disabled}*/}
-                {/*/>*/}
+                <LocalDateInput
+                    value={props.eventActivitySetting.at}
+                    onChange={(newDate: Date) =>
+                        props.onChange &&
+                        props.onChange({
+                            ...props.eventActivitySetting,
+                            at: newDate,
+                        })
+                    }
+                    disabled={props.disabled}
+                />
 
-                {/*<LocalTimeInput*/}
-                {/*    value={props.setting.at}*/}
-                {/*    onChange={(newDate: Date) =>*/}
-                {/*        props.onChange &&*/}
-                {/*        props.onChange({*/}
-                {/*            ...props.setting,*/}
-                {/*            at: newDate,*/}
-                {/*        })*/}
-                {/*    }*/}
-                {/*    disabled={props.disabled}*/}
-                {/*/>*/}
+                <LocalTimeInput
+                    value={props.eventActivitySetting.at}
+                    onChange={(newDate: Date) =>
+                        props.onChange &&
+                        props.onChange({
+                            ...props.eventActivitySetting,
+                            at: newDate,
+                        })
+                    }
+                    disabled={props.disabled}
+                />
             </div>
 
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Estimated Time Required</span>
                 <HourMinuteInput
-                    minutes={props.setting.estimatedRequiredTime}
+                    minutes={setting.estimatedRequiredTime}
                     onChange={(value) => {
                         props.onChange &&
                             props.onChange({
-                                ...props.setting,
-                                estimatedRequiredTime: Math.max(value, 0),
+                                ...props.eventActivitySetting,
+                                setting: {
+                                    type: 'event',
+                                    value: {
+                                        ...setting,
+                                        estimatedRequiredTime: Math.max(
+                                            value,
+                                            0
+                                        ),
+                                    },
+                                },
                             });
                     }}
                     disabled={props.disabled}
@@ -505,19 +547,26 @@ export function EventSettingConfig(props: {
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Remind me</span>
                 <TimeConfigInput
-                    timeConfig={props.setting.reminderMod}
+                    timeConfig={setting.reminderMod}
                     onChange={(value, unit) => {
                         props.onChange &&
                             props.onChange({
-                                ...props.setting,
-                                reminderMod: {
-                                    value: Math.max(
-                                        value ??
-                                            props.setting.reminderMod.value,
-                                        0
-                                    ),
-                                    unit:
-                                        unit ?? props.setting.reminderMod.unit,
+                                ...props.eventActivitySetting,
+                                setting: {
+                                    type: 'event',
+                                    value: {
+                                        ...setting,
+                                        reminderMod: {
+                                            value: Math.max(
+                                                value ??
+                                                    setting.reminderMod.value,
+                                                0
+                                            ),
+                                            unit:
+                                                unit ??
+                                                setting.reminderMod.unit,
+                                        },
+                                    },
                                 },
                             });
                     }}
@@ -528,17 +577,23 @@ export function EventSettingConfig(props: {
             <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>Ignore until</span>
                 <TimeConfigInput
-                    timeConfig={props.setting.startMod}
+                    timeConfig={setting.startMod}
                     onChange={(value, unit) => {
                         props.onChange &&
                             props.onChange({
-                                ...props.setting,
-                                startMod: {
-                                    value: Math.max(
-                                        value ?? props.setting.startMod.value,
-                                        0
-                                    ),
-                                    unit: unit ?? props.setting.startMod.unit,
+                                ...props.eventActivitySetting,
+                                setting: {
+                                    type: 'event',
+                                    value: {
+                                        ...setting,
+                                        startMod: {
+                                            value: Math.max(
+                                                value ?? setting.startMod.value,
+                                                0
+                                            ),
+                                            unit: unit ?? setting.startMod.unit,
+                                        },
+                                    },
                                 },
                             });
                     }}

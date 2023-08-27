@@ -16,6 +16,8 @@ import {
     type TaskSetting,
     type ActivitySetting,
     type ActivityTemplate,
+    type EventActivitySetting,
+    type TaskActivitySetting,
 } from '~/components/activity/models';
 import { useQueryClient } from '@tanstack/react-query';
 import { useQueryActivityDefinitionsByCategory } from '~/data/activityDefinitions/query';
@@ -25,12 +27,13 @@ function ActivityCreateModal({
     onSubmit,
     updating,
 }: {
-    onSubmit?: (activitySetting: ActivityTemplate) => void;
+    onSubmit?: (activitySetting: ActivitySetting) => void;
     updating?: boolean;
 }) {
-    const [activityTemplate, setActivityTemplate] = useState<
-        Omit<ActivityTemplate, 'setting'>
+    const [activitySetting, setActivitySetting] = useState<
+        Omit<ActivitySetting, 'setting'>
     >({
+        index: 0,
         name: '',
         at: (() => {
             const date = new Date();
@@ -40,7 +43,10 @@ function ActivityCreateModal({
     });
 
     const [unionSetting, setUnionSetting] = useState<
-        TaskSetting & EventSetting & { activityType: 'task' | 'event' }
+        TaskSetting &
+            EventSetting & {
+                activityType: 'task' | 'event';
+            }
     >({
         activityType: 'task',
         estimatedRequiredTime: 60,
@@ -60,7 +66,7 @@ function ActivityCreateModal({
         >
             <input
                 type="text"
-                value={activityTemplate.name}
+                value={activitySetting.name}
                 className={clsx(
                     'mr-2 border-b-2 p-2 text-xl text-gray-700 transition-colors focus:outline-none',
                     !error
@@ -70,8 +76,8 @@ function ActivityCreateModal({
                 placeholder="Activity Name"
                 onChange={(e) => {
                     setError(false);
-                    setActivityTemplate({
-                        ...activityTemplate,
+                    setActivitySetting({
+                        ...activitySetting,
                         name: e.target.value,
                     });
                 }}
@@ -95,32 +101,54 @@ function ActivityCreateModal({
 
             {unionSetting.activityType === 'task' ? (
                 <TaskSettingConfig
-                    setting={unionSetting}
-                    onChange={(newSetting: TaskSetting) =>
+                    taskActivitySetting={{
+                        ...activitySetting,
+                        setting: { type: 'task', value: unionSetting },
+                    }}
+                    onChange={(newSetting: TaskActivitySetting) => {
+                        setActivitySetting((setting) => {
+                            return {
+                                ...setting,
+                                index: newSetting.index,
+                                name: newSetting.name,
+                                at: newSetting.at,
+                            };
+                        });
                         setUnionSetting((setting) => {
-                            return { ...setting, ...newSetting };
-                        })
-                    }
+                            return { ...setting, ...newSetting.setting.value };
+                        });
+                    }}
                     disabled={updating}
                 />
             ) : (
                 <EventSettingConfig
-                    setting={unionSetting}
-                    onChange={(newSetting: EventSetting) =>
+                    eventActivitySetting={{
+                        ...activitySetting,
+                        setting: { type: 'event', value: unionSetting },
+                    }}
+                    onChange={(newSetting: EventActivitySetting) => {
+                        setActivitySetting((setting) => {
+                            return {
+                                ...setting,
+                                index: newSetting.index,
+                                name: newSetting.name,
+                                at: newSetting.at,
+                            };
+                        });
                         setUnionSetting((setting) => {
-                            return { ...setting, ...newSetting };
-                        })
-                    }
+                            return { ...setting, ...newSetting.setting.value };
+                        });
+                    }}
                     disabled={updating}
                 />
             )}
             <Button
                 onClick={() => {
-                    if (activityTemplate.name.trim() === '') {
+                    if (activitySetting.name.trim() === '') {
                         setError(true);
                     } else if (onSubmit) {
                         onSubmit({
-                            ...activityTemplate,
+                            ...activitySetting,
                             setting:
                                 unionSetting.activityType === 'task'
                                     ? {

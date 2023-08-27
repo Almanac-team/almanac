@@ -1,7 +1,7 @@
 import {
     type ActivitySetting,
-    type EventSetting,
-    type TaskSetting,
+    type EventEnum,
+    type TaskEnum,
 } from '~/components/activity/models';
 import {
     type ActivityCompletions,
@@ -83,9 +83,7 @@ export function getActivitiesFromDefinition(
     })();
 
     for (let i = startShift; true; i++) {
-        const setting:
-            | { type: 'task'; value: TaskSetting }
-            | { type: 'event'; value: EventSetting } =
+        const setting: TaskEnum | EventEnum =
             repeatingActivity.activityTemplate.setting.type === 'task'
                 ? {
                       type: 'task',

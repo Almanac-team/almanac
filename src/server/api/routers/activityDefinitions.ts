@@ -782,22 +782,26 @@ const activityDefinitionsRouter = createTRPCRouter({
                                                         activityTemplate.setting
                                                             .type === 'task'
                                                             ? {
-                                                                  create: getTaskSchema(
-                                                                      activityTemplate
-                                                                          .setting
-                                                                          .value
-                                                                  ),
+                                                                  update: {
+                                                                      data: getTaskSchema(
+                                                                          activityTemplate
+                                                                              .setting
+                                                                              .value
+                                                                      ),
+                                                                  },
                                                               }
                                                             : undefined,
                                                     event:
                                                         activityTemplate.setting
                                                             .type === 'event'
                                                             ? {
-                                                                  create: getEventSchema(
-                                                                      activityTemplate
-                                                                          .setting
-                                                                          .value
-                                                                  ),
+                                                                  update: {
+                                                                      data: getEventSchema(
+                                                                          activityTemplate
+                                                                              .setting
+                                                                              .value
+                                                                      ),
+                                                                  },
                                                               }
                                                             : undefined,
                                                 },
@@ -842,22 +846,26 @@ const activityDefinitionsRouter = createTRPCRouter({
                                                         activityTemplate.setting
                                                             .type === 'task'
                                                             ? {
-                                                                  create: getTaskSchema(
-                                                                      activityTemplate
-                                                                          .setting
-                                                                          .value
-                                                                  ),
+                                                                  update: {
+                                                                      data: getTaskSchema(
+                                                                          activityTemplate
+                                                                              .setting
+                                                                              .value
+                                                                      ),
+                                                                  },
                                                               }
                                                             : undefined,
                                                     event:
                                                         activityTemplate.setting
                                                             .type === 'event'
                                                             ? {
-                                                                  create: getEventSchema(
-                                                                      activityTemplate
-                                                                          .setting
-                                                                          .value
-                                                                  ),
+                                                                  update: {
+                                                                      data: getEventSchema(
+                                                                          activityTemplate
+                                                                              .setting
+                                                                              .value
+                                                                      ),
+                                                                  },
                                                               }
                                                             : undefined,
                                                 },

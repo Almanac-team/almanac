@@ -10,8 +10,8 @@ function getNextWeekStart(weekStart: Date): Date {
 }
 
 export interface ScheduledEvent {
-    id: string;
-    activityId: string;
+    activityDefinitionId: string;
+    index: number;
     start: Date;
     end: Date;
 }
@@ -25,7 +25,7 @@ export type AbsTaskActivitySetting = Omit<AbsActivitySetting, 'setting'> & {
 };
 
 export interface AbsActivitySetting {
-    id: string;
+    index: number;
     zones?: {
         include: ZoneInfo[];
         exclude: ZoneInfo[];
@@ -91,8 +91,8 @@ function createSleepEvents(startDate: Date): ScheduledEvent[] {
         }
 
         const sleep: ScheduledEvent = {
-            id: 'sleep',
-            activityId: 'sleep',
+            activityDefinitionId: 'sleep',
+            index: 0,
             start: start,
             end: end,
         };
@@ -124,8 +124,8 @@ function createScheduledEventFromEvent(
     const event = eventActivity.setting.value;
 
     const activity: ScheduledEvent = {
-        id: '',
-        activityId: eventActivity.id,
+        activityDefinitionId: '',
+        index: eventActivity.index,
         start: event.at,
         end: new Date(event.at),
     };
@@ -214,16 +214,16 @@ export function convertActivitiesToAbsActivities(
             absSetting = {
                 type: 'task',
                 value: {
-                    at: new Date(setting.value.at),
+                    at: new Date(activity.at),
                     estimatedRequiredTime: setting.value.estimatedRequiredTime,
                     earliestStart: new Date(
-                        setting.value.at.getTime() -
+                        activity.at.getTime() -
                             convertTimeConfigToMinutes(setting.value.startMod) *
                                 60 *
                                 1000
                     ),
                     softDeadline: new Date(
-                        setting.value.at.getTime() -
+                        activity.at.getTime() -
                             convertTimeConfigToMinutes(
                                 setting.value.deadlineMod
                             ) *
@@ -236,10 +236,10 @@ export function convertActivitiesToAbsActivities(
             absSetting = {
                 type: 'event',
                 value: {
-                    at: new Date(setting.value.at),
+                    at: new Date(activity.at),
                     estimatedRequiredTime: setting.value.estimatedRequiredTime,
                     earliestStart: new Date(
-                        setting.value.at.getTime() -
+                        activity.at.getTime() -
                             convertTimeConfigToMinutes(setting.value.startMod) *
                                 60 *
                                 1000
@@ -249,7 +249,7 @@ export function convertActivitiesToAbsActivities(
         }
 
         absActivities.push({
-            id: activity.id,
+            index: activity.index,
             setting: absSetting,
         });
     }
@@ -313,8 +313,8 @@ export function generateEvents(
                 const end: Date = new Date(currActivity.end.getTime());
                 end.setMinutes(end.getMinutes() + task.estimatedRequiredTime);
                 const activity: ScheduledEvent = {
-                    id: '',
-                    activityId: activityTuple[1].id,
+                    activityDefinitionId: '',
+                    index: activityTuple[1].index,
                     start: start,
                     end: end,
                 };
@@ -328,7 +328,9 @@ export function generateEvents(
             console.log('task conflict');
         }
     }
-    return scheduledEvents.filter((activity) => activity.id !== 'sleep');
+    return scheduledEvents.filter(
+        (activity) => activity.activityDefinitionId !== 'sleep'
+    );
 }
 
 function idToColor(input: string): string {
@@ -349,14 +351,14 @@ export function scheduledBlocksFromScheduledEvents(
 ): ScheduledBlock[] {
     const scheduledBlocks: ScheduledBlock[] = [];
     for (const scheduledEvent of scheduledEvents) {
-        const a = activitiesMap.get(scheduledEvent.activityId)?.name;
+        const a = activitiesMap.get(scheduledEvent.activityDefinitionId)?.name;
         scheduledBlocks.push({
-            id: scheduledEvent.id,
-            color: idToColor(scheduledEvent.activityId),
+            id: scheduledEvent.activityDefinitionId,
+            color: idToColor(scheduledEvent.activityDefinitionId),
             name:
                 a !== undefined
                     ? a
-                    : scheduledEvent.id === 'sleep'
+                    : scheduledEvent.activityDefinitionId === 'sleep'
                     ? 'Sleep'
                     : 'Unknown',
             date: scheduledEvent.start,

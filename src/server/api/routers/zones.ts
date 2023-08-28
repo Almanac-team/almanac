@@ -88,7 +88,7 @@ const zonesRouter = createTRPCRouter({
                 activityId: z.string(),
             })
         )
-        .query(async ({ ctx, input }): Promise<ZoneInfo[] | undefined> => {
+        .query(({ ctx, input }): ZoneInfo[] | undefined => {
             // const userId = ctx.session.user.id ?? null;
             // const activity = await ctx.prisma.activity.findUnique({
             //     where: {

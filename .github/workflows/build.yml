@@ -21,21 +21,17 @@ jobs:
       - name: NPM build
         run: npm run build
         env:
-          DATABASE_URL: ${{secrets.DATABASE_URL}}
-          NEXTAUTH_SECRET: ${{secrets.NEXTAUTH_SECRET}}
-          NEXTAUTH_URL: ${{secrets.NEXTAUTH_URL}}
-          AUTH0_CLIENT_ID: ${{secrets.AUTH0_CLIENT_ID}}
-          AUTH0_CLIENT_SECRET: ${{secrets.AUTH0_CLIENT_SECRET}}
+          DATABASE_URL: "foo"
+          NEXTAUTH_SECRET: "foo"
+          NEXTAUTH_URL: "foo"
+          AUTH0_CLIENT_ID: "foo"
+          AUTH0_CLIENT_SECRET: "foo"
 
       - name: NPM test
         run: npm run test
         env:
-          DATABASE_URL: ${{secrets.DATABASE_URL}}
-          NEXTAUTH_SECRET: ${{secrets.NEXTAUTH_SECRET}}
-          NEXTAUTH_URL: ${{secrets.NEXTAUTH_URL}}
-          AUTH0_CLIENT_ID: ${{secrets.AUTH0_CLIENT_ID}}
-          AUTH0_CLIENT_SECRET: ${{secrets.AUTH0_CLIENT_SECRET}}
-          
-
-
-            
+          DATABASE_URL: "foo"
+          NEXTAUTH_SECRET: "foo"
+          NEXTAUTH_URL: "foo"
+          AUTH0_CLIENT_ID: "foo"
+          AUTH0_CLIENT_SECRET: "foo"

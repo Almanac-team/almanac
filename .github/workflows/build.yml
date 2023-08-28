@@ -21,17 +21,17 @@ jobs:
       - name: NPM build
         run: npm run build
         env:
-          DATABASE_URL: "foo"
+          DATABASE_URL: "https://www.example.com"
           NEXTAUTH_SECRET: "foo"
-          NEXTAUTH_URL: "foo"
+          NEXTAUTH_URL: "https://www.example.com"
           AUTH0_CLIENT_ID: "foo"
           AUTH0_CLIENT_SECRET: "foo"
 
       - name: NPM test
         run: npm run test
         env:
-          DATABASE_URL: "foo"
+          DATABASE_URL: "https://www.example.com"
           NEXTAUTH_SECRET: "foo"
-          NEXTAUTH_URL: "foo"
+          NEXTAUTH_URL: "https://www.example.com"
           AUTH0_CLIENT_ID: "foo"
           AUTH0_CLIENT_SECRET: "foo"

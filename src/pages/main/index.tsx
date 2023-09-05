@@ -31,7 +31,7 @@ export default function Main() {
             </div>
             <button
                 className="rounded-m border-2 border-black px-2 py-1 font-semibold"
-                onClick={() => router.push('/')}
+                onClick={() => void router.push('/')}
             >
                 Dashboard
             </button>

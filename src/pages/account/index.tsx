@@ -20,7 +20,7 @@ export default function Home() {
                         href="/logout"
                         className="rounded-sm border-2 border-black px-2 py-1 font-semibold"
                     >
-                        Sign out
+                        Sign out asdasdasdas
                     </Link>
                 </div>
             </main>

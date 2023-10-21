@@ -31,7 +31,7 @@ function LoggedOut() {
                     <button
                         className="rounded-m border-2 border-black px-2 py-1 font-semibold"
                         onClick={() =>
-                            void signIn('auth0', { callbackUrl: '/main' })
+                            void signIn('auth0', { callbackUrl: '/' })
                         }
                     >
                         Sign in
